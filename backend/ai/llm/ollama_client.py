@@ -5,7 +5,6 @@ including the separate ``thinking`` field and ``done_reason``.
 """
 from __future__ import annotations
 
-import os
 from typing import Any
 
 import httpx
@@ -21,8 +20,8 @@ class OllamaError(RuntimeError):
 
 class OllamaClient:
     def __init__(self, base_url: str | None = None, timeout_s: float | None = None):
-        self.base_url = (base_url or os.getenv("OLLAMA_BASE_URL", DEFAULT_BASE_URL)).rstrip("/")
-        timeout = timeout_s or float(os.getenv("OLLAMA_TIMEOUT_S", DEFAULT_TIMEOUT_S))
+        self.base_url = (base_url or DEFAULT_BASE_URL).rstrip("/")
+        timeout = timeout_s or DEFAULT_TIMEOUT_S
         self._http = httpx.Client(base_url=self.base_url, timeout=httpx.Timeout(timeout, connect=5.0))
 
     def chat(

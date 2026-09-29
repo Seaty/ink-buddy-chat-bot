@@ -1,10 +1,17 @@
-"""Application settings (env vars / .env). Shared across the backend."""
+"""Application settings. Shared across the backend.
+
+Values come from environment variables, then backend/.env (see .env.example
+for every key). Defaults below are fallbacks only. This is the single source
+of configuration: the ai/ layer takes its values from here via services/.
+Settings are cached — restart the app after editing .env.
+"""
 from __future__ import annotations
 
 from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BACKEND_DIR = Path(__file__).resolve().parents[1]
@@ -39,6 +46,17 @@ class Settings(BaseSettings):
     image_message_max_chars: int = 1000
     # Enables POST /api/vision/index. Keep off until core/security.py provides admin auth.
     vision_admin_enabled: bool = False
+
+    @field_validator("catalog_dir")
+    @classmethod
+    def _relative_to_backend(cls, v: Path) -> Path:
+        # "datasets/catalog" in .env must not depend on the working directory
+        return v if v.is_absolute() else BACKEND_DIR / v
+
+    @field_validator("image_embed_device", mode="before")
+    @classmethod
+    def _empty_device_is_auto(cls, v):
+        return v or None
 
 
 @lru_cache(maxsize=1)

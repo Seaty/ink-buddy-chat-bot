@@ -52,7 +52,9 @@ class _EmbeddingOutput(ModelOutput):
 class _Qwen3VLForEmbedding(Qwen3VLPreTrainedModel):
     """Wraps Qwen3VLModel so checkpoint keys (``model.*``) load unchanged."""
 
-    config: Qwen3VLConfig
+    # Explicit: transformers reads the config class from the `config` annotation,
+    # which `from __future__ import annotations` turns into a string.
+    config_class = Qwen3VLConfig
 
     def __init__(self, config):
         super().__init__(config)
@@ -95,6 +97,22 @@ def prepare_image(src: ImageInput, max_side: int = IMAGE_MAX_SIDE) -> Image.Imag
     return img
 
 
+def _resolve_device(device: str | None) -> torch.device:
+    """None/"" → cuda if available else cpu. Accepts "gpu" as an alias for "cuda"."""
+    name = (device or "").strip().lower()
+    if not name:
+        return torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    if name == "gpu" or name.startswith("gpu:"):
+        name = "cuda" + name[3:]
+    try:
+        resolved = torch.device(name)
+    except RuntimeError as e:
+        raise ValueError(f"invalid IMAGE_EMBED_DEVICE {device!r}; use cpu, cuda, cuda:0 (or gpu)") from e
+    if resolved.type == "cuda" and not torch.cuda.is_available():
+        raise ValueError(f"IMAGE_EMBED_DEVICE={device!r} but CUDA is not available to torch")
+    return resolved
+
+
 def _with_period(instruction: str) -> str:
     instruction = instruction.strip()
     if instruction and not unicodedata.category(instruction[-1]).startswith("P"):
@@ -123,7 +141,7 @@ class Qwen3VLEmbedding:
         self.dim = dim
         self.max_pixels = max_pixels
         self.batch_size = batch_size
-        self.device = torch.device(device or ("cuda" if torch.cuda.is_available() else "cpu"))
+        self.device = _resolve_device(device)
         dtype = torch.float16 if self.device.type == "cuda" else torch.float32
 
         self.model = _Qwen3VLForEmbedding.from_pretrained(model_name_or_path, dtype=dtype).to(self.device)

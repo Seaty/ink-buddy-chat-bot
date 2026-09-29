@@ -12,7 +12,6 @@ catalog is embedded.
 from __future__ import annotations
 
 import io
-import os
 import time
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
@@ -42,11 +41,13 @@ CHEAPER_WORDS = ("ถูกกว่า", "ประหยัดกว่า", "
 
 @dataclass(frozen=True)
 class PipelineSettings:
-    catalog_dir: Path = Path(os.getenv("CATALOG_DIR", BACKEND_DIR / "datasets" / "catalog"))
-    top_k: int = int(os.getenv("IMAGE_TOP_K", 5))
-    tau_exact: float = float(os.getenv("IMAGE_TAU_EXACT", 0.80))
-    tau_similar: float = float(os.getenv("IMAGE_TAU_SIMILAR", 0.55))
-    max_image_bytes: int = int(os.getenv("IMAGE_MAX_BYTES", 5 * 1024 * 1024))
+    """Built from core/config.py by services/vision_service.py."""
+
+    catalog_dir: Path = BACKEND_DIR / "datasets" / "catalog"
+    top_k: int = 5
+    tau_exact: float = 0.80
+    tau_similar: float = 0.55
+    max_image_bytes: int = 5 * 1024 * 1024
     compare_items: int = 2
 
 
@@ -224,7 +225,12 @@ if __name__ == "__main__":
         sys.stdout.reconfigure(encoding="utf-8")
     if len(sys.argv) < 2:
         sys.exit("usage: python -m ai.vision.vision_pipeline <image> [message]")
-    result = VisionPipeline().run(Path(sys.argv[1]).read_bytes(), sys.argv[2] if len(sys.argv) > 2 else None)
+    # same wiring as the API, so backend/.env applies here too
+    from core.config import get_settings
+    from services.vision_service import VisionService
+
+    pipeline = VisionService(get_settings()).pipeline
+    result = pipeline.run(Path(sys.argv[1]).read_bytes(), sys.argv[2] if len(sys.argv) > 2 else None)
     out = result.to_dict()
     out["products"] = [{k: p[k] for k in ("sku", "name", "price_thb", "score")} for p in out["products"]]
     print(json.dumps(out, ensure_ascii=False, indent=1))

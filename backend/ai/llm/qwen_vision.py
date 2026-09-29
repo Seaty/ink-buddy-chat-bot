@@ -3,14 +3,13 @@
 Note: ``qwen3-vl:latest`` is a thinking model and ignores ``think=false`` — it
 writes a long reasoning trace (``thinking``) before the answer. ``num_predict``
 must leave room for that, or the JSON gets cut off. An instruct tag avoids
-both the trace and the latency; set VISION_MODEL to switch.
+both the trace and the latency; set VISION_MODEL in .env to switch.
 """
 from __future__ import annotations
 
 import base64
 import io
 import json
-import os
 import re
 from typing import Sequence
 
@@ -72,7 +71,7 @@ class QwenVision:
         keep_alive: str = "30m",
     ):
         self.client = client or OllamaClient()
-        self.model = model or os.getenv("VISION_MODEL", DEFAULT_MODEL)
+        self.model = model or DEFAULT_MODEL
         self.num_predict = num_predict
         self.keep_alive = keep_alive
 
