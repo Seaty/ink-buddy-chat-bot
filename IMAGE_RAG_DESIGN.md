@@ -154,6 +154,27 @@ vision_pipeline.py
 - **Crop ก่อน embed** — รูปแคตตาล็อกเป็นพื้นขาวทั้งหมด การ crop ช่วยลด background noise ของรูปลูกค้า
 - **ไม่ต้องสร้าง vector index** — 50 SKU × ~2–3 chunks ใช้ exact scan ได้ในไม่กี่ ms (อีกเหตุผลหนึ่ง: HNSW/IVFFlat ของ pgvector บน `vector` รองรับได้ไม่เกิน 2,000 dim ซึ่งน้อยกว่า 2,048 — ถ้าอนาคตต้องมี index ให้ใช้ `halfvec(2048)` หรือตัด dimension แบบ MRL)
 
+## 1.3.1 Fast Path (ไม่ใช้ VLM)
+
+`qwen3-vl:latest` ใช้เวลามากกว่า 2 นาทีต่อ call จึงเพิ่มทางลัดสำหรับคำถามที่ตอบได้จาก retrieval อย่างเดียว
+
+```text
+intent จากกฎ keyword ∈ {find_similar, price_stock}  (รวมกรณีส่งรูปอย่างเดียว)
+      │
+      ▼
+embed รูปเต็ม (ไม่ crop) → pgvector → match_level
+      │
+      ├─ exact / similar → ตอบด้วย template ใน Python (find_similar_answer / price_stock_answer)
+      │                    path = "fast", ใช้เวลาราว 0.2–0.8 วินาทีบน GPU
+      │
+      └─ none → กลับไปทาง full path (VLM crop วัตถุ + ตรวจว่าเป็นเครื่องเขียนไหม)
+```
+
+- ปิดได้ด้วย `IMAGE_FAST_PATH=false`
+- compare / recommend / general และข้อความที่ไม่ตรงกฎ ใช้ full path เสมอ
+- สิ่งที่ fast path ไม่มี: การ crop, category/brand boost, การตรวจว่าไม่ใช่เครื่องเขียน (กรณีนี้ได้ `none` แล้วถูกส่งต่อไป full path)
+- response มีฟิลด์ `path` บอกว่าตอบด้วยทางไหน
+
 ## 1.4 จุดเชื่อมกับ Text RAG (ทีมอีกคน)
 
 ```text

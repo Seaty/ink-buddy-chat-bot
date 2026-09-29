@@ -1,9 +1,13 @@
 """Image RAG query pipeline (IMAGE_RAG_DESIGN.md §1.3).
 
 image + message
-  → validate → ImageAnalyzer (qwen3-vl call #1 + crop)
-  → intent → retrieve + filter → match level
-  → answer (price/stock in Python; otherwise qwen3-vl call #2)
+  → validate
+  → FAST PATH (find_similar / price_stock by keyword rules, or image only):
+      embed full image → retrieve → match level → template answer (no LLM).
+      No confident match → fall through to the full path.
+  → FULL PATH: ImageAnalyzer (qwen3-vl call #1 + crop)
+      → intent → retrieve + filter → match level
+      → answer (price/stock in Python; otherwise qwen3-vl call #2)
 
 Retrieval sits behind ``ProductRetriever`` (ai/rag/retriever.py):
 ``ImageRetriever`` over pgvector, or ``MockCatalogRetriever`` before the
@@ -27,6 +31,8 @@ from ai.prompts.vision_prompt import (
     Intent,
     MatchLevel,
     build_answer_prompt,
+    detect_intent_by_rules,
+    find_similar_answer,
     price_stock_answer,
     resolve_intent,
 )
@@ -37,6 +43,9 @@ BACKEND_DIR = Path(__file__).resolve().parents[2]
 ALLOWED_FORMATS = {"JPEG", "PNG", "WEBP"}
 MIN_IMAGE_SIDE = 32
 CHEAPER_WORDS = ("ถูกกว่า", "ประหยัดกว่า", "cheaper")
+# Intents the fast path can answer from retrieval alone (no VLM).
+FAST_INTENTS = (Intent.FIND_SIMILAR, Intent.PRICE_STOCK)
+SIMILAR_SHOWN = 3
 
 
 @dataclass(frozen=True)
@@ -49,6 +58,7 @@ class PipelineSettings:
     tau_similar: float = 0.55
     max_image_bytes: int = 5 * 1024 * 1024
     compare_items: int = 2
+    fast_path: bool = True
 
 
 class InvalidImageError(ValueError):
@@ -67,6 +77,7 @@ class VisionResult:
     needs_confirmation: bool = False
     analysis: ImageAnalysis | None = None
     timings_s: dict[str, float] = field(default_factory=dict)
+    path: str = "full"  # "fast" = answered without the VLM
 
     def to_dict(self) -> dict:
         d = asdict(self)
@@ -144,6 +155,12 @@ class VisionPipeline:
 
         img = image if isinstance(image, Image.Image) else load_upload(image, self.settings.max_image_bytes)
 
+        rule_intent = detect_intent_by_rules(message)
+        if self.settings.fast_path and rule_intent in FAST_INTENTS:
+            fast = self._run_fast(img, rule_intent, timings, t0)
+            if fast is not None:
+                return fast
+
         t = time.perf_counter()
         analyzed = self.analyzer.analyze(img, message)
         timings["analyze"] = time.perf_counter() - t
@@ -176,6 +193,30 @@ class VisionPipeline:
         timings["answer"] = time.perf_counter() - t
         timings["total"] = time.perf_counter() - t0
         return VisionResult(answer, intent, match_level, products, False, analysis, timings)
+
+    def _run_fast(self, img: Image.Image, intent: Intent, timings: dict, t0: float) -> VisionResult | None:
+        """Retrieval-only answer. Returns None (→ full path) when nothing matches confidently.
+
+        Without the VLM there is no crop, category, brand or is-stationery check,
+        so a NONE match is escalated: the VLM can crop a cluttered photo or
+        recognise that the item is not stationery at all.
+        """
+        placeholder = ImageAnalysis(is_stationery=True, intent=intent, category_guess="other", description="")
+        t = time.perf_counter()
+        candidates = self.retriever.search(RetrievalQuery(img, "", placeholder), top_k=self.settings.top_k * 2)
+        timings["retrieve_fast"] = time.perf_counter() - t
+        match_level = match_level_for(candidates[0]["score"] if candidates else None, self.settings)
+        if match_level == MatchLevel.NONE:
+            return None
+
+        if intent == Intent.PRICE_STOCK:
+            products = candidates[: self.settings.top_k]
+            answer, confirm = price_stock_answer(products, match_level)
+        else:
+            products = [p for p in candidates if p["score"] >= self.settings.tau_similar][:SIMILAR_SHOWN]
+            answer, confirm = find_similar_answer(products, match_level), False
+        timings["total"] = time.perf_counter() - t0
+        return VisionResult(answer, intent, match_level, products, confirm, None, timings, path="fast")
 
     @staticmethod
     def _query(analyzed: AnalyzedImage) -> RetrievalQuery:

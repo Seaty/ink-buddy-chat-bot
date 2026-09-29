@@ -72,7 +72,7 @@ def resolve_intent(message: str | None, analysis: "ImageAnalysis") -> Intent:
 # ---------------------------------------------------------------------------
 # Call #1 — image analysis (structured output via Ollama `format=`)
 # ---------------------------------------------------------------------------
-CategoryGuess = Literal[tuple(CATEGORY_TH) + ("other",)]
+CategoryGuess = Literal[tuple(CATEGORY_TH) + ("other",)]  # type: ignore[valid-type]  # built from the catalog at import time
 
 
 class Constraints(BaseModel):
@@ -283,6 +283,25 @@ def build_answer_prompt(
         "",
         instruction,
     ])
+
+
+def find_similar_answer(products: Sequence[dict], match_level: MatchLevel) -> str:
+    """Template reply for the fast path (no LLM). ``products`` already filtered and ranked."""
+    if not products or match_level == MatchLevel.NONE:
+        return "ขออภัยค่ะ ไม่พบสินค้าที่คล้ายกับในรูปในร้าน"
+
+    def line(i: int, p: dict) -> str:
+        return f"{i}. {p['name']} [SKU: {p['sku']}] — {format_price(p)} — {format_stock(p)}"
+
+    if match_level == MatchLevel.EXACT:
+        head, rest = products[0], products[1:]
+        text = f"น่าจะเป็นสินค้านี้ค่ะ\n{line(1, head)}"
+        if rest:
+            text += "\n\nตัวเลือกอื่นที่ใกล้เคียง:\n" + "\n".join(line(i, p) for i, p in enumerate(rest, start=2))
+        return text
+    return "ไม่พบรุ่นเดียวกันในร้านค่ะ แต่มีสินค้าที่ใกล้เคียง:\n" + "\n".join(
+        line(i, p) for i, p in enumerate(products, start=1)
+    )
 
 
 def price_stock_answer(products: Sequence[dict], match_level: MatchLevel) -> tuple[str, bool]:

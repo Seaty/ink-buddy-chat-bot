@@ -40,6 +40,7 @@ class VisionSearchResponse(BaseModel):
     needs_confirmation: bool = Field(False, description="True → ask the customer which product they mean")
     analysis: ImageAnalysisOut | None = None
     timings_s: dict[str, float] = {}
+    path: str = Field("full", description="fast = answered from retrieval only (no VLM); full = VLM used")
 
 
 class IndexCatalogResponse(BaseModel):

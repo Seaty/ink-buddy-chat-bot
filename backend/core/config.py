@@ -44,6 +44,8 @@ class Settings(BaseSettings):
     image_w_caption: float = 0.4
     image_max_bytes: int = 5 * 1024 * 1024
     image_message_max_chars: int = 1000
+    # Answer find-similar / price questions from retrieval alone, skipping the VLM
+    image_fast_path: bool = True
     # Enables POST /api/vision/index. Keep off until core/security.py provides admin auth.
     vision_admin_enabled: bool = False
 

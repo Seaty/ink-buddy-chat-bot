@@ -59,6 +59,7 @@ class VisionService:
                 tau_exact=s.image_tau_exact,
                 tau_similar=s.image_tau_similar,
                 max_image_bytes=s.image_max_bytes,
+                fast_path=s.image_fast_path,
             ),
         )
 
