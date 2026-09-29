@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=BACKEND_DIR / ".env", env_file_encoding="utf-8", extra="ignore")
 
     app_name: str = "Ink Buddy Chat Bot"
-    database_url: str = "postgresql+psycopg://inkbuddy:inkbuddy@localhost:5432/inkbuddy"
+    database_url: str = "postgresql+psycopg://inkbuddy:inkbuddy@127.0.0.1:5432/inkbuddy"
     cors_origins: list[str] = ["http://localhost:3000"]
 
     ollama_base_url: str = "http://localhost:11434"
