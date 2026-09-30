@@ -1,0 +1,20 @@
+# Local secrets and environment settings
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+
+# Node / Next.js
+node_modules/
+.next/
+dist/
+
+# Local files
+*.log
+backend/uploads/*
+!backend/uploads/.gitkeep
