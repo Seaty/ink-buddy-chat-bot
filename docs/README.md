@@ -12,7 +12,7 @@
 | `backend/` | API, กฎธุรกิจ และการเชื่อมต่อ AI | FastAPI, services, models, AI adapters |
 | `database/` | สคริปต์ฐานข้อมูลและคำอธิบาย schema | DDL, migrations, seed, `DATABASE_SCHEMA.md` |
 | `datasets/` | ชุดข้อมูลสำหรับพัฒนา/ทดลองที่อนุญาตให้เก็บใน repo | ตัวอย่างข้อมูลสินค้าแบบไม่เป็นความลับ |
-| `docker/` | ไฟล์สำหรับ build/run services | Dockerfiles และ configuration |
+| `docker/` | ไฟล์สำหรับรัน services ด้วย Podman Compose | `compose.yaml`, `.env.example` และคู่มือเริ่มต้น |
 | `docs/` | เอกสารของโปรเจค | โครงสร้างระบบ, API, diagram, รายงาน |
 
 ไฟล์สำคัญที่ root:

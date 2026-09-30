@@ -4,6 +4,21 @@
 
 ## วิธีเริ่มต้นฐานข้อมูล
 
+### ใช้ Podman Compose บนเครื่อง (แนะนำสำหรับ development)
+
+1. ติดตั้ง Podman และ Compose provider ที่ `podman compose` ใช้งานได้ บน Windows ให้เริ่ม Podman machine ก่อนด้วย `podman machine start` หากยังไม่เคยสร้าง machine ให้ `podman machine init` ก่อนหนึ่งครั้ง
+2. เข้าโฟลเดอร์ `docker/` คัดลอก `.env.example` เป็น `.env` แล้วกรอก `POSTGRES_PASSWORD` ด้วยรหัสผ่านของคุณเอง อย่า commit `.env`
+3. จากโฟลเดอร์ `docker/` รัน `podman compose up -d`
+4. ตรวจสถานะด้วย `podman compose ps` และดู log ด้วย `podman compose logs postgres`
+
+ค่าเริ่มต้น: database `ink_buddy`, user `ink_buddy`, port บนเครื่อง `5432`, เปิดให้เชื่อมต่อผ่าน `127.0.0.1` เท่านั้น หากพอร์ตนี้ถูกใช้อยู่ เปลี่ยน `POSTGRES_PORT` ใน `.env` ก่อนรัน Backend บนเครื่องเชื่อมด้วย `127.0.0.1:<POSTGRES_PORT>`; backend ที่รันเป็น service ใน Compose เดียวกันควรใช้ hostname `postgres` และ port `5432`
+
+Compose ใน `docker/compose.yaml` ใช้ named volume `postgres_data` เพื่อเก็บข้อมูล การสั่ง `podman compose down` จะหยุดและลบ container แต่เก็บ named volume ไว้ **อย่าใช้ `down -v`** หากต้องการรักษาข้อมูล สคริปต์ `001_init.sql` ใน `/docker-entrypoint-initdb.d/` จะรัน **เฉพาะครั้งแรกที่ volume ยังว่าง** การแก้ SQL init หลังฐานข้อมูลถูกสร้างแล้วจะไม่ย้อนกลับไปปรับฐานข้อมูลเดิม; ใช้ migration สำหรับการเปลี่ยน schema
+
+ไฟล์ SQL ถูก bind mount จาก repository บน Windows หาก Podman machine เข้าถึงไดรฟ์ของโปรเจคไม่ได้ ให้ตรวจการแชร์/mount path ของ machine ก่อน ไม่ควรแก้โดยลบ volume ที่มีข้อมูล
+
+### รัน SQL โดยตรงกับ PostgreSQL ที่เตรียมไว้แล้ว
+
 1. เตรียม PostgreSQL **13 ขึ้นไป** พร้อม extension `vector` และ `pg_trgm` ที่ติดตั้งบน server แล้ว
 2. สร้างฐานข้อมูลเปล่าและบัญชีที่มีสิทธิ์สร้าง extension, table และ index ในฐานนั้น
 3. รันจาก root ของ repository:
