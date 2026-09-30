@@ -16,8 +16,8 @@ from typing import Sequence
 from PIL import Image, ImageOps
 from pydantic import ValidationError
 
-from ai.llm.ollama_client import OllamaClient
-from ai.prompts.vision_prompt import (
+from app.ai.llm.ollama_client import OllamaClient
+from app.ai.prompts.vision_prompt import (
     CAPTION_PROMPT,
     IMAGE_ANALYSIS_PROMPT,
     IMAGE_ANALYSIS_SCHEMA,

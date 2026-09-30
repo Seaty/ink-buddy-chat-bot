@@ -13,7 +13,7 @@ from typing import Literal, Sequence
 
 from pydantic import BaseModel, Field, field_validator
 
-from ai.rag.indexing_service import CATEGORY_TH
+from app.ai.rag.indexing_service import CATEGORY_TH
 
 
 class Intent(str, Enum):

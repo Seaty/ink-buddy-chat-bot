@@ -14,14 +14,14 @@ from typing import Literal
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-BACKEND_DIR = Path(__file__).resolve().parents[1]
+BACKEND_DIR = Path(__file__).resolve().parents[2]
 
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=BACKEND_DIR / ".env", env_file_encoding="utf-8", extra="ignore")
 
     app_name: str = "Ink Buddy Chat Bot"
-    database_url: str = "postgresql+psycopg://inkbuddy:inkbuddy@127.0.0.1:5432/inkbuddy"
+    database_url: str = "postgresql+psycopg://ink_buddy:CHANGE_ME@127.0.0.1:5432/ink_buddy"  # password: docker/.env
     cors_origins: list[str] = ["http://localhost:3000"]
 
     ollama_base_url: str = "http://localhost:11434"
@@ -43,19 +43,25 @@ class Settings(BaseSettings):
     image_w_image: float = 0.6
     image_w_caption: float = 0.4
     image_max_bytes: int = 5 * 1024 * 1024
+    image_max_pixels: int = 40_000_000
+    # Private storage for user uploads (never served directly); relative → backend/
+    image_storage_dir: Path = BACKEND_DIR / "uploads"
     image_message_max_chars: int = 1000
     # Answer find-similar / price questions from retrieval alone, skipping the VLM
     image_fast_path: bool = True
     # Enables POST /api/vision/index. Keep off until core/security.py provides admin auth.
     vision_admin_enabled: bool = False
+    # TEMPORARY dev-only auth until JWT exists: every request acts as this user
+    # (created on first use). Empty = no auth → protected endpoints return 401.
+    dev_auth_email: str | None = None
 
-    @field_validator("catalog_dir")
+    @field_validator("catalog_dir", "image_storage_dir")
     @classmethod
     def _relative_to_backend(cls, v: Path) -> Path:
         # "datasets/catalog" in .env must not depend on the working directory
         return v if v.is_absolute() else BACKEND_DIR / v
 
-    @field_validator("image_embed_device", mode="before")
+    @field_validator("image_embed_device", "dev_auth_email", mode="before")
     @classmethod
     def _empty_device_is_auto(cls, v):
         return v or None

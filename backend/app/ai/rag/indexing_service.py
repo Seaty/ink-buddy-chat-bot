@@ -287,7 +287,7 @@ if __name__ == "__main__":
 
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
-    target = sys.argv[1] if len(sys.argv) > 1 else Path(__file__).resolve().parents[2] / "datasets" / "catalog"
+    target = sys.argv[1] if len(sys.argv) > 1 else Path(__file__).resolve().parents[3] / "datasets" / "catalog"
     items, rep = load_catalog(target, strict=False)
     print(f"loaded {len(items)} products")
     print(rep)

@@ -18,9 +18,9 @@ from typing import Protocol
 import numpy as np
 from PIL import Image
 
-from ai.embeddings.embedding_service import IMAGE_QUERY_INSTRUCTION
-from ai.prompts.vision_prompt import ImageAnalysis
-from ai.rag.indexing_service import build_brand_aliases, load_catalog
+from app.ai.embeddings.embedding_service import IMAGE_QUERY_INSTRUCTION
+from app.ai.prompts.vision_prompt import ImageAnalysis
+from app.ai.rag.indexing_service import build_brand_aliases, load_catalog
 
 
 @dataclass

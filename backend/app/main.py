@@ -1,9 +1,10 @@
-"""FastAPI entry point. Run from backend/:  uvicorn main:app --reload"""
+"""FastAPI entry point. Run from backend/:  uvicorn app.main:app --reload"""
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from api import vision
-from core.config import get_settings
+from app.api.v1.router import api_router
+from app.core.config import get_settings
+from app.core.errors import install_error_handlers
 
 settings = get_settings()
 app = FastAPI(title=settings.app_name)
@@ -14,10 +15,5 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-app.include_router(vision.router)
-
-
-@app.get("/health")
-def health() -> dict:
-    return {"status": "ok"}
+install_error_handlers(app)
+app.include_router(api_router)

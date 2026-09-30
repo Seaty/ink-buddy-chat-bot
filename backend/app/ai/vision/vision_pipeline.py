@@ -23,7 +23,7 @@ from typing import Sequence
 
 from PIL import Image
 
-from ai.prompts.vision_prompt import (
+from app.ai.prompts.vision_prompt import (
     OUT_OF_SCOPE_ANSWER,
     VISION_SYSTEM_PROMPT,
     Constraints,
@@ -36,10 +36,10 @@ from ai.prompts.vision_prompt import (
     price_stock_answer,
     resolve_intent,
 )
-from ai.rag.retriever import MockCatalogRetriever, ProductRetriever, RetrievalQuery, normalize_key
-from ai.vision.image_analyzer import AnalyzedImage, ImageAnalyzer
+from app.ai.rag.retriever import MockCatalogRetriever, ProductRetriever, RetrievalQuery, normalize_key
+from app.ai.vision.image_analyzer import AnalyzedImage, ImageAnalyzer
 
-BACKEND_DIR = Path(__file__).resolve().parents[2]
+BACKEND_DIR = Path(__file__).resolve().parents[3]
 ALLOWED_FORMATS = {"JPEG", "PNG", "WEBP"}
 MIN_IMAGE_SIDE = 32
 CHEAPER_WORDS = ("ถูกกว่า", "ประหยัดกว่า", "cheaper")
@@ -57,12 +57,18 @@ class PipelineSettings:
     tau_exact: float = 0.80
     tau_similar: float = 0.55
     max_image_bytes: int = 5 * 1024 * 1024
+    max_image_pixels: int = 40_000_000
     compare_items: int = 2
     fast_path: bool = True
 
 
 class InvalidImageError(ValueError):
-    """Upload is not an acceptable image (maps to HTTP 400/413)."""
+    """Upload is not an acceptable image. ``code`` is mapped to an HTTP status by the API layer:
+    EMPTY_FILE / IMAGE_TOO_SMALL → 422, IMAGE_TOO_LARGE → 413, UNSUPPORTED_MEDIA_TYPE → 415."""
+
+    def __init__(self, message: str, code: str):
+        super().__init__(message)
+        self.code = code
 
 
 # ---------------------------------------------------------------------------
@@ -90,26 +96,31 @@ class VisionResult:
 # ---------------------------------------------------------------------------
 # Pipeline
 # ---------------------------------------------------------------------------
-def load_upload(data: bytes, max_bytes: int) -> Image.Image:
-    """Validate and decode an uploaded image. TODO: move to ai/guards once it exists."""
+def load_upload(data: bytes, max_bytes: int, max_pixels: int = 40_000_000) -> Image.Image:
+    """Validate and decode an uploaded image by its content (not its filename or header).
+
+    TODO: move to ai/guards once it exists.
+    """
     if not data:
-        raise InvalidImageError("empty upload")
+        raise InvalidImageError("empty upload", "EMPTY_FILE")
     if len(data) > max_bytes:
-        raise InvalidImageError(f"image larger than {max_bytes // (1024 * 1024)} MB")
+        raise InvalidImageError(f"image larger than {max_bytes // (1024 * 1024)} MB", "IMAGE_TOO_LARGE")
     try:
         with Image.open(io.BytesIO(data)) as probe:
-            fmt = probe.format
+            fmt, (w, h) = probe.format, probe.size
             probe.verify()
-        img = Image.open(io.BytesIO(data))
-        img.load()
     except Image.DecompressionBombError as e:
-        raise InvalidImageError("image dimensions too large") from e
+        raise InvalidImageError("image dimensions too large", "IMAGE_TOO_LARGE") from e
     except Exception as e:  # noqa: BLE001 — any decode failure is a bad upload
-        raise InvalidImageError("file is not a readable image") from e
+        raise InvalidImageError("file is not a readable image", "UNSUPPORTED_MEDIA_TYPE") from e
     if fmt not in ALLOWED_FORMATS:
-        raise InvalidImageError(f"unsupported format {fmt}; use JPEG, PNG or WEBP")
-    if min(img.size) < MIN_IMAGE_SIDE:
-        raise InvalidImageError("image too small")
+        raise InvalidImageError(f"unsupported format {fmt}; use JPEG, PNG or WEBP", "UNSUPPORTED_MEDIA_TYPE")
+    if w * h > max_pixels:
+        raise InvalidImageError(f"image has more than {max_pixels:,} pixels", "IMAGE_TOO_LARGE")
+    if min(w, h) < MIN_IMAGE_SIDE:
+        raise InvalidImageError("image too small", "IMAGE_TOO_SMALL")
+    img = Image.open(io.BytesIO(data))
+    img.load()
     return img
 
 
@@ -149,15 +160,26 @@ class VisionPipeline:
         self.analyzer = analyzer or ImageAnalyzer()
         self.retriever = retriever or MockCatalogRetriever(self.settings.catalog_dir)
 
-    def run(self, image: bytes | Image.Image, message: str | None = None) -> VisionResult:
+    def run(
+        self,
+        image: bytes | Image.Image,
+        message: str | None = None,
+        limit: int | None = None,
+        with_answer: bool = True,
+    ) -> VisionResult:
+        """``limit`` caps the products shown for find-similar (default 3).
+        ``with_answer=False`` skips the second VLM call (search-only callers)."""
         timings: dict[str, float] = {}
         t0 = time.perf_counter()
 
-        img = image if isinstance(image, Image.Image) else load_upload(image, self.settings.max_image_bytes)
+        img = image if isinstance(image, Image.Image) else load_upload(
+            image, self.settings.max_image_bytes, self.settings.max_image_pixels
+        )
+        shown = limit or SIMILAR_SHOWN
 
         rule_intent = detect_intent_by_rules(message)
         if self.settings.fast_path and rule_intent in FAST_INTENTS:
-            fast = self._run_fast(img, rule_intent, timings, t0)
+            fast = self._run_fast(img, rule_intent, timings, t0, shown)
             if fast is not None:
                 return fast
 
@@ -184,7 +206,10 @@ class VisionPipeline:
             timings["total"] = time.perf_counter() - t0
             return VisionResult(answer, intent, match_level, products, confirm, analysis, timings)
 
-        products = self._select(intent, message, analysis, candidates, match_level)
+        products = self._select(intent, message, analysis, candidates, match_level, shown)
+        if not with_answer:
+            timings["total"] = time.perf_counter() - t0
+            return VisionResult("", intent, match_level, products, False, analysis, timings)
         images = self._images_for(intent, analyzed, products)
 
         t = time.perf_counter()
@@ -194,7 +219,7 @@ class VisionPipeline:
         timings["total"] = time.perf_counter() - t0
         return VisionResult(answer, intent, match_level, products, False, analysis, timings)
 
-    def _run_fast(self, img: Image.Image, intent: Intent, timings: dict, t0: float) -> VisionResult | None:
+    def _run_fast(self, img: Image.Image, intent: Intent, timings: dict, t0: float, shown: int) -> VisionResult | None:
         """Retrieval-only answer. Returns None (→ full path) when nothing matches confidently.
 
         Without the VLM there is no crop, category, brand or is-stationery check,
@@ -213,7 +238,7 @@ class VisionPipeline:
             products = candidates[: self.settings.top_k]
             answer, confirm = price_stock_answer(products, match_level)
         else:
-            products = [p for p in candidates if p["score"] >= self.settings.tau_similar][:SIMILAR_SHOWN]
+            products = [p for p in candidates if p["score"] >= self.settings.tau_similar][:shown]
             answer, confirm = find_similar_answer(products, match_level), False
         timings["total"] = time.perf_counter() - t0
         return VisionResult(answer, intent, match_level, products, confirm, None, timings, path="fast")
@@ -231,6 +256,7 @@ class VisionPipeline:
         analysis: ImageAnalysis,
         candidates: list[dict],
         match_level: MatchLevel,
+        shown: int = SIMILAR_SHOWN,
     ) -> list[dict]:
         k = self.settings.top_k
         if match_level == MatchLevel.NONE:
@@ -249,7 +275,7 @@ class VisionPipeline:
             return candidates[: self.settings.compare_items]
         if intent == Intent.GENERAL:
             return candidates[:1]
-        return candidates[:3]  # FIND_SIMILAR
+        return candidates[:shown]  # FIND_SIMILAR
 
     def _images_for(self, intent: Intent, analyzed: AnalyzedImage, products: list[dict]) -> list[Image.Image]:
         """Only COMPARE needs pixels in call #2: customer item first, then catalog items."""
@@ -265,10 +291,10 @@ if __name__ == "__main__":
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
     if len(sys.argv) < 2:
-        sys.exit("usage: python -m ai.vision.vision_pipeline <image> [message]")
+        sys.exit("usage: python -m app.ai.vision.vision_pipeline <image> [message]")
     # same wiring as the API, so backend/.env applies here too
-    from core.config import get_settings
-    from services.vision_service import VisionService
+    from app.core.config import get_settings
+    from app.services.vision_service import VisionService
 
     pipeline = VisionService(get_settings()).pipeline
     result = pipeline.run(Path(sys.argv[1]).read_bytes(), sys.argv[2] if len(sys.argv) > 2 else None)

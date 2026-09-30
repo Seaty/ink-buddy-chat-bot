@@ -1,46 +1,48 @@
-"""API schemas for /api/vision (IMAGE_RAG_DESIGN.md §3.6)."""
+"""API schemas for images and image-based product search (INK_BUDDY_DESIGN_DRAFT.md §3)."""
 from __future__ import annotations
+
+from typing import Literal
+from uuid import UUID
 
 from pydantic import BaseModel, Field
 
+MAX_IMAGE_SEARCH_LIMIT = 10
 
-class ProductCard(BaseModel):
-    """Shown by the frontend as a card — values come from catalog data, never from the LLM."""
 
-    sku: str
+class ImageUploadResponse(BaseModel):
+    id: UUID
+    status: str = Field(description="ready | processing | failed")
+
+
+class ProductSearchByImageRequest(BaseModel):
+    image_id: UUID
+    limit: int = Field(5, ge=1, le=MAX_IMAGE_SEARCH_LIMIT)
+
+
+class ProductMatch(BaseModel):
+    """Catalog facts come from the products table, never from the model."""
+
+    product_id: UUID
+    sku: str | None
     name: str
-    category: str
-    category_th: str
-    brand: str
-    price_thb: float
-    unit: str | None = None
-    pack_qty: int | None = None
-    unit_price: float | None = None
-    price_date: str
-    stock_qty: int | None = None
-    image_url: str
-    source_url: str
-    score: float = Field(description="Retrieval score 0-1")
+    category: str | None
+    brand: str | None
+    price: float | None = Field(description="null when the catalog has no price")
+    currency: str | None
+    availability: str | None = Field(description="null when the catalog has no availability data")
+    source_ref: str | None = Field(description="where the product data came from")
+    image_url: str | None
+    match_type: Literal["exact", "similar"]
+    score: float = Field(description="retrieval score 0-1")
 
 
-class ImageAnalysisOut(BaseModel):
-    is_stationery: bool
-    category_guess: str
-    brand_text: str = ""
-    model_text: str = ""
-    colors: list[str] = []
-    description: str = ""
-
-
-class VisionSearchResponse(BaseModel):
-    answer: str
-    intent: str = Field(description="find_similar | recommend | compare | price_stock | general | out_of_scope")
-    match_level: str = Field(description="exact | similar | none")
-    products: list[ProductCard] = []
-    needs_confirmation: bool = Field(False, description="True → ask the customer which product they mean")
-    analysis: ImageAnalysisOut | None = None
+class ProductSearchByImageResponse(BaseModel):
+    image_id: UUID
+    description: str | None = Field(description="the vision model's reading of the photo; null on the fast path")
+    match_level: Literal["exact", "similar", "none"]
+    matches: list[ProductMatch]
+    path: Literal["fast", "full"] = Field(description="fast = embedding search only; full = vision model used")
     timings_s: dict[str, float] = {}
-    path: str = Field("full", description="fast = answered from retrieval only (no VLM); full = VLM used")
 
 
 class IndexCatalogResponse(BaseModel):
@@ -50,7 +52,3 @@ class IndexCatalogResponse(BaseModel):
     chunks_deleted: int
     warnings: list[str] = []
     seconds: float
-
-
-class ErrorResponse(BaseModel):
-    detail: str

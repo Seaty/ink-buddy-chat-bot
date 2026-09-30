@@ -5,8 +5,8 @@ from dataclasses import dataclass
 
 from PIL import Image
 
-from ai.llm.qwen_vision import QwenVision
-from ai.prompts.vision_prompt import ImageAnalysis
+from app.ai.llm.qwen_vision import QwenVision
+from app.ai.prompts.vision_prompt import ImageAnalysis
 
 BBOX_SCALE = 1000  # qwen3-vl returns 0-1000 relative coordinates
 MIN_BBOX_AREA = 0.10  # smaller boxes are more likely wrong than a tiny item

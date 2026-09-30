@@ -1,14 +1,14 @@
-"""Data access for product_image_embeddings (Image RAG)."""
+"""Data access for product_image_embeddings (Image RAG) and catalog lookups on products."""
 from __future__ import annotations
 
 from collections.abc import Callable, Iterable
 
 import numpy as np
-from sqlalchemy import delete, func, select, update
+from sqlalchemy import bindparam, delete, func, select, text, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
-from models.product import ProductImageEmbedding as Row
+from app.models.product import ProductImageEmbedding as Row
 
 ChunkKey = tuple[str, str, int]  # (sku, chunk_type, variant)
 
@@ -72,6 +72,17 @@ class ProductRepository:
             if len(best) == limit:
                 break
         return best
+
+    def catalog_by_sku(self, skus: Iterable[str]) -> dict[str, dict]:
+        """Rows from ``products`` (source of truth for id, price, availability, source_ref)."""
+        skus = list(dict.fromkeys(skus))
+        if not skus:
+            return {}
+        stmt = text(
+            "SELECT id, sku, name, category, brand, price, currency, availability, source_ref, "
+            "attributes->>'source_image_url' AS image_url FROM products WHERE sku IN :skus"
+        ).bindparams(bindparam("skus", expanding=True))
+        return {r.sku: dict(r._mapping) for r in self.session.execute(stmt, {"skus": skus})}
 
     def count(self) -> int:
         return len(self.session.execute(select(Row.id)).all())

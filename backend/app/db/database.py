@@ -8,7 +8,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
-from core.config import get_settings
+from app.core.config import get_settings
 
 
 class Base(DeclarativeBase):
@@ -36,7 +36,7 @@ def get_db() -> Iterator[Session]:
 
 def init_db() -> None:
     """Create the pgvector extension and tables. Use Alembic migrations once the schema settles."""
-    import models  # noqa: F401 — registers all tables on Base.metadata
+    import app.models  # noqa: F401 — registers all tables on Base.metadata
 
     engine = get_engine()
     with engine.begin() as conn:

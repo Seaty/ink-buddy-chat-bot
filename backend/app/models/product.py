@@ -13,7 +13,7 @@ from sqlalchemy import CheckConstraint, DateTime, Index, SmallInteger, String, T
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
-from core.database import Base
+from app.db.database import Base
 
 IMAGE_EMBED_DIM = 2048
 CHUNK_TYPES = ("image", "image_aug", "caption")

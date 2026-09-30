@@ -1,3 +1,3 @@
-from models.product import ProductImageEmbedding
+from app.models.product import ProductImageEmbedding
 
 __all__ = ["ProductImageEmbedding"]

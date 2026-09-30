@@ -1,35 +1,52 @@
-"""Vision service: wires settings → AI layer, and runs search / catalog indexing.
+"""Vision service: wires settings → AI layer; image upload, image-based product search, catalog indexing.
 
 The AI layer (ai/) knows nothing about settings, DB or HTTP; this is where
-they meet. Retriever mode comes from ``IMAGE_RETRIEVER``: "mock" (default,
-no embeddings needed) or "pgvector" (after POST /api/vision/index).
+they meet. Retriever mode comes from ``IMAGE_RETRIEVER``: "mock" (no
+embeddings needed) or "pgvector" (after the catalog is indexed).
 """
 from __future__ import annotations
 
+import logging
 import time
 from functools import lru_cache
+from uuid import UUID
 
 from PIL import Image
 from sqlalchemy.orm import Session
 
-from ai.embeddings.embedding_service import get_image_embedder
-from ai.llm.ollama_client import OllamaClient
-from ai.llm.qwen_vision import QwenVision
-from ai.rag.chunker import CatalogChunk, build_catalog_chunks
-from ai.rag.indexing_service import load_catalog
-from ai.rag.retriever import ImageRetriever, MockCatalogRetriever, ProductRetriever
-from ai.vision.image_analyzer import ImageAnalyzer
-from ai.vision.vision_pipeline import PipelineSettings, VisionPipeline
-from core.config import Settings, get_settings
-from core.database import get_sessionmaker
-from repositories.product_repository import PgImageIndex, ProductRepository
-from schemas.vision import IndexCatalogResponse, VisionSearchResponse
+from app.ai.embeddings.embedding_service import get_image_embedder
+from app.ai.llm.ollama_client import OllamaClient, OllamaError
+from app.ai.llm.qwen_vision import QwenVision, VisionModelError
+from app.ai.prompts.vision_prompt import MatchLevel
+from app.ai.rag.chunker import CatalogChunk, build_catalog_chunks
+from app.ai.rag.indexing_service import load_catalog
+from app.ai.rag.retriever import ImageRetriever, MockCatalogRetriever, ProductRetriever
+from app.ai.vision.image_analyzer import ImageAnalyzer
+from app.ai.vision.vision_pipeline import InvalidImageError, PipelineSettings, VisionPipeline, load_upload
+from app.core.config import Settings, get_settings
+from app.core.errors import ApiError
+from app.db.database import get_sessionmaker
+from app.repositories.image_repository import ImageUploadRepository
+from app.repositories.product_repository import PgImageIndex, ProductRepository
+from app.schemas.vision import (
+    ImageUploadResponse,
+    IndexCatalogResponse,
+    ProductMatch,
+    ProductSearchByImageResponse,
+)
+from app.services.image_storage import ImageStorage
+
+logger = logging.getLogger(__name__)
+
+# InvalidImageError.code → HTTP status (spec: 413 too large, 415 wrong type, 422 otherwise)
+INVALID_IMAGE_STATUS = {"IMAGE_TOO_LARGE": 413, "UNSUPPORTED_MEDIA_TYPE": 415}
 
 
 class VisionService:
-    def __init__(self, settings: Settings, pipeline: VisionPipeline | None = None):
+    def __init__(self, settings: Settings, pipeline: VisionPipeline | None = None, storage: ImageStorage | None = None):
         self.settings = settings
         self.pipeline = pipeline or self._build_pipeline()
+        self.storage = storage or ImageStorage(settings.image_storage_dir)
 
     # ------------------------------------------------------------------ wiring
     def _embedder(self):
@@ -59,15 +76,76 @@ class VisionService:
                 tau_exact=s.image_tau_exact,
                 tau_similar=s.image_tau_similar,
                 max_image_bytes=s.image_max_bytes,
+                max_image_pixels=s.image_max_pixels,
                 fast_path=s.image_fast_path,
             ),
         )
 
+    # ------------------------------------------------------------------ upload
+    def upload_image(self, db: Session, user_id: UUID, data: bytes) -> ImageUploadResponse:
+        """Validate by content, store privately without metadata, record in image_uploads."""
+        try:
+            img = load_upload(data, self.settings.image_max_bytes, self.settings.image_max_pixels)
+        except InvalidImageError as e:
+            raise ApiError(INVALID_IMAGE_STATUS.get(e.code, 422), e.code, str(e)) from e
+
+        stored = self.storage.save(img, img.format)
+        try:
+            row = ImageUploadRepository(db).create(user_id, stored.storage_key, stored.mime_type, stored.size_bytes)
+            db.commit()
+        except Exception:
+            db.rollback()
+            self.storage.delete(stored.storage_key)
+            raise
+        return ImageUploadResponse(id=row.id, status=row.status)
+
     # ------------------------------------------------------------------ search
-    def search(self, image: bytes, message: str | None) -> VisionSearchResponse:
-        """Blocking (VLM + embedding); call from a worker thread."""
-        result = self.pipeline.run(image, message)
-        return VisionSearchResponse.model_validate(result.to_dict())
+    def search_by_image(self, db: Session, user_id: UUID, image_id: UUID, limit: int) -> ProductSearchByImageResponse:
+        """Blocking (embedding, maybe VLM); call from a worker thread."""
+        images = ImageUploadRepository(db)
+        upload = images.get_owned(image_id, user_id)
+        if upload is None:
+            raise ApiError(404, "IMAGE_NOT_FOUND", "image not found")
+        if upload.status != "ready":
+            raise ApiError(422, "IMAGE_NOT_READY", f"image status is {upload.status}")
+        try:
+            img = self.storage.open(upload.storage_key)
+        except FileNotFoundError as e:
+            raise ApiError(404, "IMAGE_NOT_FOUND", "image file is missing") from e
+
+        try:
+            result = self.pipeline.run(img, None, limit=limit, with_answer=False)
+        except (OllamaError, VisionModelError) as e:
+            raise ApiError(503, "VISION_UNAVAILABLE", "vision model unavailable") from e
+
+        catalog = ProductRepository(db).catalog_by_sku(p["sku"] for p in result.products)
+        matches = []
+        for p in result.products[:limit]:
+            row = catalog.get(p["sku"])
+            if row is None:  # indexed but not seeded into products — never invent the product
+                logger.warning("indexed sku %s missing from products table", p["sku"])
+                continue
+            exact = result.match_level == MatchLevel.EXACT and not matches
+            matches.append(ProductMatch(
+                product_id=row["id"], sku=row["sku"], name=row["name"], category=row["category"],
+                brand=row["brand"], price=float(row["price"]) if row["price"] is not None else None,
+                currency=row["currency"], availability=row["availability"], source_ref=row["source_ref"],
+                image_url=row["image_url"], match_type="exact" if exact else "similar", score=p["score"],
+            ))
+
+        if result.analysis is not None:
+            a = result.analysis
+            images.save_analysis(image_id, a.model_dump(mode="json"), " ".join(filter(None, [a.brand_text, a.model_text])))
+            db.commit()
+
+        return ProductSearchByImageResponse(
+            image_id=image_id,
+            description=result.analysis.description if result.analysis else None,
+            match_level=result.match_level.value,
+            matches=matches,
+            path=result.path,
+            timings_s=result.timings_s,
+        )
 
     # ------------------------------------------------------------------ indexing
     def index_catalog(self, session: Session) -> IndexCatalogResponse:
