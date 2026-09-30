@@ -1,5 +1,7 @@
 # Ink Buddy Chat Bot
 
+See [the project folder guide](docs/README.md) for repository layout and where to keep architecture, API, database, and seed files.
+
 A Multimodal Retrieval-Augmented Generation (RAG) Chatbot that provides intelligent question answering from documents and images using local LLMs powered by Ollama.
 
 ## Features
