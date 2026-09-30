@@ -12,7 +12,7 @@ A Multimodal Retrieval-Augmented Generation (RAG) Chatbot that provides intellig
 
 - Chat with AI using Qwen3 8B
 - Document-based Question Answering (RAG)
-- PDF and DOCX Processing
+- ~~PDF and DOCX Processing~~
 - Image Analysis with Qwen2.5-VL
 - Local AI Inference using Ollama
 - Vector Search using PostgreSQL pgvector
@@ -45,4 +45,4 @@ A Multimodal Retrieval-Augmented Generation (RAG) Chatbot that provides intellig
 - BGE-M3
 
 ### Infrastructure
-- Docker Compose
+- Podman Compose
