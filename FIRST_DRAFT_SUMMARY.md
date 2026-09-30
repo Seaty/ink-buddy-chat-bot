@@ -32,7 +32,7 @@ State Management: Zustand
 - Authentication
 - Chat Interface
 - Chat History
-- Document Upload
+- ~~Document Upload~~
 - Image Upload
 - Display Citations
 
@@ -321,7 +321,7 @@ Purpose:
 - Prevent Spam
 - Prevent DoS Attacks
 
-### File Upload Validation
+<!-- ### File Upload Validation
 
 Allowed Formats:
 
@@ -340,7 +340,7 @@ Validate:
 - MIME Type
 - File Size
 
----
+--- -->
 
 ## AI / Chatbot Security
 
