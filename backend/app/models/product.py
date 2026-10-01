@@ -1,4 +1,4 @@
-"""Catalog embeddings for Image RAG (IMAGE_RAG_DESIGN.md §2.5).
+"""Catalog embeddings for Image RAG (docs/architecture/IMAGE_RAG_DESIGN.md §2.5).
 
 One row per chunk (image / caption / image_aug) per SKU. Product data lives in
 ``metadata`` JSONB, synced from datasets/catalog/metadata.csv (source of truth).

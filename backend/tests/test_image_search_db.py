@@ -56,8 +56,14 @@ def seeded_skus(db, n=2) -> list[str]:
 
 
 class FakeVision:
-    def __init__(self):
+    def __init__(self, ocr_segments=("Pentel", "BL667")):
         self.analyze_calls = 0
+        self.ocr_calls = 0
+        self.ocr_segments = list(ocr_segments)
+
+    def ocr(self, image):
+        self.ocr_calls += 1
+        return self.ocr_segments
 
     def analyze(self, image, message=None):
         self.analyze_calls += 1
@@ -103,7 +109,9 @@ def test_upload_then_fast_search_maps_to_product_ids(db, tmp_path):
     res = service.search_by_image(db, user, up.id, limit=5)
     ids = dict(db.execute(text("SELECT sku, id FROM products WHERE sku IN (:a, :b)"), {"a": a, "b": b}).all())
     assert res.path == "fast" and vision.analyze_calls == 0 and res.description is None
-    assert [(m.product_id, m.match_type) for m in res.matches] == [(ids[a], "exact"), (ids[b], "similar")]
+    # fast path cannot verify the model from the photo → never "exact"
+    assert res.match_level == "similar"
+    assert [(m.product_id, m.match_type) for m in res.matches] == [(ids[a], "similar"), (ids[b], "similar")]
     assert res.matches[0].currency == "THB" and res.matches[0].availability is None  # never invented
 
 
@@ -119,12 +127,86 @@ def test_image_of_another_user_is_not_found(db, tmp_path):
 def test_no_match_uses_vlm_and_saves_analysis(db, tmp_path):
     (a,) = seeded_skus(db, 1)
     user = make_user(db)
-    service, vision = service_for(tmp_path, [(a, 0.30)])
+    service, vision = service_for(tmp_path, [(a, 0.50)])
     up = service.upload_image(db, user, jpeg())
 
     res = service.search_by_image(db, user, up.id, limit=5)
     assert res.path == "full" and vision.analyze_calls == 1 and res.match_level == "none"
     assert res.description == "ปากกาสีน้ำเงิน"
+    # nothing matched: no "similar" matches, but the nearest product is offered as a suggestion
+    product_id = db.execute(text("SELECT id FROM products WHERE sku = :s"), {"s": a}).scalar_one()
+    assert res.matches == []
+    assert [(m.product_id, m.match_type) for m in res.suggestions] == [(product_id, "suggestion")]
+    assert res.message.startswith("ไม่พบสินค้าที่ตรงกับในรูปค่ะ หมายถึงสินค้าเหล่านี้หรือเปล่าคะ?")
     saved = db.execute(text("SELECT analysis->>'brand_text', ocr_text FROM image_uploads WHERE id = :id"),
                        {"id": up.id}).one()
-    assert tuple(saved) == ("Pentel", "Pentel BL667")
+    assert tuple(saved) == ("Pentel", None)  # brand/model readings are not stored as OCR
+
+    # the stored analysis is reused by /analysis without another model call
+    analysis = service.analyze_image(db, user, up.id)
+    assert analysis.cached and analysis.attributes.brand_text == "Pentel" and vision.analyze_calls == 1
+
+
+def test_analysis_runs_once_then_cached(db, tmp_path):
+    user = make_user(db)
+    service, vision = service_for(tmp_path, [])
+    up = service.upload_image(db, user, jpeg())
+    first = service.analyze_image(db, user, up.id)
+    second = service.analyze_image(db, user, up.id)
+    assert (first.cached, second.cached, vision.analyze_calls) == (False, True, 1)
+    assert second.description == "ปากกาสีน้ำเงิน" and second.attributes.model_text == "BL667"
+
+
+def test_ocr_runs_once_then_cached(db, tmp_path):
+    user = make_user(db)
+    service, vision = service_for(tmp_path, [])
+    up = service.upload_image(db, user, jpeg())
+    first = service.ocr_image(db, user, up.id)
+    second = service.ocr_image(db, user, up.id)
+    assert (first.cached, second.cached, vision.ocr_calls) == (False, True, 1)
+    assert second.text == "Pentel\nBL667" and [s.text for s in second.segments] == ["Pentel", "BL667"]
+
+
+def test_ocr_with_no_text_is_cached_as_empty(db, tmp_path):
+    user = make_user(db)
+    vision = FakeVision(ocr_segments=())
+    pipeline = VisionPipeline(ImageAnalyzer(vision), Retriever([]), PipelineSettings(catalog_dir=CATALOG))
+    service = VisionService(Settings(_env_file=None), pipeline, ImageStorage(tmp_path))
+    up = service.upload_image(db, user, jpeg())
+    assert service.ocr_image(db, user, up.id).text == ""
+    again = service.ocr_image(db, user, up.id)
+    assert again.cached and again.segments == [] and vision.ocr_calls == 1
+
+
+def test_analysis_and_ocr_check_ownership(db, tmp_path):
+    owner, other = make_user(db), make_user(db)
+    service, vision = service_for(tmp_path, [])
+    up = service.upload_image(db, owner, jpeg())
+    for call in (service.analyze_image, service.ocr_image):
+        with pytest.raises(ApiError) as e:
+            call(db, other, up.id)
+        assert e.value.code == "IMAGE_NOT_FOUND"
+    assert vision.analyze_calls == vision.ocr_calls == 0
+
+
+def test_full_path_exact_when_model_read_from_photo(db, tmp_path):
+    """FakeVision reads "Pentel BL667"; only the seeded Energel BL667 name contains it."""
+    energel = db.execute(text("SELECT sku, name FROM products WHERE name ILIKE '%BL667%'")).first()
+    other = db.execute(text("SELECT sku, name FROM products WHERE name NOT ILIKE '%BL667%' ORDER BY sku")).first()
+    if energel is None or other is None:
+        pytest.skip("catalog seed not loaded")
+    names = {energel.sku: energel.name, other.sku: other.name}
+    user = make_user(db)
+
+    class Named(Retriever):
+        def search(self, query, top_k):
+            return [{**p, "name": names[p["sku"]]} for p in super().search(query, top_k)]
+
+    pipeline = VisionPipeline(ImageAnalyzer(FakeVision()), Named([(other.sku, 0.80), (energel.sku, 0.62)]),
+                              PipelineSettings(catalog_dir=CATALOG, fast_path=False))
+    service = VisionService(Settings(_env_file=None), pipeline, ImageStorage(tmp_path))
+    up = service.upload_image(db, user, jpeg())
+    res = service.search_by_image(db, user, up.id, limit=5)
+    assert res.match_level == "exact"
+    assert (res.matches[0].sku, res.matches[0].match_type) == (energel.sku, "exact")
+    assert res.matches[1].match_type == "similar"
