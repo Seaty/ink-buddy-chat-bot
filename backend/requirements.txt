@@ -23,6 +23,15 @@ passlib[bcrypt]
 
 sentence-transformers
 
+# Image RAG: Qwen3-VL-Embedding-2B (versions per model card)
+# CUDA 12.8 build — also runs on CPU-only machines
+--extra-index-url https://download.pytorch.org/whl/cu128
+torch==2.8.0
+torchvision==0.23.0
+transformers>=4.57.0
+qwen-vl-utils>=0.0.14
+pillow
+
 pypdf
 pymupdf
 python-docx

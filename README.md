@@ -41,8 +41,9 @@ A Multimodal Retrieval-Augmented Generation (RAG) Chatbot that provides intellig
 
 ### AI Models
 - Qwen3:8b
-- Qwen2.5-VL:7b
+- qwen3-vl:8b
 - BGE-M3
+- Qwen/Qwen3-VL-Embedding-2B
 
 ### Infrastructure
 - Podman Compose
