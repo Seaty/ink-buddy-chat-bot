@@ -668,3 +668,10 @@ Token lifecycle, whitelist และข้อจำกัดดู [TOKEN_AUTH_F
 ## ผลรีวิว implementation ล่าสุด
 
 ตรวจเอกสาร 2026-10-03: ดู [Auth review](auth/AUTH_REVIEW.md) สำหรับเคส token/Guest/authorization และประเด็น P2 ที่ยังเปิดอยู่ ฟีเจอร์ที่ระบุ scaffold เป็น proposed contract และยังไม่ทำ business logic ผลทดสอบ Auth ใช้ fake Vision pipeline จึงไม่ยืนยันโมเดลจริง
+
+
+## UUIDv7 (2026-10-03)
+
+ID ใหม่ที่เป็น UUID ใช้ UUIDv7: database defaults เรียก `public.ink_buddy_uuid_v7()` และ Python ใช้ `app.core.identifiers.uuid7()` ชนิด column/API ยังคง UUID เพื่อรองรับ ID เดิม ไม่มีการเปลี่ยน primary/foreign keys ที่มีอยู่ ฐานเดิมต้อง apply `database/migrations/004_uuid_v7.sql` หลัง 003; ฐานใหม่ใช้ init ปัจจุบัน migrations 001–003 เก็บเป็นประวัติเดิม
+
+UUIDv7 มี Unix timestamp ระดับ millisecond และ random bits ตาม [RFC 9562](https://www.rfc-editor.org/rfc/rfc9562.html#section-5.7) ไม่รับประกันลำดับภายใน millisecond หรือเมื่อ clock ย้อนกลับ ไม่ใช้ ID เป็น credential และยังตรวจ ownership ตามเดิม PostgreSQL 16 ใช้ compatibility function เพราะ built-in generator เป็น UUIDv4; ไม่มีการเปลี่ยนคอลัมน์ integer เช่น product_image_embeddings.id

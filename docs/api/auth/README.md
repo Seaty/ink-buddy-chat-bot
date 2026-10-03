@@ -100,3 +100,10 @@ Claim: POST /auth/guest-sessions/current/claim พร้อม UserBearer, Guest
 ## ผลรีวิวเพิ่มเติม
 
 [AUTH_REVIEW.md](AUTH_REVIEW.md) อธิบายแต่ละเคสและข้อจำกัดล่าสุด การตั้ง shared limiter ใน custom create_app configuration ยังมีประเด็น P2 ต้องแก้และยืนยัน backend storage ก่อนใช้งานหลาย workers อีกประเด็นคือ partial image file เมื่อเขียนไฟล์ล้มเหลว ซึ่ง cleanup ที่อ้าง DB ไม่สามารถหาได้ทุกกรณี
+
+
+## UUIDv7 (2026-10-03)
+
+ID ใหม่ที่เป็น UUID ใช้ UUIDv7: database defaults เรียก `public.ink_buddy_uuid_v7()` และ Python ใช้ `app.core.identifiers.uuid7()` ชนิด column/API ยังคง UUID เพื่อรองรับ ID เดิม ไม่มีการเปลี่ยน primary/foreign keys ที่มีอยู่ ฐานเดิมต้อง apply `database/migrations/004_uuid_v7.sql` หลัง 003; ฐานใหม่ใช้ init ปัจจุบัน migrations 001–003 เก็บเป็นประวัติเดิม
+
+UUIDv7 มี Unix timestamp ระดับ millisecond และ random bits ตาม [RFC 9562](https://www.rfc-editor.org/rfc/rfc9562.html#section-5.7) ไม่รับประกันลำดับภายใน millisecond หรือเมื่อ clock ย้อนกลับ ไม่ใช้ ID เป็น credential และยังตรวจ ownership ตามเดิม PostgreSQL 16 ใช้ compatibility function เพราะ built-in generator เป็น UUIDv4; ไม่มีการเปลี่ยนคอลัมน์ integer เช่น product_image_embeddings.id

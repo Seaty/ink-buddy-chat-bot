@@ -1,10 +1,12 @@
 """Security configuration and default-deny route coverage independent of DB."""
 
 from datetime import timedelta
-from uuid import uuid4
 
 import pytest
+from fastapi.testclient import TestClient
+
 from app.core.config import Settings
+from app.core.identifiers import uuid7
 from app.core.security import (
     access_token,
     decode_access,
@@ -13,7 +15,6 @@ from app.core.security import (
     verify_password,
 )
 from app.main import create_app
-from fastapi.testclient import TestClient
 
 SECRET = "test-only-signing-key-never-use-in-production-12345"
 
@@ -53,7 +54,7 @@ def test_password_roundtrip_and_invalid_hash():
 
 def test_access_claims_and_schema_security():
     settings = Settings(_env_file=None, auth_jwt_secret=SECRET)
-    uid, sid = uuid4(), uuid4()
+    uid, sid = uuid7(), uuid7()
     token, seconds = access_token(settings, uid, sid, utcnow() + timedelta(days=7))
     assert 898 <= seconds <= 900 and decode_access(settings, token) == (uid, sid)
     schema = create_app(settings).openapi()

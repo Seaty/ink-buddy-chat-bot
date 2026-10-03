@@ -2,7 +2,6 @@
 
 import os
 from pathlib import Path
-from uuid import uuid4
 
 import psycopg
 import pytest
@@ -10,11 +9,13 @@ from dotenv import dotenv_values
 from psycopg import sql
 from sqlalchemy.engine import URL
 
+from app.core.identifiers import uuid7
+
 
 def main():
     repo = Path(__file__).resolve().parents[2]
     config = dotenv_values(repo / "docker/.env")
-    name = "ink_buddy_test_" + uuid4().hex
+    name = "ink_buddy_test_" + uuid7().hex
     connection = dict(
         host="127.0.0.1",
         port=int(config.get("POSTGRES_PORT") or 5432),

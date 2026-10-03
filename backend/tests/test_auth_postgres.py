@@ -12,6 +12,12 @@ from uuid import UUID
 
 import bcrypt
 import pytest
+from fastapi.testclient import TestClient
+from jose import jwt
+from PIL import Image
+from sqlalchemy import create_engine, text
+from sqlalchemy.orm import sessionmaker
+
 from app.ai.prompts.vision_prompt import MatchLevel
 from app.api.deps import GUEST_COOKIE, REFRESH_COOKIE
 from app.core.config import Settings
@@ -23,12 +29,7 @@ from app.main import create_app
 from app.services.auth.service import AuthService
 from app.services.image_storage import ImageStorage
 from app.services.vision_service import VisionService, get_vision_service
-from fastapi.testclient import TestClient
-from jose import jwt
-from PIL import Image
 from scripts.cleanup_guests import cleanup
-from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker
 
 URL = os.environ.get("INK_BUDDY_TEST_DATABASE_URL")
 pytestmark = pytest.mark.skipif(
@@ -767,3 +768,48 @@ def test_refresh_session_expiry(setup):
             ).status_code
             == 401
         )
+
+
+def test_uuid7_defaults_and_migration_preserves_existing_ids(setup):
+    import psycopg
+    from sqlalchemy.engine import make_url
+
+    url = make_url(URL)
+    with psycopg.connect(
+        host=url.host,
+        port=url.port,
+        user=url.username,
+        password=url.password,
+        dbname=url.database,
+        autocommit=True,
+    ) as conn:
+        conn.execute("INSERT INTO users(id,role_id,email,password_hash) SELECT gen_random_uuid(),id,'legacy-uuid@test.example','unused' FROM roles WHERE name='user'")
+        before = conn.execute("SELECT id FROM users ORDER BY id").fetchall()
+        conn.execute(
+            "ALTER TABLE public.users ALTER COLUMN id SET DEFAULT gen_random_uuid()"
+        )
+        migration = Path("../database/migrations/004_uuid_v7.sql").read_text(
+            encoding="utf-8"
+        )
+        conn.execute(migration)
+        conn.execute(migration)  # repeat-safe
+        assert conn.execute("SELECT id FROM users ORDER BY id").fetchall() == before
+        defaults = conn.execute(
+            "SELECT column_default FROM information_schema.columns WHERE table_schema='public' AND column_name='id' AND data_type='uuid'"
+        ).fetchall()
+        assert len(defaults) == 12
+        assert all("ink_buddy_uuid_v7" in row[0] for row in defaults)
+        rows = conn.execute(
+            "SELECT public.ink_buddy_uuid_v7() FROM generate_series(1, 10000)"
+        ).fetchall()
+        values = [row[0] for row in rows]
+        assert len(set(values)) == 10000
+        assert all(value.version == 7 for value in values)
+        milliseconds = conn.execute(
+            "SELECT floor(extract(epoch FROM clock_timestamp())*1000)::bigint"
+        ).fetchone()[0]
+        assert all(abs((value.int >> 80) - milliseconds) < 5000 for value in values)
+        generated = conn.execute(
+            "INSERT INTO users(role_id,email,password_hash) SELECT id,'uuid7@test.example','unused' FROM roles WHERE name='user' RETURNING id"
+        ).fetchone()[0]
+        assert generated.version == 7
