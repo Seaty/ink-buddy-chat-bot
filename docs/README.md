@@ -108,3 +108,8 @@
 - [รีวิว Auth และรายละเอียดเคส](api/auth/AUTH_REVIEW.md) — สองประเด็น P2 ยังไม่ได้แก้โค้ด
 - `backend/scripts/` เก็บสคริปต์สร้างบัญชี, cleanup Guest และทดสอบ PostgreSQL
 - Auth service/repository ใช้งานแล้ว; user/session/product module folders บางส่วนยังเป็น placeholder
+
+## แนวทางสำหรับผู้ช่วยพัฒนา backend
+
+- [backend/AGENTS.md](../backend/AGENTS.md) — กฎสิทธิ์, token, transaction, UUIDv7 และการทดสอบ
+- [ink-buddy-auth skill](../.agents/skills/ink-buddy-auth/SKILL.md) — ขั้นตอนพัฒนาและรีวิว Auth/Guest ที่ใช้ซ้ำ เก็บใน repository เท่านั้น
