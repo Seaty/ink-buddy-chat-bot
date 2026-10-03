@@ -94,6 +94,8 @@ Actual response **501**:
 
 ## 2. Contract กลาง
 
+แนวทางขั้น Auth และ token lifecycle สำหรับทีมดู [TOKEN_AUTH_FLOW.md](../architecture/TOKEN_AUTH_FLOW.md); ยังไม่ได้ implement การควบคุมสิทธิ์ตามแบบนี้
+
 - Base URL ตัวอย่าง local: `http://localhost:8000` (ขึ้นอยู่กับพอร์ตที่ใช้รัน)
 - Prefix: `/api/v1`; JSON ใช้ `snake_case`; identifiers ใช้ UUID
 - Auth ปัจจุบัน: ตั้ง `DEV_AUTH_EMAIL` ที่ backend แล้วทุกคำขอใน routes ที่ใช้ auth dependency จะเป็นผู้ใช้คนเดียวกัน หากไม่ตั้งจะได้ 401 **ยังไม่ตรวจ Bearer token**

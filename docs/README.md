@@ -79,6 +79,8 @@
 
 เอกสารโครงสร้างที่มีตอนนี้:
 
+- [`architecture/TOKEN_AUTH_FLOW.md`](architecture/TOKEN_AUTH_FLOW.md) — วิธีทำงาน User/Guest token, whitelist, โควตารูป และการย้ายข้อมูลหลัง Login
+
 - [`architecture/BACKEND_STRUCTURE.md`](architecture/BACKEND_STRUCTURE.md) — โครง code API ตาม module และขอบเขต routes/services/repositories
 - [`api/README.md`](api/README.md) — สารบัญ API แยกตามหมวด
 
