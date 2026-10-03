@@ -9,7 +9,7 @@ from app.ai.rag.indexing_service import CatalogError
 from app.core.config import Settings, get_settings
 from app.core.errors import ApiError, ErrorResponse
 from app.db.database import get_db
-from app.schemas.vision import IndexCatalogResponse
+from app.schemas.admin import IndexCatalogResponse
 from app.services.vision_service import VisionService, get_vision_service
 
 router = APIRouter(prefix="/admin", tags=["admin"])

@@ -79,6 +79,15 @@
 
 เอกสารโครงสร้างที่มีตอนนี้:
 
+- [`architecture/BACKEND_STRUCTURE.md`](architecture/BACKEND_STRUCTURE.md) — โครง code API ตาม module และขอบเขต routes/services/repositories
+- [`api/README.md`](api/README.md) — สารบัญ API แยกตามหมวด
+
+- ข้อกำหนด Guest, โควตา 3 รูป และข้อเสนอปรับ database/API รวมอยู่ใน [`api/API_SPEC.md`](api/API_SPEC.md) หัวข้อ 10
+
+- [`api/API_SPEC.md`](api/API_SPEC.md) — API ที่ implement แล้ว สถานะ ข้อจำกัด และประเด็นตัดสินใจ; [`api/openapi.current.json`](api/openapi.current.json) เป็น snapshot จากแอปจริง
+
+- [`architecture/PROJECT_STATUS.md`](architecture/PROJECT_STATUS.md) — สถานะโค้ดหลังทีมเพิ่ม Image RAG, ผลทดสอบ และจุดที่ยังต้องเชื่อมต่อ
+
 - [`architecture/AI_STRUCTURE.md`](architecture/AI_STRUCTURE.md) — ร่างการแบ่ง AI modules จากช่วงแรก; ตรวจเทียบ Business Requirements ล่าสุดก่อนนำไปทำจริง
 - [`architecture/INK_BUDDY_DESIGN_DRAFT.md`](architecture/INK_BUDDY_DESIGN_DRAFT.md) — ร่าง architecture, database และ API ที่ปรับให้ใช้ catalog สินค้าและการแนบรูป
 - [`../database/DATABASE_SCHEMA.md`](../database/DATABASE_SCHEMA.md) — โครงสร้างฐานข้อมูลตาม SQL init

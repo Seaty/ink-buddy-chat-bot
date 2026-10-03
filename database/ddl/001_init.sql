@@ -1,6 +1,7 @@
 -- Ink Buddy initial schema. Run once against an empty PostgreSQL database.
 -- Requires PostgreSQL 13+ (gen_random_uuid), pgvector, and pg_trgm.
--- Apply subsequent schema changes through migrations rather than editing a used init script.
+-- Fresh-install snapshot including Guest sessions and Image RAG.
+-- Existing databases: apply migrations/001_guest_sessions.sql and 002_product_image_embeddings.sql; do not rerun init.
 
 BEGIN;
 
@@ -45,19 +46,55 @@ CREATE TABLE refresh_tokens (
 CREATE INDEX refresh_tokens_user_expires_idx ON refresh_tokens (user_id, expires_at);
 CREATE INDEX refresh_tokens_expires_idx ON refresh_tokens (expires_at);
 
+CREATE TABLE guest_sessions (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    token_hash text NOT NULL UNIQUE,
+    image_upload_limit smallint NOT NULL DEFAULT 3,
+    image_uploads_used smallint NOT NULL DEFAULT 0,
+    created_at timestamptz NOT NULL DEFAULT now(),
+    expires_at timestamptz NOT NULL,
+    revoked_at timestamptz,
+    claimed_by_user_id uuid REFERENCES users(id) ON DELETE RESTRICT,
+    claimed_at timestamptz,
+    CONSTRAINT guest_sessions_hash_not_blank CHECK (length(btrim(token_hash)) > 0),
+    CONSTRAINT guest_sessions_limit_check CHECK (image_upload_limit = 3),
+    CONSTRAINT guest_sessions_usage_check CHECK (image_uploads_used BETWEEN 0 AND image_upload_limit),
+    CONSTRAINT guest_sessions_expiry_check CHECK (expires_at > created_at),
+    CONSTRAINT guest_sessions_revoked_check CHECK (revoked_at IS NULL OR revoked_at >= created_at),
+    CONSTRAINT guest_sessions_claim_check CHECK (
+        (claimed_by_user_id IS NULL AND claimed_at IS NULL) OR
+        (claimed_by_user_id IS NOT NULL AND claimed_at IS NOT NULL
+         AND claimed_at >= created_at AND revoked_at IS NOT NULL)
+    )
+);
+
+CREATE INDEX guest_sessions_expires_idx ON guest_sessions (expires_at);
+CREATE INDEX guest_sessions_claimed_user_idx ON guest_sessions (claimed_by_user_id)
+    WHERE claimed_by_user_id IS NOT NULL;
+
 CREATE TABLE chat_sessions (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id uuid NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
+    user_id uuid REFERENCES users(id) ON DELETE RESTRICT,
+    guest_session_id uuid REFERENCES guest_sessions(id) ON DELETE RESTRICT,
     title varchar(200),
     summary text,
     summary_checkpoint integer NOT NULL DEFAULT 0,
     created_at timestamptz NOT NULL DEFAULT now(),
     updated_at timestamptz NOT NULL DEFAULT now(),
     deleted_at timestamptz,
+    CONSTRAINT chat_sessions_owner_check CHECK ((user_id IS NOT NULL) <> (guest_session_id IS NOT NULL)),
     CONSTRAINT chat_sessions_summary_checkpoint_check CHECK (summary_checkpoint >= 0),
     CONSTRAINT chat_sessions_updated_check CHECK (updated_at >= created_at),
     CONSTRAINT chat_sessions_deleted_check CHECK (deleted_at IS NULL OR deleted_at >= created_at)
 );
+
+CREATE INDEX chat_sessions_guest_recent_idx
+    ON chat_sessions (guest_session_id, updated_at DESC, id DESC)
+    WHERE deleted_at IS NULL AND guest_session_id IS NOT NULL;
+
+CREATE INDEX chat_sessions_guest_fk_idx ON chat_sessions (guest_session_id)
+    WHERE guest_session_id IS NOT NULL;
+
 
 CREATE INDEX chat_sessions_owner_recent_idx
     ON chat_sessions (user_id, updated_at DESC, id DESC)
@@ -65,7 +102,8 @@ CREATE INDEX chat_sessions_owner_recent_idx
 
 CREATE TABLE image_uploads (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id uuid NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
+    user_id uuid REFERENCES users(id) ON DELETE RESTRICT,
+    guest_session_id uuid REFERENCES guest_sessions(id) ON DELETE RESTRICT,
     storage_key text NOT NULL UNIQUE,
     mime_type varchar(100) NOT NULL,
     size_bytes bigint NOT NULL,
@@ -74,6 +112,7 @@ CREATE TABLE image_uploads (
     analysis jsonb,
     created_at timestamptz NOT NULL DEFAULT now(),
     deleted_at timestamptz,
+    CONSTRAINT image_uploads_owner_check CHECK ((user_id IS NOT NULL) <> (guest_session_id IS NOT NULL)),
     CONSTRAINT image_uploads_storage_key_not_blank CHECK (length(btrim(storage_key)) > 0),
     CONSTRAINT image_uploads_size_check CHECK (size_bytes > 0),
     CONSTRAINT image_uploads_mime_check CHECK (mime_type IN ('image/jpeg', 'image/png', 'image/webp')),
@@ -81,6 +120,14 @@ CREATE TABLE image_uploads (
     CONSTRAINT image_uploads_analysis_object_check CHECK (analysis IS NULL OR jsonb_typeof(analysis) = 'object'),
     CONSTRAINT image_uploads_deleted_check CHECK (deleted_at IS NULL OR deleted_at >= created_at)
 );
+
+CREATE INDEX image_uploads_guest_recent_idx
+    ON image_uploads (guest_session_id, created_at DESC, id DESC)
+    WHERE deleted_at IS NULL AND guest_session_id IS NOT NULL;
+
+CREATE INDEX image_uploads_guest_fk_idx ON image_uploads (guest_session_id)
+    WHERE guest_session_id IS NOT NULL;
+
 
 CREATE INDEX image_uploads_owner_recent_idx
     ON image_uploads (user_id, created_at DESC, id DESC)
@@ -160,6 +207,26 @@ CREATE TABLE product_embeddings (
 
 CREATE INDEX product_embeddings_cosine_hnsw_idx
     ON product_embeddings USING hnsw (embedding vector_cosine_ops);
+
+-- Matches backend/app/models/product.py; a separate vector space from BGE-M3.
+CREATE TABLE product_image_embeddings (
+    id serial PRIMARY KEY,
+    sku varchar(64) NOT NULL,
+    chunk_type varchar(16) NOT NULL,
+    variant smallint NOT NULL DEFAULT 0,
+    content text NOT NULL,
+    content_hash varchar(64) NOT NULL,
+    embedding vector(2048) NOT NULL,
+    embed_model varchar(128) NOT NULL,
+    metadata jsonb NOT NULL,
+    updated_at timestamptz NOT NULL DEFAULT now(),
+    CONSTRAINT uq_product_chunk UNIQUE (sku, chunk_type, variant),
+    CONSTRAINT ck_chunk_type CHECK (chunk_type IN ('image', 'image_aug', 'caption'))
+);
+CREATE INDEX ix_product_image_embeddings_sku ON product_image_embeddings (sku);
+CREATE INDEX ix_product_image_embeddings_meta ON product_image_embeddings USING gin (metadata);
+-- No HNSW on vector(2048): current index supports at most 2000 vector dimensions.
+-- Use exact scan for the small catalog; evaluate halfvec expression indexing at scale.
 
 CREATE TABLE audit_logs (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),

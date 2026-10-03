@@ -2,6 +2,21 @@
 
 เอกสารนี้อธิบาย schema เริ่มต้นใน [`ddl/001_init.sql`](ddl/001_init.sql) สำหรับแชตบอตสินค้าเครื่องเขียน ผู้ใช้แนบได้เฉพาะรูปภาพ ไม่มีตารางหรือ API สำหรับอัปโหลดเอกสาร PDF/DOCX
 
+## สถานะโครงสร้าง (2026-10-03)
+
+DDL snapshot ปัจจุบันมี **12 ตาราง** รวม Guest sessions และ Image RAG แล้ว ไฟล์ SQL อัปเดตแล้ว แต่ **ยังไม่ได้ apply กับฐานข้อมูลที่รันจริง** และ API ยังไม่รองรับ Guest
+
+- ฐานใหม่: รัน `ddl/001_init.sql` ที่อัปเดตแล้วเพียงไฟล์เดียว
+- ฐานเดิม: backup ก่อน แล้วรัน migration ตามลำดับด้านล่าง ไม่รัน init ซ้ำ
+- ห้ามรัน migration Guest ซ้ำหรือรันหลัง fresh init; ตอนนี้ยังไม่มี migration tracking อัตโนมัติ
+
+```shell
+psql -X -v ON_ERROR_STOP=1 -d ink_buddy -f database/migrations/001_guest_sessions.sql
+psql -X -v ON_ERROR_STOP=1 -d ink_buddy -f database/migrations/002_product_image_embeddings.sql
+```
+
+Migration 002 รองรับตาราง image embeddings ที่ SQLAlchemy เคยสร้างไว้ด้วย IF NOT EXISTS แต่ไม่ซ่อมตารางที่ schema ไม่ตรง ต้องตรวจโครงสร้างเดิมก่อน apply และตรวจว่า constraint `uq_product_chunk` มีอยู่สำหรับ repository UPSERT Migration อาจ lock ตาราง ควรรันช่วงไม่มีการเขียนข้อมูล
+
 ## วิธีเริ่มต้นฐานข้อมูล
 
 ### ใช้ Podman Compose บนเครื่อง (แนะนำสำหรับ development)
@@ -37,14 +52,20 @@ Compose ใน `docker/compose.yaml` ใช้ named volume `postgres_data` เ�
 erDiagram
     ROLES ||--o{ USERS : assigns
     USERS ||--o{ REFRESH_TOKENS : owns
-    USERS ||--o{ CHAT_SESSIONS : starts
+    USERS o|--o{ CHAT_SESSIONS : starts
+    USERS o|--o{ GUEST_SESSIONS : claims
+    GUEST_SESSIONS o|--o{ CHAT_SESSIONS : starts
     CHAT_SESSIONS ||--o{ CHAT_MESSAGES : contains
-    USERS ||--o{ IMAGE_UPLOADS : uploads
+    USERS o|--o{ IMAGE_UPLOADS : uploads
+    GUEST_SESSIONS o|--o{ IMAGE_UPLOADS : uploads
     IMAGE_UPLOADS o|--o{ CHAT_MESSAGES : attached_to
     PRODUCTS ||--o{ PRODUCT_IMAGES : has
     PRODUCTS ||--o{ PRODUCT_EMBEDDINGS : embeds
+    PRODUCTS o|..o{ PRODUCT_IMAGE_EMBEDDINGS : sku_lookup_only
     USERS o|--o{ AUDIT_LOGS : performs
 ```
+
+ER แสดงความสัมพันธ์ SKU ของ image embeddings เป็นเชิงตรรกะ ไม่ใช่ FK จริง; owner ของแชต/รูปต้องเป็น User หรือ Guest หนึ่งอย่างเท่านั้น
 
 ## ตาราง
 
@@ -66,7 +87,7 @@ erDiagram
 
 ### `chat_messages`
 
-ข้อความในแต่ละ session มีลำดับ `sequence_number` ที่ไม่ซ้ำภายใน session, role, content, product reference snapshot และ `image_id` ถ้ามีรูป FK ของ `image_id` ใช้ `RESTRICT` เมื่อจะลบภาพจริง เพื่อไม่ให้ข้อความแบบแนบรูปอย่างเดียวกลายเป็นข้อความว่าง ส่วนการ soft delete ภาพยังทำได้ ต้องตรวจว่า `image_uploads.user_id` ตรงกับ owner ของ session ใน service เพราะ FK เดี่ยวไม่ได้รับประกันเงื่อนไขข้ามตารางนี้
+ข้อความในแต่ละ session มีลำดับ `sequence_number` ที่ไม่ซ้ำภายใน session, role, content, product reference snapshot และ `image_id` ถ้ามีรูป FK ของ `image_id` ใช้ `RESTRICT` เมื่อจะลบภาพจริง เพื่อไม่ให้ข้อความแบบแนบรูปอย่างเดียวกลายเป็นข้อความว่าง ส่วนการ soft delete ภาพยังทำได้ ต้องตรวจว่า owner ของรูปตรงกับ owner ของ session ทั้งกรณี user_id และ guest_session_id ใน service เพราะ FK เดี่ยวไม่ได้รับประกันเงื่อนไขข้ามตารางนี้
 
 ### `products`
 
@@ -127,8 +148,8 @@ erDiagram
 
 1. ใช้ SQL filters กับ SKU, ประเภท, ยี่ห้อ และราคาเมื่อผู้ใช้ระบุเงื่อนไขชัดเจน
 2. ใช้ trigram index กับชื่อสินค้า และ vector cosine กับคำถามที่อธิบายความต้องการ
-3. สำหรับภาพ ใช้ Qwen2.5-VL/OCR แปลงเป็นลักษณะและข้อความ แล้วค้น catalog ตามข้อ 1–2
-4. BGE-M3 ใน schema นี้เป็น **text embedding** ไม่ใช่ image embedding; หากต้องการเปรียบเทียบภาพกับภาพโดยตรงต้องเพิ่ม model/schema ที่เหมาะสมภายหลัง
+3. Image RAG ปัจจุบันใช้ Qwen3-VL-Embedding-2B/vector(2048) และ Qwen3-VL ผ่าน Ollama เมื่อจำเป็นต้องวิเคราะห์ภาพ; metadata API อ่านจาก products โดย lookup SKU
+4. BGE-M3/vector(1024) เป็น **text embedding** แยกตารางจาก image embedding ไม่สามารถปะปน vector spaces ได้
 
 ## เรื่องที่ยังต้องกำหนด
 
@@ -137,3 +158,196 @@ erDiagram
 - เกณฑ์ exact match เทียบกับ similar match จากภาพ
 - อายุการเก็บ chat, uploaded images, audit logs และวิธีลบข้อมูลจริง
 - การแยกสิทธิ์ admin สำหรับแก้ catalog; init นี้สร้างเพียง role และตาราง ไม่สร้าง admin account
+
+## Guest sessions และนโยบายโควตา
+
+`guest_sessions` เป็นตัวตนชั่วคราวที่ server ออกให้ ไม่ใช่ chat thread: ภายในหนึ่ง Guest session มีหลายแชตได้ เป็นสมมติฐานตาม API spec ที่ยังต้องยืนยัน เก็บ token hash เท่านั้น และกำหนด expires_at ทุกครั้งโดยแอป (ยังไม่กำหนดอายุ default)
+
+`chat_sessions` และ `image_uploads` ใช้ nullable user_id/guest_session_id พร้อม CHECK XOR บังคับมีเจ้าของหนึ่งอย่าง FK Guest ใช้ RESTRICT ข้อมูลผู้ใช้เดิมไม่ต้อง backfill
+
+โควตา 3 รูปใช้ `image_upload_limit=3` และ counter 0–3 ข้อเสนอการนับคือรับสำเร็จจึงนับ ลบรูปไม่คืนโควตา ค้นรูปเดิมไม่เสียเพิ่ม **CHECK ไม่ได้นับแถว image_uploads ให้อัตโนมัติ** API ต้อง lock แถว Guest ด้วย SELECT FOR UPDATE และ update counter/insert รูปใน transaction เดียว ตรวจ expiry/revoked/claimed ด้วย หาก DB fail rollback และ cleanup ไฟล์ ห้ามเปิด Guest API โดยยังใช้โค้ด upload เดิม
+
+Claim ต้องย้าย owner ของแชตและรูปเป็น user ใน transaction เดียว พร้อมตั้ง claimed user/time และ revoke token หากมี claim ต้องมี revoked_at ตาม CHECK; DB ไม่ย้าย owner ให้อัตโนมัติ
+
+Guest expiry และ image soft delete ไม่ลบไฟล์จริง ต้องมี cleanup worker: ลบข้อความ/แชตที่เกี่ยวข้องก่อนลบรูปและ Guest rows พร้อมลบ private storage ไม่มีการ cascade ที่ซ่อนขั้นตอนนี้
+
+### Index เพิ่มเติม
+
+| Index | เหตุผล |
+|---|---|
+| guest_sessions.token_hash UNIQUE | lookup credential hash |
+| guest_sessions_expires_idx | หา session หมดอายุเพื่อ cleanup |
+| guest_sessions_claimed_user_idx | หา Guest ที่เคยย้ายเข้าบัญชี |
+| chat_sessions_guest_recent_idx | อ่านแชต Guest ล่าสุดที่ยังไม่ soft delete |
+| image_uploads_guest_recent_idx | อ่านรูป Guest ล่าสุดที่ยังไม่ soft delete |
+| chat_sessions_guest_fk_idx / image_uploads_guest_fk_idx | lookup ข้อมูลทั้งหมดรวม soft-deleted ตอน claim/cleanup และตรวจ FK; recent partial indexes ไม่ครอบคลุมแถวที่ลบแล้ว |
+
+## Product image embeddings
+
+ตรงกับ `backend/app/models/product.py`: integer identity ผ่าน serial, UNIQUE (sku, chunk_type, variant) ชื่อ `uq_product_chunk` เพื่อให้ repository UPSERT ได้ มี image/image_aug/caption และ vector 2048 มิติ metadata JSONB เป็น snapshot จาก catalog
+
+ไม่มี FK จาก SKU ไป products ตาม model ปัจจุบัน index ได้ก่อน seed products แต่ API ตัดผลที่ไม่มี SKU ใน products จึงต้อง sync ทั้งสองส่วน ความยาว SKU ของ index คือ 64 ส่วน products คือ 100 ตาม model; catalog ต้องใช้ SKU ไม่เกิน 64 จนกว่าจะปรับทั้ง model/DDL
+
+Indexes SKU และ GIN metadata เก็บตาม model ปัจจุบัน; GIN ต้องวัดกับ JSON filter จริง ไม่รับประกันว่า expression is_active ใน repository จะใช้ index นี้ UNIQUE chunk key เก็บโมเดลหนึ่งชุดต่อ chunk การเปลี่ยนโมเดล overwrite ชุดเดิม ต้อง reindex ให้ครบและไม่ค้นระหว่างชุดปะปน
+
+ไม่เพิ่ม HNSW vector(2048) เพราะเกินขีดจำกัด 2000 มิติของ vector index ใช้ exact scan สำหรับ catalog เล็กก่อน หากโตให้ประเมิน halfvec expression index และปรับ query ให้ตรงกับ expression อย่าสร้าง HNSW ที่ใช้ไม่ได้
+
+## Column reference ตาม DDL ปัจจุบัน
+
+ตารางด้านล่างแสดง type/nullability จาก DDL; รายละเอียด constraint/FK/default ดู SQL และคำอธิบายด้านบน
+
+### `roles` — Columns
+
+| Column Name | Data Type | Nullable | Description |
+|---|---|---|---|
+| id | uuid | No | Primary key |
+| name | varchar(50) | No | name |
+| description | text | Yes | description |
+
+### `users` — Columns
+
+| Column Name | Data Type | Nullable | Description |
+|---|---|---|---|
+| id | uuid | No | Primary key |
+| role_id | uuid | No | FK roles |
+| email | varchar(320) | No | email |
+| password_hash | text | No | password hash |
+| display_name | varchar(120) | Yes | display name |
+| is_active | boolean | No | is active |
+| created_at | timestamptz | No | เวลาสร้าง |
+| updated_at | timestamptz | No | เวลาปรับปรุง; แอปต้อง update |
+
+### `refresh_tokens` — Columns
+
+| Column Name | Data Type | Nullable | Description |
+|---|---|---|---|
+| id | uuid | No | Primary key |
+| user_id | uuid | No | เจ้าของบัญชี; ในแชต/รูปต้องมี user หรือ guest หนึ่งอย่าง |
+| token_hash | text | No | Hash ของ token ไม่เก็บค่าดิบ |
+| expires_at | timestamptz | No | เวลาหมดอายุ |
+| revoked_at | timestamptz | Yes | เวลายกเลิก token |
+| created_at | timestamptz | No | เวลาสร้าง |
+
+### `guest_sessions` — Columns
+
+| Column Name | Data Type | Nullable | Description |
+|---|---|---|---|
+| id | uuid | No | Primary key |
+| token_hash | text | No | Hash ของ token ไม่เก็บค่าดิบ |
+| image_upload_limit | smallint | No | โควตา Guest คงที่ 3 |
+| image_uploads_used | smallint | No | จำนวนอัปโหลดสำเร็จ; แอปเพิ่มใน transaction |
+| created_at | timestamptz | No | เวลาสร้าง |
+| expires_at | timestamptz | No | เวลาหมดอายุ |
+| revoked_at | timestamptz | Yes | เวลายกเลิก token |
+| claimed_by_user_id | uuid | Yes | FK บัญชีที่รับข้อมูล Guest |
+| claimed_at | timestamptz | Yes | เวลารับข้อมูลเข้าบัญชี |
+
+### `chat_sessions` — Columns
+
+| Column Name | Data Type | Nullable | Description |
+|---|---|---|---|
+| id | uuid | No | Primary key |
+| user_id | uuid | Yes | เจ้าของบัญชี; ในแชต/รูปต้องมี user หรือ guest หนึ่งอย่าง |
+| guest_session_id | uuid | Yes | FK ตัวตน Guest; owner XOR กับ user_id |
+| title | varchar(200) | Yes | title |
+| summary | text | Yes | summary |
+| summary_checkpoint | integer | No | summary checkpoint |
+| created_at | timestamptz | No | เวลาสร้าง |
+| updated_at | timestamptz | No | เวลาปรับปรุง; แอปต้อง update |
+| deleted_at | timestamptz | Yes | เวลา soft delete |
+
+### `image_uploads` — Columns
+
+| Column Name | Data Type | Nullable | Description |
+|---|---|---|---|
+| id | uuid | No | Primary key |
+| user_id | uuid | Yes | เจ้าของบัญชี; ในแชต/รูปต้องมี user หรือ guest หนึ่งอย่าง |
+| guest_session_id | uuid | Yes | FK ตัวตน Guest; owner XOR กับ user_id |
+| storage_key | text | No | ตำแหน่งไฟล์ใน storage ไม่ใช่ไฟล์ binary |
+| mime_type | varchar(100) | No | mime type |
+| size_bytes | bigint | No | size bytes |
+| status | varchar(20) | No | สถานะภาพ |
+| ocr_text | text | Yes | ข้อความที่อ่านจากภาพ |
+| analysis | jsonb | Yes | ผลวิเคราะห์ JSON |
+| created_at | timestamptz | No | เวลาสร้าง |
+| deleted_at | timestamptz | Yes | เวลา soft delete |
+
+### `chat_messages` — Columns
+
+| Column Name | Data Type | Nullable | Description |
+|---|---|---|---|
+| id | uuid | No | Primary key |
+| session_id | uuid | No | FK chat_sessions |
+| sequence_number | integer | No | sequence number |
+| role | varchar(20) | No | role |
+| content | text | No | ข้อความหรือ path ตามตาราง |
+| product_refs | jsonb | Yes | product refs |
+| image_id | uuid | Yes | FK image_uploads |
+| model_name | varchar(100) | Yes | model name |
+| created_at | timestamptz | No | เวลาสร้าง |
+
+### `products` — Columns
+
+| Column Name | Data Type | Nullable | Description |
+|---|---|---|---|
+| id | uuid | No | Primary key |
+| sku | varchar(100) | Yes | SKU สำหรับเชื่อมข้อมูลสินค้า |
+| name | text | No | name |
+| category | varchar(100) | Yes | category |
+| brand | varchar(100) | Yes | brand |
+| description | text | Yes | description |
+| attributes | jsonb | No | attributes |
+| price | numeric(12, 2) | Yes | ราคา nullable เมื่อไม่มีข้อมูล |
+| currency | char(3) | Yes | currency |
+| availability | varchar(30) | Yes | สถานะจาก catalog ไม่รับประกัน realtime |
+| source_ref | text | Yes | แหล่งอ้างอิงข้อมูลสินค้า |
+| created_at | timestamptz | No | เวลาสร้าง |
+| updated_at | timestamptz | No | เวลาปรับปรุง; แอปต้อง update |
+
+### `product_images` — Columns
+
+| Column Name | Data Type | Nullable | Description |
+|---|---|---|---|
+| id | uuid | No | Primary key |
+| product_id | uuid | No | FK products |
+| storage_key | text | No | ตำแหน่งไฟล์ใน storage ไม่ใช่ไฟล์ binary |
+| is_primary | boolean | No | is primary |
+| alt_text | text | Yes | alt text |
+
+### `product_embeddings` — Columns
+
+| Column Name | Data Type | Nullable | Description |
+|---|---|---|---|
+| id | uuid | No | Primary key |
+| product_id | uuid | No | FK products |
+| model_name | varchar(100) | No | model name |
+| source_text | text | No | source text |
+| embedding | vector(1024) | No | Vector; dimension ตามตาราง |
+| created_at | timestamptz | No | เวลาสร้าง |
+
+### `product_image_embeddings` — Columns
+
+| Column Name | Data Type | Nullable | Description |
+|---|---|---|---|
+| id | serial | No | Primary key |
+| sku | varchar(64) | No | SKU สำหรับเชื่อมข้อมูลสินค้า |
+| chunk_type | varchar(16) | No | image/image_aug/caption |
+| variant | smallint | No | ลำดับ variant ของ chunk |
+| content | text | No | ข้อความหรือ path ตามตาราง |
+| content_hash | varchar(64) | No | Hash ใช้ตรวจ chunk เปลี่ยน |
+| embedding | vector(2048) | No | Vector; dimension ตามตาราง |
+| embed_model | varchar(128) | No | ชื่อ image embedding model |
+| metadata | jsonb | No | JSON ข้อมูลประกอบ; ห้ามใส่ credential |
+| updated_at | timestamptz | No | เวลาปรับปรุง; แอปต้อง update |
+
+### `audit_logs` — Columns
+
+| Column Name | Data Type | Nullable | Description |
+|---|---|---|---|
+| id | uuid | No | Primary key |
+| actor_user_id | uuid | Yes | FK users; nullable สำหรับระบบ |
+| action | varchar(100) | No | action |
+| resource_type | varchar(50) | Yes | resource type |
+| resource_id | uuid | Yes | resource id |
+| metadata | jsonb | No | JSON ข้อมูลประกอบ; ห้ามใส่ credential |
+| created_at | timestamptz | No | เวลาสร้าง |

@@ -12,7 +12,8 @@ from app.api.deps import get_current_user_id
 from app.core.config import Settings, get_settings
 from app.core.errors import ApiError, ErrorResponse
 from app.db.database import get_db
-from app.schemas.vision import ImageUploadResponse
+from app.schemas.image import ImageUploadResponse, ImageDetailResponse
+from app.api.scaffold import SCAFFOLD_OPENAPI, SCAFFOLD_RESPONSES, not_implemented
 from app.services.vision_service import VisionService, get_vision_service
 
 router = APIRouter(prefix="/images", tags=["images"])
@@ -36,3 +37,16 @@ async def upload_image(
     if len(data) > settings.image_max_bytes:
         raise ApiError(413, "IMAGE_TOO_LARGE", f"image larger than {settings.image_max_bytes // (1024 * 1024)} MB")
     return await run_in_threadpool(service.upload_image, db, user_id, data)
+
+
+
+@router.get("/{image_id}", status_code=200, response_model=ImageDetailResponse, responses=SCAFFOLD_RESPONSES, openapi_extra=SCAFFOLD_OPENAPI,
+    summary="[Scaffold] get image", description="Returns 501 for valid requests. Success schema is a proposed contract, not implemented behavior.")
+def get_image(image_id: UUID):
+    not_implemented("get_image")
+
+
+@router.delete("/{image_id}", status_code=204, responses=SCAFFOLD_RESPONSES, openapi_extra=SCAFFOLD_OPENAPI,
+    summary="[Scaffold] delete image", description="Returns 501 for valid requests. Success schema is a proposed contract, not implemented behavior.")
+def delete_image(image_id: UUID):
+    not_implemented("delete_image")
