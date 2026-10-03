@@ -1,7 +1,7 @@
 -- Ink Buddy initial schema. Run once against an empty PostgreSQL database.
 -- Requires PostgreSQL 13+ (gen_random_uuid), pgvector, and pg_trgm.
 -- Fresh-install snapshot including Guest sessions and Image RAG.
--- Existing databases: apply migrations/001_guest_sessions.sql and 002_product_image_embeddings.sql; do not rerun init.
+-- Existing databases: apply pending migrations 001, 002 and 003 in order; do not rerun init.
 
 BEGIN;
 
@@ -31,19 +31,40 @@ CREATE TABLE users (
 CREATE UNIQUE INDEX users_email_lower_uq ON users (lower(email));
 CREATE INDEX users_role_id_idx ON users (role_id);
 
+CREATE TABLE auth_sessions (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    created_at timestamptz NOT NULL DEFAULT now(),
+    expires_at timestamptz NOT NULL,
+    revoked_at timestamptz,
+    CONSTRAINT auth_sessions_expiry_check CHECK (expires_at > created_at),
+    CONSTRAINT auth_sessions_revoked_check CHECK (revoked_at IS NULL OR revoked_at >= created_at),
+    CONSTRAINT auth_sessions_id_user_uq UNIQUE (id, user_id)
+);
+CREATE INDEX auth_sessions_user_idx ON auth_sessions (user_id, expires_at);
+CREATE INDEX auth_sessions_expires_idx ON auth_sessions (expires_at);
+
 CREATE TABLE refresh_tokens (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    session_id uuid,
+    rotated_at timestamptz,
+    replaced_by_id uuid REFERENCES refresh_tokens(id) ON DELETE SET NULL,
     token_hash text NOT NULL UNIQUE,
     expires_at timestamptz NOT NULL,
     revoked_at timestamptz,
     created_at timestamptz NOT NULL DEFAULT now(),
+    CONSTRAINT refresh_tokens_session_fk FOREIGN KEY (session_id, user_id) REFERENCES auth_sessions(id, user_id) ON DELETE CASCADE,
+    CONSTRAINT refresh_tokens_session_check CHECK (session_id IS NOT NULL OR revoked_at IS NOT NULL),
+    CONSTRAINT refresh_tokens_rotation_check CHECK (rotated_at IS NULL OR (revoked_at IS NOT NULL AND rotated_at >= created_at)),
     CONSTRAINT refresh_tokens_hash_not_blank CHECK (length(btrim(token_hash)) > 0),
     CONSTRAINT refresh_tokens_expiry_check CHECK (expires_at > created_at),
     CONSTRAINT refresh_tokens_revoked_check CHECK (revoked_at IS NULL OR revoked_at >= created_at)
 );
 
 CREATE INDEX refresh_tokens_user_expires_idx ON refresh_tokens (user_id, expires_at);
+CREATE INDEX refresh_tokens_session_idx ON refresh_tokens (session_id);
+CREATE INDEX refresh_tokens_replaced_idx ON refresh_tokens (replaced_by_id) WHERE replaced_by_id IS NOT NULL;
 CREATE INDEX refresh_tokens_expires_idx ON refresh_tokens (expires_at);
 
 CREATE TABLE guest_sessions (

@@ -1,5 +1,9 @@
 # Ink Buddy Chat Bot
 
+> **สถานะ: ร่าง/บันทึกแนวคิดเดิม — ตรวจทบทวน 2026-10-03**
+> เนื้อหาด้านล่างไม่ใช่รายการฟีเจอร์หรือ contract ที่ implement ครบแล้ว ดู [สถานะโค้ดปัจจุบัน](docs/architecture/PROJECT_STATUS.md) และ API Spec/Database Schema ที่อ้างจากหน้านั้น ผู้ใช้แนบรูปเท่านั้น; ข้อเสนอ document upload, model, schema และ endpoint เก่าต้องทบทวนก่อนนำไปใช้
+
+
 ## Project Overview
 
 Ink Buddy Chat Bot is a Multimodal Retrieval-Augmented Generation (RAG) Chatbot designed to provide intelligent question answering from documents and images using locally hosted Large Language Models (LLMs) through Ollama.

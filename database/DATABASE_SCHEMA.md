@@ -4,7 +4,7 @@
 
 ## สถานะโครงสร้าง (2026-10-03)
 
-DDL snapshot ปัจจุบันมี **12 ตาราง** รวม Guest sessions และ Image RAG แล้ว ไฟล์ SQL อัปเดตแล้ว แต่ **ยังไม่ได้ apply กับฐานข้อมูลที่รันจริง** และ API ยังไม่รองรับ Guest
+DDL snapshot ปัจจุบันมี **13 ตาราง** รวม Guest sessions และ Image RAG แล้ว Auth/Guest ใช้งานจริงแล้ว ฐาน local ใน Podman apply migration 003 แล้วพร้อม backup ใน .local/backups; ฐานเครื่องอื่นต้องตรวจและ apply migration ตาม schema ที่มี
 
 - ฐานใหม่: รัน `ddl/001_init.sql` ที่อัปเดตแล้วเพียงไฟล์เดียว
 - ฐานเดิม: backup ก่อน แล้วรัน migration ตามลำดับด้านล่าง ไม่รัน init ซ้ำ
@@ -13,6 +13,7 @@ DDL snapshot ปัจจุบันมี **12 ตาราง** รวม Gue
 ```shell
 psql -X -v ON_ERROR_STOP=1 -d ink_buddy -f database/migrations/001_guest_sessions.sql
 psql -X -v ON_ERROR_STOP=1 -d ink_buddy -f database/migrations/002_product_image_embeddings.sql
+psql -X -v ON_ERROR_STOP=1 -d ink_buddy -f database/migrations/003_auth_sessions.sql
 ```
 
 Migration 002 รองรับตาราง image embeddings ที่ SQLAlchemy เคยสร้างไว้ด้วย IF NOT EXISTS แต่ไม่ซ่อมตารางที่ schema ไม่ตรง ต้องตรวจโครงสร้างเดิมก่อน apply และตรวจว่า constraint `uq_product_chunk` มีอยู่สำหรับ repository UPSERT Migration อาจ lock ตาราง ควรรันช่วงไม่มีการเขียนข้อมูล
@@ -51,6 +52,8 @@ Compose ใน `docker/compose.yaml` ใช้ named volume `postgres_data` เ�
 ```mermaid
 erDiagram
     ROLES ||--o{ USERS : assigns
+    USERS ||--o{ AUTH_SESSIONS : logs_in
+    AUTH_SESSIONS ||--o{ REFRESH_TOKENS : rotates
     USERS ||--o{ REFRESH_TOKENS : owns
     USERS o|--o{ CHAT_SESSIONS : starts
     USERS o|--o{ GUEST_SESSIONS : claims
@@ -161,13 +164,13 @@ ER แสดงความสัมพันธ์ SKU ของ image embeddin
 
 ## Guest sessions และนโยบายโควตา
 
-`guest_sessions` เป็นตัวตนชั่วคราวที่ server ออกให้ ไม่ใช่ chat thread: ภายในหนึ่ง Guest session มีหลายแชตได้ เป็นสมมติฐานตาม API spec ที่ยังต้องยืนยัน เก็บ token hash เท่านั้น และกำหนด expires_at ทุกครั้งโดยแอป (ยังไม่กำหนดอายุ default)
+`guest_sessions` เป็นตัวตนชั่วคราวที่ server ออกให้ ไม่ใช่ chat thread: ภายในหนึ่ง Guest session มีหลายแชตได้ เป็นนโยบายที่ตกลงแล้ว เก็บ token hash เท่านั้น และ expires_at=เวลาสร้าง+24ชั่วโมง ไม่ต่ออายุ
 
 `chat_sessions` และ `image_uploads` ใช้ nullable user_id/guest_session_id พร้อม CHECK XOR บังคับมีเจ้าของหนึ่งอย่าง FK Guest ใช้ RESTRICT ข้อมูลผู้ใช้เดิมไม่ต้อง backfill
 
-โควตา 3 รูปใช้ `image_upload_limit=3` และ counter 0–3 ข้อเสนอการนับคือรับสำเร็จจึงนับ ลบรูปไม่คืนโควตา ค้นรูปเดิมไม่เสียเพิ่ม **CHECK ไม่ได้นับแถว image_uploads ให้อัตโนมัติ** API ต้อง lock แถว Guest ด้วย SELECT FOR UPDATE และ update counter/insert รูปใน transaction เดียว ตรวจ expiry/revoked/claimed ด้วย หาก DB fail rollback และ cleanup ไฟล์ ห้ามเปิด Guest API โดยยังใช้โค้ด upload เดิม
+โควตา 3 รูปใช้ `image_upload_limit=3` และ counter 0–3 ข้อเสนอการนับคือรับสำเร็จจึงนับ ลบรูปไม่คืนโควตา ค้นรูปเดิมไม่เสียเพิ่ม **CHECK ไม่ได้นับแถว image_uploads ให้อัตโนมัติ** API ต้อง lock แถว Guest ด้วย SELECT FOR UPDATE และ update counter/insert รูปใน transaction เดียว ตรวจ expiry/revoked/claimed ด้วย หาก DB fail rollback และ cleanup ไฟล์ implementation Auth ใช้ Guest principal และ quota transaction นี้แล้ว
 
-Claim ต้องย้าย owner ของแชตและรูปเป็น user ใน transaction เดียว พร้อมตั้ง claimed user/time และ revoke token หากมี claim ต้องมี revoked_at ตาม CHECK; DB ไม่ย้าย owner ให้อัตโนมัติ
+Claim ต้องย้าย owner ของแชตและรูปเป็น user ใน transaction เดียว พร้อมตั้ง claimed user/time และ revoke token หากมี claim ต้องมี revoked_at ตาม CHECK; DB ไม่ย้าย owner ให้อัตโนมัติ; Auth service ทำ transaction นี้แล้ว
 
 Guest expiry และ image soft delete ไม่ลบไฟล์จริง ต้องมี cleanup worker: ลบข้อความ/แชตที่เกี่ยวข้องก่อนลบรูปและ Guest rows พร้อมลบ private storage ไม่มีการ cascade ที่ซ่อนขั้นตอนนี้
 
@@ -192,9 +195,21 @@ Indexes SKU และ GIN metadata เก็บตาม model ปัจจุ�
 
 ไม่เพิ่ม HNSW vector(2048) เพราะเกินขีดจำกัด 2000 มิติของ vector index ใช้ exact scan สำหรับ catalog เล็กก่อน หากโตให้ประเมิน halfvec expression index และปรับ query ให้ตรงกับ expression อย่าสร้าง HNSW ที่ใช้ไม่ได้
 
+## Auth sessions และ Refresh rotation
+
+auth_sessions เก็บ Login session อายุสูงสุด7วัน มี revocation ที่ตรวจทุก User API request เพื่อให้ Logout มีผลทันที JWT มี sid อ้าง session และ sub อ้าง user; role/active อ่านจาก DB ไม่เชื่อ role จาก JWT ที่อาจเก่า
+
+refresh_tokens เพิ่ม session_id, rotated_at และ replaced_by_id: rotate token ใหม่ใน parent session เดิมโดยไม่ต่ออายุ revoke ตัวเก่า และตรวจ reuse หาก token ที่ rotate แล้วถูกใช้อีกให้ revoke session และ tokens ทั้งชุด การ lock parent ก่อน token ทำให้ concurrent refresh/logout serialize
+
+Migration003 revoke refresh tokens เดิมที่ไม่มี session โดยไม่ลบบัญชีหรือข้อมูลแชต session_id nullable เฉพาะ legacy rows ที่ revoked แล้ว CHECK บังคับ active token ต้องมี session; composite FK (session_id,user_id) ป้องกัน token อ้าง session ของคนอื่น
+
+Indexes: auth_sessions_user_idx สำหรับ lookup session ต่อ user, auth_sessions_expires_idx สำหรับ expiry, refresh_tokens_session_idx สำหรับ revokeทั้งชุด และ refresh_tokens_replaced_idx สำหรับ relation/cleanup; PK auth_sessions ใช้ตรวจ access sid ทุกคำขอ
+
+Guest หมดอายุ24ชั่วโมง ข้อมูลที่ยังไม่ claim cleanup ได้หลังหมดอายุอีก24ชั่วโมง ใช้ python -m scripts.cleanup_guests (dry-run) และ --apply ที่ backend ต้องตั้ง scheduler เอง
+
 ## Column reference ตาม DDL ปัจจุบัน
 
-ตารางด้านล่างแสดง type/nullability จาก DDL; รายละเอียด constraint/FK/default ดู SQL และคำอธิบายด้านบน
+Types/nullability จาก SQL init; constraints/defaults/FKs ดู SQL และคำอธิบายด้านบน
 
 ### `roles` — Columns
 
@@ -211,21 +226,34 @@ Indexes SKU และ GIN metadata เก็บตาม model ปัจจุ�
 | id | uuid | No | Primary key |
 | role_id | uuid | No | FK roles |
 | email | varchar(320) | No | email |
-| password_hash | text | No | password hash |
+| password_hash | text | No | Argon2id; bcrypt เดิม migrate หลัง Login |
 | display_name | varchar(120) | Yes | display name |
 | is_active | boolean | No | is active |
 | created_at | timestamptz | No | เวลาสร้าง |
-| updated_at | timestamptz | No | เวลาปรับปรุง; แอปต้อง update |
+| updated_at | timestamptz | No | แอปอัปเดตเมื่อแก้ข้อมูล |
+
+### `auth_sessions` — Columns
+
+| Column Name | Data Type | Nullable | Description |
+|---|---|---|---|
+| id | uuid | No | Primary key |
+| user_id | uuid | No | FK users; nullable เฉพาะ owner ของแชต/รูป |
+| created_at | timestamptz | No | เวลาสร้าง |
+| expires_at | timestamptz | No | เวลาหมดอายุ |
+| revoked_at | timestamptz | Yes | เวลายกเลิกสิทธิ์ |
 
 ### `refresh_tokens` — Columns
 
 | Column Name | Data Type | Nullable | Description |
 |---|---|---|---|
 | id | uuid | No | Primary key |
-| user_id | uuid | No | เจ้าของบัญชี; ในแชต/รูปต้องมี user หรือ guest หนึ่งอย่าง |
-| token_hash | text | No | Hash ของ token ไม่เก็บค่าดิบ |
+| user_id | uuid | No | FK users; nullable เฉพาะ owner ของแชต/รูป |
+| session_id | uuid | Yes | FK auth_sessions สำหรับ refresh; FK chat_sessions สำหรับ messages |
+| rotated_at | timestamptz | Yes | เวลาที่ token ถูกใช้และหมุนตัวใหม่ |
+| replaced_by_id | uuid | Yes | FK refresh_tokens ตัวใหม่ |
+| token_hash | text | No | Hash เท่านั้น ไม่เก็บ token ดิบ |
 | expires_at | timestamptz | No | เวลาหมดอายุ |
-| revoked_at | timestamptz | Yes | เวลายกเลิก token |
+| revoked_at | timestamptz | Yes | เวลายกเลิกสิทธิ์ |
 | created_at | timestamptz | No | เวลาสร้าง |
 
 ### `guest_sessions` — Columns
@@ -233,54 +261,54 @@ Indexes SKU และ GIN metadata เก็บตาม model ปัจจุ�
 | Column Name | Data Type | Nullable | Description |
 |---|---|---|---|
 | id | uuid | No | Primary key |
-| token_hash | text | No | Hash ของ token ไม่เก็บค่าดิบ |
-| image_upload_limit | smallint | No | โควตา Guest คงที่ 3 |
-| image_uploads_used | smallint | No | จำนวนอัปโหลดสำเร็จ; แอปเพิ่มใน transaction |
+| token_hash | text | No | Hash เท่านั้น ไม่เก็บ token ดิบ |
+| image_upload_limit | smallint | No | คงที่3สำหรับGuest |
+| image_uploads_used | smallint | No | จำนวนอัปโหลดสำเร็จ 0–3 |
 | created_at | timestamptz | No | เวลาสร้าง |
 | expires_at | timestamptz | No | เวลาหมดอายุ |
-| revoked_at | timestamptz | Yes | เวลายกเลิก token |
-| claimed_by_user_id | uuid | Yes | FK บัญชีที่รับข้อมูล Guest |
-| claimed_at | timestamptz | Yes | เวลารับข้อมูลเข้าบัญชี |
+| revoked_at | timestamptz | Yes | เวลายกเลิกสิทธิ์ |
+| claimed_by_user_id | uuid | Yes | FK users บัญชีที่รับ Guest |
+| claimed_at | timestamptz | Yes | เวลา claim สำเร็จ |
 
 ### `chat_sessions` — Columns
 
 | Column Name | Data Type | Nullable | Description |
 |---|---|---|---|
 | id | uuid | No | Primary key |
-| user_id | uuid | Yes | เจ้าของบัญชี; ในแชต/รูปต้องมี user หรือ guest หนึ่งอย่าง |
-| guest_session_id | uuid | Yes | FK ตัวตน Guest; owner XOR กับ user_id |
+| user_id | uuid | Yes | FK users; nullable เฉพาะ owner ของแชต/รูป |
+| guest_session_id | uuid | Yes | FK guest_sessions; owner XOR กับ user_id |
 | title | varchar(200) | Yes | title |
 | summary | text | Yes | summary |
 | summary_checkpoint | integer | No | summary checkpoint |
 | created_at | timestamptz | No | เวลาสร้าง |
-| updated_at | timestamptz | No | เวลาปรับปรุง; แอปต้อง update |
-| deleted_at | timestamptz | Yes | เวลา soft delete |
+| updated_at | timestamptz | No | แอปอัปเดตเมื่อแก้ข้อมูล |
+| deleted_at | timestamptz | Yes | soft delete |
 
 ### `image_uploads` — Columns
 
 | Column Name | Data Type | Nullable | Description |
 |---|---|---|---|
 | id | uuid | No | Primary key |
-| user_id | uuid | Yes | เจ้าของบัญชี; ในแชต/รูปต้องมี user หรือ guest หนึ่งอย่าง |
-| guest_session_id | uuid | Yes | FK ตัวตน Guest; owner XOR กับ user_id |
-| storage_key | text | No | ตำแหน่งไฟล์ใน storage ไม่ใช่ไฟล์ binary |
+| user_id | uuid | Yes | FK users; nullable เฉพาะ owner ของแชต/รูป |
+| guest_session_id | uuid | Yes | FK guest_sessions; owner XOR กับ user_id |
+| storage_key | text | No | Private file key ไม่ใช่ไฟล์binary |
 | mime_type | varchar(100) | No | mime type |
 | size_bytes | bigint | No | size bytes |
-| status | varchar(20) | No | สถานะภาพ |
-| ocr_text | text | Yes | ข้อความที่อ่านจากภาพ |
-| analysis | jsonb | Yes | ผลวิเคราะห์ JSON |
+| status | varchar(20) | No | status |
+| ocr_text | text | Yes | ocr text |
+| analysis | jsonb | Yes | analysis |
 | created_at | timestamptz | No | เวลาสร้าง |
-| deleted_at | timestamptz | Yes | เวลา soft delete |
+| deleted_at | timestamptz | Yes | soft delete |
 
 ### `chat_messages` — Columns
 
 | Column Name | Data Type | Nullable | Description |
 |---|---|---|---|
 | id | uuid | No | Primary key |
-| session_id | uuid | No | FK chat_sessions |
+| session_id | uuid | No | FK auth_sessions สำหรับ refresh; FK chat_sessions สำหรับ messages |
 | sequence_number | integer | No | sequence number |
 | role | varchar(20) | No | role |
-| content | text | No | ข้อความหรือ path ตามตาราง |
+| content | text | No | content |
 | product_refs | jsonb | Yes | product refs |
 | image_id | uuid | Yes | FK image_uploads |
 | model_name | varchar(100) | Yes | model name |
@@ -297,12 +325,12 @@ Indexes SKU และ GIN metadata เก็บตาม model ปัจจุ�
 | brand | varchar(100) | Yes | brand |
 | description | text | Yes | description |
 | attributes | jsonb | No | attributes |
-| price | numeric(12, 2) | Yes | ราคา nullable เมื่อไม่มีข้อมูล |
+| price | numeric(12, 2) | Yes | price |
 | currency | char(3) | Yes | currency |
-| availability | varchar(30) | Yes | สถานะจาก catalog ไม่รับประกัน realtime |
-| source_ref | text | Yes | แหล่งอ้างอิงข้อมูลสินค้า |
+| availability | varchar(30) | Yes | availability |
+| source_ref | text | Yes | source ref |
 | created_at | timestamptz | No | เวลาสร้าง |
-| updated_at | timestamptz | No | เวลาปรับปรุง; แอปต้อง update |
+| updated_at | timestamptz | No | แอปอัปเดตเมื่อแก้ข้อมูล |
 
 ### `product_images` — Columns
 
@@ -310,7 +338,7 @@ Indexes SKU และ GIN metadata เก็บตาม model ปัจจุ�
 |---|---|---|---|
 | id | uuid | No | Primary key |
 | product_id | uuid | No | FK products |
-| storage_key | text | No | ตำแหน่งไฟล์ใน storage ไม่ใช่ไฟล์ binary |
+| storage_key | text | No | Private file key ไม่ใช่ไฟล์binary |
 | is_primary | boolean | No | is primary |
 | alt_text | text | Yes | alt text |
 
@@ -322,7 +350,7 @@ Indexes SKU และ GIN metadata เก็บตาม model ปัจจุ�
 | product_id | uuid | No | FK products |
 | model_name | varchar(100) | No | model name |
 | source_text | text | No | source text |
-| embedding | vector(1024) | No | Vector; dimension ตามตาราง |
+| embedding | vector(1024) | No | Vector ตาม dimension ของตาราง |
 | created_at | timestamptz | No | เวลาสร้าง |
 
 ### `product_image_embeddings` — Columns
@@ -331,14 +359,14 @@ Indexes SKU และ GIN metadata เก็บตาม model ปัจจุ�
 |---|---|---|---|
 | id | serial | No | Primary key |
 | sku | varchar(64) | No | SKU สำหรับเชื่อมข้อมูลสินค้า |
-| chunk_type | varchar(16) | No | image/image_aug/caption |
-| variant | smallint | No | ลำดับ variant ของ chunk |
-| content | text | No | ข้อความหรือ path ตามตาราง |
-| content_hash | varchar(64) | No | Hash ใช้ตรวจ chunk เปลี่ยน |
-| embedding | vector(2048) | No | Vector; dimension ตามตาราง |
-| embed_model | varchar(128) | No | ชื่อ image embedding model |
-| metadata | jsonb | No | JSON ข้อมูลประกอบ; ห้ามใส่ credential |
-| updated_at | timestamptz | No | เวลาปรับปรุง; แอปต้อง update |
+| chunk_type | varchar(16) | No | chunk type |
+| variant | smallint | No | variant |
+| content | text | No | content |
+| content_hash | varchar(64) | No | content hash |
+| embedding | vector(2048) | No | Vector ตาม dimension ของตาราง |
+| embed_model | varchar(128) | No | embed model |
+| metadata | jsonb | No | JSON ข้อมูลประกอบ |
+| updated_at | timestamptz | No | แอปอัปเดตเมื่อแก้ข้อมูล |
 
 ### `audit_logs` — Columns
 
@@ -349,5 +377,9 @@ Indexes SKU และ GIN metadata เก็บตาม model ปัจจุ�
 | action | varchar(100) | No | action |
 | resource_type | varchar(50) | Yes | resource type |
 | resource_id | uuid | Yes | resource id |
-| metadata | jsonb | No | JSON ข้อมูลประกอบ; ห้ามใส่ credential |
+| metadata | jsonb | No | JSON ข้อมูลประกอบ |
 | created_at | timestamptz | No | เวลาสร้าง |
+
+## ข้อจำกัดนอก schema
+
+ตรวจ 2026-10-03: transaction ของ Auth/Guest ทดสอบบน PostgreSQL แล้ว แต่ไฟล์ใน private storage ไม่ได้เป็น transaction เดียวกับ DB ดู [Auth review](../docs/api/auth/AUTH_REVIEW.md) สำหรับ partial file write และ cleanup retry behavior

@@ -1,18 +1,25 @@
 """Scaffolds must be visible, honest about readiness, and perform no real work."""
+
+from uuid import UUID
+
 import pytest
+from app.api.deps import authorize
+from app.core.security import Principal
+from app.main import app
 from fastapi.testclient import TestClient
 
-from app.main import app
+
+@pytest.fixture(autouse=True)
+def authorized_scaffold():
+    app.dependency_overrides[authorize] = lambda: Principal(
+        "user", UUID("123e4567-e89b-42d3-a456-426614174000"), "admin"
+    )
+    yield
+    app.dependency_overrides.clear()
+
 
 ID = "123e4567-e89b-42d3-a456-426614174000"
 CASES = [
-    ("POST", "/auth/login", {"email": "guest@example.com", "password": "example"}),
-    ("POST", "/auth/refresh", None),
-    ("POST", "/auth/logout", None),
-    ("POST", "/auth/guest-sessions", None),
-    ("GET", "/auth/guest-sessions/current", None),
-    ("POST", "/auth/guest-sessions/current/claim", None),
-    ("GET", "/users/me", None),
     ("PATCH", "/users/me", {"display_name": "Example"}),
     ("POST", "/chat-sessions", {}),
     ("GET", "/chat-sessions", None),
@@ -37,12 +44,19 @@ def test_scaffold_is_not_a_fake_success(method, path, body):
 
 
 def test_openapi_marks_all_scaffolds():
-    operations = [operation for item in app.openapi()["paths"].values()
-                  for method, operation in item.items() if method in {"get", "post", "patch", "delete"}]
+    operations = [
+        operation
+        for item in app.openapi()["paths"].values()
+        for method, operation in item.items()
+        if method in {"get", "post", "patch", "delete"}
+    ]
     assert len(operations) == 23
-    scaffolds = [operation for operation in operations
-                 if operation.get("x-implementation-status") == "scaffold"]
-    assert len(scaffolds) == 19
+    scaffolds = [
+        operation
+        for operation in operations
+        if operation.get("x-implementation-status") == "scaffold"
+    ]
+    assert len(scaffolds) == 12
     assert all("501" in operation["responses"] for operation in scaffolds)
 
 

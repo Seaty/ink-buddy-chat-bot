@@ -1,5 +1,9 @@
 # Ink Buddy — Architecture, Database & API Design (Draft v2)
 
+> **สถานะ: ร่าง/บันทึกแนวคิดเดิม — ตรวจทบทวน 2026-10-03**
+> เนื้อหาด้านล่างไม่ใช่รายการฟีเจอร์หรือ contract ที่ implement ครบแล้ว ดู [สถานะโค้ดปัจจุบัน](PROJECT_STATUS.md) และ API Spec/Database Schema ที่อ้างจากหน้านั้น ผู้ใช้แนบรูปเท่านั้น; ข้อเสนอ document upload, model, schema และ endpoint เก่าต้องทบทวนก่อนนำไปใช้
+
+
 > สถานะ: ข้อเสนอเพื่อทบทวน ไม่ใช่ระบบที่พัฒนาเสร็จแล้ว  
 > Business source of truth: [`../../BUSINESS_REQUIREMENTS.md`](../../BUSINESS_REQUIREMENTS.md)
 

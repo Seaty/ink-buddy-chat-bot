@@ -1,60 +1,36 @@
-# Ink Buddy — สถานะโปรเจค 2026-10-03
+# Ink Buddy — สถานะปัจจุบัน2026-10-03
 
-อ้างอิงโค้ด `main` commit `b90df77` หลัง merge งาน `feature/vision` และอัปเดต checkout ในเครื่องแบบ fast-forward
+## Authentication / Guest
 
-## สิ่งที่เพิ่มจริง
+- 23operationsบน18paths:11implementedและ12scaffoldหลังตรวจสิทธิ์
+- UserJWT15นาที,refreshsessionสูงสุด7วัน,rotation/reuse revokeและLogoutมีผลทันที
+- Guest24ชั่วโมง,3รูปต่อsession,Origincheck,ownership,atomicquotaและclaim
+- ทุกrouteประกาศpolicyและstartupปฏิเสธrouteที่ไม่ประกาศ; Adminindexตรวจrole+flag
+- ProfileGETทำแล้ว PATCH/Chat/Product/ImageDetailDelete/Readinessยังscaffold
+- มีscriptsสร้างuser/admin,cleanupGuestหลังexpiryอีก24ชั่วโมงและPostgreSQLintegrationtests
 
-- FastAPI entry point: `backend/app/main.py`
-- API `POST /api/v1/images` รับ JPEG/PNG/WEBP, ตรวจชนิดจากเนื้อหา, จำกัดขนาด, เก็บภาพส่วนตัวและข้อมูลใน `image_uploads`
-- API `POST /api/v1/product-search/by-image` ตรวจเจ้าของภาพและคืนสินค้าที่ค้นได้จาก catalog
-- API `POST /api/v1/admin/image-index` สร้าง/ปรับปรุง image index; ปิดเป็นค่าเริ่มต้น ยังไม่มี admin authentication
-- API `GET /api/v1/health` ตรวจสถานะพื้นฐาน
-- Vision pipeline สำหรับอ่านภาพ/ข้อความ ระบุความต้องการ ค้นสินค้า แนะนำ เปรียบเทียบ และตอบจากข้อมูล catalog บางเส้นทางคืนคำตอบโดยไม่เรียก VLM เพื่อลดเวลา
-- Catalog CSV 50 รายการพร้อมภาพใน `backend/datasets/catalog/`; SQL seed ใน `database/seed/001_catalog_products.sql` และ script สร้าง seed
-- Tests ของ catalog, prompts, pipeline, storage, API และ database integrations
+## Database / Runtime
 
-## โมเดลและการตั้งค่าที่โค้ดใช้
+Podmanพร้อมและPostgreSQL16+pgvectorรันผ่านdocker/compose.yaml SQLinit13ตาราง ฐานlocalapplymigration003แล้วพร้อมbackup .local/backups สร้างbackend/.envที่ignoredพร้อมsecretสุ่ม ไม่สร้างบัญชี/passwordเริ่มต้น
 
-| ส่วน | ค่าเริ่มต้นในโค้ด | สถานะ |
-|---|---|---|
-| Vision | `qwen3-vl:latest` ผ่าน Ollama | เปลี่ยนจากแผน Qwen2.5-VL เดิม |
-| Image/caption embedding | `Qwen/Qwen3-VL-Embedding-2B`, 2048 มิติ ผ่าน Transformers/PyTorch | แยกจาก BGE-M3 text embedding |
-| Retrieval | `IMAGE_RETRIEVER=mock` | เป็น metadata-based stand-in; ต้องเปลี่ยนเป็น `pgvector` หลัง indexing เพื่อทดสอบความแม่นยำจริง |
-| Configuration | `backend/.env` | ดูค่าตัวอย่างใน `backend/.env.example`; ไม่ควร commit ค่าจริง |
+ฐานใหม่ใช้init ฐานเดิมดูmigration001–003และbackupก่อน ไม่reruninitบนvolumeเดิม Authtablesใช้rawSQLตามDDL ImageembeddingmodelยังSQLAlchemy
 
-## จุดเชื่อมฐานข้อมูล
+## AI
 
-SQL init เดิมสร้าง `products`, `product_images`, `product_embeddings` (1024 มิติ) และ `image_uploads` งาน AI เพิ่ม SQLAlchemy model `product_image_embeddings` (2048 มิติ) ซึ่งยังไม่อยู่ใน `database/ddl/001_init.sql`
+ImageRAGของทีมคงเดิม:Qwen3-VLผ่านOllamaและQwen3-VL-Embedding-2B/vector2048 ค่าเริ่มต้นretrievalmock ต้องindexและตั้งpgvectorก่อนค้นจริง TextBGE-M3/vector1024แยกspace ยังไม่ครบtextchatRAG
 
-ฟังก์ชัน `app.db.database.init_db()` สามารถสร้างตารางจาก models ได้ แต่ไม่ได้ถูกเรียกอัตโนมัติเมื่อเริ่ม FastAPI การเริ่มฐานข้อมูลผ่าน Compose เพียงอย่างเดียวจึงยังไม่สร้าง image embedding table ควรเพิ่ม migration สำหรับตารางใหม่ก่อนเปิด pgvector retrieval
+Authintegrationtestsใช้fakeVisionpipeline ไม่ได้ยืนยันOllama/embeddingจริงหรือprecisionของexactlabel
 
-Image API อ่านชื่อ ราคาและ availability จาก `products`; image index เก็บ metadata จาก CSV ด้วย ต้องวางกระบวนการ sync ทั้งสองแหล่งให้สอดคล้องกัน ราคาและสต็อกใน catalog ชุดนี้ควรถือเป็นข้อมูลทดลองจนกว่าทีมจะยืนยันแหล่งจริง
+## งานถัดไป
 
-## สิ่งที่ยังไม่เสร็จ
+FrontendAuthbootstrap/single-flightrefresh,Chatbusinesslogic,ProductAPI,ImageDetailDelete,Readinessimplementation,accountregister/reset,emailverification และproductionsharedlimiter/cleanup scheduler ยังไม่ได้ทำ
 
-- JWT login/refresh/logout ยังไม่มี; `DEV_AUTH_EMAIL` ใช้จำลองผู้ใช้สำหรับ local development เท่านั้น เมื่อเว้นว่าง protected endpoints จะตอบ 401
-- Admin index ไม่มีการตรวจ role; คง `VISION_ADMIN_ENABLED=false` จนมี admin auth
-- ยังไม่มี frontend app ที่ทำงาน, chat session/history APIs, text-only product search API และ conversation summary ที่เชื่อมใช้งาน
-- Endpoint analysis/OCR แยกยังไม่มี; ความสามารถอ่านภาพอยู่ภายใน vision pipeline
-- ค่า similarity threshold ใช้แยก `exact`/`similar` แต่ยังไม่ใช่หลักฐานยืนยัน SKU ต้องประเมินกับชุดภาพทดสอบก่อนใช้จริง
-- Text embeddings BGE-M3 และ text RAG เดิมยังเป็นแผน; ไม่ควรสรุปว่าระบบเหล่านี้ทำงานครบแล้ว
+ดู [API_SPEC](../api/API_SPEC.md), [Auth setup](../api/auth/README.md), [Token flow](TOKEN_AUTH_FLOW.md), [Database Schema](../../database/DATABASE_SCHEMA.md)
 
-## การตรวจครั้งนี้
+## ผลตรวจหลัง implementation
 
-- Tests ที่ไม่ต้องใช้ API/ฐานข้อมูลจริง: **71 passed, 1 skipped**
-- ทั้งชุดหยุดระหว่าง collection เพราะ Python ของเครื่องยังไม่มี `fastapi`; ยังไม่ได้ติดตั้ง dependencies เพิ่ม
-- ยังไม่ได้ทดสอบ Ollama, embedding model จริง, PostgreSQL integration หรือความแม่นยำของการค้นภาพจริง
+2026-10-03: regression111passed;22skippedประกอบด้วยPostgreSQLtests18ที่รันแยกและmodel-dependent4 PostgreSQLintegrationรันแยกผ่าน18testsบนPodman dependencycheckผ่าน Localhealth200,profileไม่มีtoken401 ไม่มีการรันโมเดลAIจริงในAuthtests
 
-## ลำดับงานต่อที่แนะนำ
+## ประเด็นจากรีวิวที่ยังเปิดอยู่
 
-1. เพิ่ม migration `product_image_embeddings` ให้ตรงกับ model ของทีม
-2. เตรียม backend environment, database seed และ model/index แล้วทดสอบ image flow จริง
-3. ทำ JWT/admin authorization ก่อนเปิดใช้นอก local development
-4. เชื่อม frontend แนบรูป → upload API → search API และแสดงสินค้าจาก response
-5. ทดสอบภาพที่ตรงสินค้า ภาพคล้าย ภาพไม่ใช่เครื่องเขียน และภาพที่ไม่มีใน catalog เพื่อปรับ threshold
-
-เอกสารร่างก่อนหน้าให้ใช้เทียบกับสถานะนี้ เพราะ model และวิธี image retrieval เปลี่ยนจากร่างแรกแล้ว ดูแนวคิดรายละเอียดของทีมใน [`../../IMAGE_RAG_DESIGN.md`](../../IMAGE_RAG_DESIGN.md)
-
-## API scaffold update (2026-10-03)
-
-เพิ่มโครง routes 7 หมวด รวม 23 operations บน 18 paths: เดิม 4 และ scaffold 19 ตอบ 501 สำหรับ valid requests ดู [API_SPEC.md](../api/API_SPEC.md) และ [BACKEND_STRUCTURE.md](BACKEND_STRUCTURE.md) เป็นสถานะล่าสุด โครง Auth/Guest/Chat ยังไม่มี business logic; backend tests 113 passed, 4 skipped
+ดู [Auth review](../api/auth/AUTH_REVIEW.md): custom app configuration ยังอาจไม่ถูกใช้โดย global limiter และการเขียนไฟล์ภาพล้มเหลวระหว่างทางอาจเหลือไฟล์บางส่วน โค้ดยังไม่ได้แก้สองประเด็นนี้ ผลทดสอบเดิมไม่ครอบคลุมการยืนยันว่าแก้แล้ว

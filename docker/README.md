@@ -8,7 +8,7 @@
 
 ```powershell
 Set-Location docker
-Copy-Item .env.example .env
+if (-not (Test-Path .env)) { Copy-Item .env.example .env }
 ```
 
 เปิด `docker/.env` และกำหนด `POSTGRES_PASSWORD` เป็นรหัสผ่านของคุณเอง จากนั้น:
@@ -42,3 +42,9 @@ podman compose down
 ```
 
 `down` ไม่ลบ named volume; อย่าใช้ `down -v` เมื่อมีข้อมูลที่ต้องเก็บ รายละเอียดตารางและ index อยู่ใน [`../database/DATABASE_SCHEMA.md`](../database/DATABASE_SCHEMA.md)
+
+## สถานะ schema ที่ตรวจล่าสุด
+
+2026-10-03: init ปัจจุบันมี 13 ตาราง ฐาน local เครื่องที่ทดสอบ apply migration 003 แล้ว สถานะนี้ไม่หมายความว่าฐานของสมาชิกทีมอื่นอัปเดตแล้ว ฐานเดิมให้ตรวจ migrations 001–003 ตาม Database Schema และสำรองก่อนอัปเดต ห้ามใช้ init ซ้ำเพื่ออัปเกรด volume เดิม
+
+วิธีรัน integration tests ในฐานแยกอยู่ใน [Auth setup](../docs/api/auth/README.md)

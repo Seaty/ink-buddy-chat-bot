@@ -1,1 +1,1 @@
-"""auth services boundary; implementation pending."""
+"""Authentication and Guest token lifecycle services."""

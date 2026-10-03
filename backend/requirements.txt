@@ -19,7 +19,9 @@ pydantic-settings
 python-dotenv
 
 python-jose[cryptography]
-passlib[bcrypt]
+bcrypt
+argon2-cffi
+email-validator
 
 sentence-transformers
 
