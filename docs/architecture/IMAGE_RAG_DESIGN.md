@@ -3,7 +3,7 @@
 เอกสารนี้อธิบายส่วน **ค้นสินค้าจากรูป** ของ Ink Buddy: ผู้ใช้แนบรูปเครื่องเขียน → ระบบหาสินค้าใน catalog ที่ตรงหรือใกล้เคียง ส่วนแชตและการค้นด้วยข้อความเป็นของทีม text — เอกสารนี้ระบุเฉพาะจุดเชื่อมต่อ
 
 - Business source of truth: [`../../BUSINESS_REQUIREMENTS.md`](../../BUSINESS_REQUIREMENTS.md)
-- API contract: [`../api/IMAGE_SEARCH_API.md`](../api/IMAGE_SEARCH_API.md)
+- API contract: [`../api/API_SPEC.md`](../api/API_SPEC.md) (เอกสารหลักของทีม) · รายละเอียด image: [`../api/image/IMAGE_SEARCH_API.md`](../api/image/IMAGE_SEARCH_API.md)
 - Schema ของทีม: [`../../database/DATABASE_SCHEMA.md`](../../database/DATABASE_SCHEMA.md)
 
 > สถานะ: implement แล้วใน `backend/app/` (branch `feature/vision`) ตัวเลขทั้งหมดวัดบน RTX 3050 Laptop 6 GB เมื่อ 28 ก.ย.–1 ต.ค. 2569

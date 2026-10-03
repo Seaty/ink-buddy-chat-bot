@@ -15,14 +15,14 @@ from app.core.config import Settings, get_settings
 from app.core.errors import ApiError
 from app.db.database import get_db
 from app.main import app
-from app.schemas.vision import (
+from app.schemas.image import (
     ImageAnalysisResponse,
     ImageAttributes,
     ImageOcrResponse,
     ImageUploadResponse,
     OcrSegmentOut,
-    ProductSearchByImageResponse,
 )
+from app.schemas.product import ProductSearchByImageResponse
 from app.services.vision_service import VisionService, get_vision_service
 
 CATALOG = Path(__file__).resolve().parents[1] / "datasets" / "catalog"

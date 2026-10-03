@@ -1,6 +1,6 @@
 # Image Search API
 
-API สำหรับแนบรูปเครื่องเขียนและค้นสินค้าใน catalog จากรูป ตาม [`../architecture/INK_BUDDY_DESIGN_DRAFT.md`](../architecture/INK_BUDDY_DESIGN_DRAFT.md) §3
+API สำหรับแนบรูปเครื่องเขียนและค้นสินค้าใน catalog จากรูป ตาม [`../../architecture/INK_BUDDY_DESIGN_DRAFT.md`](../../architecture/INK_BUDDY_DESIGN_DRAFT.md) §3 · เอกสารหลักร่วมของทีมคือ [`../API_SPEC.md`](../API_SPEC.md); ไฟล์นี้ลงรายละเอียดพฤติกรรมของ image search
 
 > สถานะ: implement แล้วใน `backend/app/api/v1/` (branch `feature/vision`) · ข้อมูลสินค้าและคะแนนในตัวอย่างมาจากการเรียกจริงกับ catalog seed; ค่า `timings_s` เป็นค่าประมาณ
 > ยังไม่มี: JWT จริง, rate limit, การแนบรูปในแชต (`/chat-sessions/{id}/messages`)

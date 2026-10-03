@@ -29,16 +29,15 @@ from app.core.errors import ApiError
 from app.db.database import get_sessionmaker
 from app.repositories.image_repository import ImageUpload, ImageUploadRepository
 from app.repositories.product_repository import PgImageIndex, ProductRepository
-from app.schemas.vision import (
+from app.schemas.admin import IndexCatalogResponse
+from app.schemas.image import (
     ImageAnalysisResponse,
     ImageAttributes,
     ImageOcrResponse,
     ImageUploadResponse,
     OcrSegmentOut,
-    IndexCatalogResponse,
-    ProductMatch,
-    ProductSearchByImageResponse,
 )
+from app.schemas.product import ProductMatch, ProductSearchByImageResponse
 from app.services.image_storage import ImageStorage
 
 logger = logging.getLogger(__name__)

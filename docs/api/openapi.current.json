@@ -1,0 +1,2514 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Ink Buddy Chat Bot",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/v1/auth/login": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "[Scaffold] login",
+        "description": "Returns 501 for valid requests. Success schema is a proposed contract, not implemented behavior.",
+        "operationId": "login_api_v1_auth_login_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponse"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Route scaffold only; business logic not implemented",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Request validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-implementation-status": "scaffold"
+      }
+    },
+    "/api/v1/auth/refresh": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "[Scaffold] refresh token",
+        "description": "Returns 501 for valid requests. Success schema is a proposed contract, not implemented behavior.",
+        "operationId": "refresh_token_api_v1_auth_refresh_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponse"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Route scaffold only; business logic not implemented",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Request validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-implementation-status": "scaffold"
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "[Scaffold] logout",
+        "description": "Returns 501 for valid requests. Success schema is a proposed contract, not implemented behavior.",
+        "operationId": "logout_api_v1_auth_logout_post",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "501": {
+            "description": "Route scaffold only; business logic not implemented",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Request validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-implementation-status": "scaffold"
+      }
+    },
+    "/api/v1/auth/guest-sessions": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "[Scaffold] create guest session",
+        "description": "Returns 501 for valid requests. Success schema is a proposed contract, not implemented behavior.",
+        "operationId": "create_guest_session_api_v1_auth_guest_sessions_post",
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuestSessionResponse"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Route scaffold only; business logic not implemented",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Request validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-implementation-status": "scaffold"
+      }
+    },
+    "/api/v1/auth/guest-sessions/current": {
+      "get": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "[Scaffold] get guest session",
+        "description": "Returns 501 for valid requests. Success schema is a proposed contract, not implemented behavior.",
+        "operationId": "get_guest_session_api_v1_auth_guest_sessions_current_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuestSessionResponse"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Route scaffold only; business logic not implemented",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Request validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-implementation-status": "scaffold"
+      }
+    },
+    "/api/v1/auth/guest-sessions/current/claim": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "[Scaffold] claim guest session",
+        "description": "Returns 501 for valid requests. Success schema is a proposed contract, not implemented behavior.",
+        "operationId": "claim_guest_session_api_v1_auth_guest_sessions_current_claim_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuestClaimResponse"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Route scaffold only; business logic not implemented",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Request validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-implementation-status": "scaffold"
+      }
+    },
+    "/api/v1/users/me": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "[Scaffold] get profile",
+        "description": "Returns 501 for valid requests. Success schema is a proposed contract, not implemented behavior.",
+        "operationId": "get_profile_api_v1_users_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserProfileResponse"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Route scaffold only; business logic not implemented",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Request validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-implementation-status": "scaffold"
+      },
+      "patch": {
+        "tags": [
+          "user"
+        ],
+        "summary": "[Scaffold] update profile",
+        "description": "Returns 501 for valid requests. Success schema is a proposed contract, not implemented behavior.",
+        "operationId": "update_profile_api_v1_users_me_patch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProfileRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserProfileResponse"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Route scaffold only; business logic not implemented",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Request validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-implementation-status": "scaffold"
+      }
+    },
+    "/api/v1/chat-sessions": {
+      "post": {
+        "tags": [
+          "session"
+        ],
+        "summary": "[Scaffold] create chat session",
+        "description": "Returns 501 for valid requests. Success schema is a proposed contract, not implemented behavior.",
+        "operationId": "create_chat_session_api_v1_chat_sessions_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSessionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionResponse"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Route scaffold only; business logic not implemented",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Request validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-implementation-status": "scaffold"
+      },
+      "get": {
+        "tags": [
+          "session"
+        ],
+        "summary": "[Scaffold] list chat sessions",
+        "description": "Returns 501 for valid requests. Success schema is a proposed contract, not implemented behavior.",
+        "operationId": "list_chat_sessions_api_v1_chat_sessions_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionListResponse"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Route scaffold only; business logic not implemented",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Request validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-implementation-status": "scaffold"
+      }
+    },
+    "/api/v1/chat-sessions/{session_id}": {
+      "get": {
+        "tags": [
+          "session"
+        ],
+        "summary": "[Scaffold] get chat session",
+        "description": "Returns 501 for valid requests. Success schema is a proposed contract, not implemented behavior.",
+        "operationId": "get_chat_session_api_v1_chat_sessions__session_id__get",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionResponse"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Route scaffold only; business logic not implemented",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Request validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-implementation-status": "scaffold"
+      },
+      "delete": {
+        "tags": [
+          "session"
+        ],
+        "summary": "[Scaffold] delete chat session",
+        "description": "Returns 501 for valid requests. Success schema is a proposed contract, not implemented behavior.",
+        "operationId": "delete_chat_session_api_v1_chat_sessions__session_id__delete",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "501": {
+            "description": "Route scaffold only; business logic not implemented",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Request validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-implementation-status": "scaffold"
+      }
+    },
+    "/api/v1/chat-sessions/{session_id}/messages": {
+      "get": {
+        "tags": [
+          "session"
+        ],
+        "summary": "[Scaffold] list messages",
+        "description": "Returns 501 for valid requests. Success schema is a proposed contract, not implemented behavior.",
+        "operationId": "list_messages_api_v1_chat_sessions__session_id__messages_get",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Session Id"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageListResponse"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Route scaffold only; business logic not implemented",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Request validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-implementation-status": "scaffold"
+      },
+      "post": {
+        "tags": [
+          "session"
+        ],
+        "summary": "[Scaffold] send message",
+        "description": "Returns 501 for valid requests. Success schema is a proposed contract, not implemented behavior.",
+        "operationId": "send_message_api_v1_chat_sessions__session_id__messages_post",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendMessageRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SendMessageResponse"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Route scaffold only; business logic not implemented",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Request validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-implementation-status": "scaffold"
+      }
+    },
+    "/api/v1/images": {
+      "post": {
+        "tags": [
+          "images"
+        ],
+        "summary": "Upload Image",
+        "description": "Attaching a photo does not identify a product yet; call /product-search/by-image next.",
+        "operationId": "upload_image_api_v1_images_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upload_image_api_v1_images_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImageUploadResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request Entity Too Large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported Media Type",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/images/{image_id}/analysis": {
+      "post": {
+        "tags": [
+          "images"
+        ],
+        "summary": "Analyze Image",
+        "description": "Describe the photo and its visible attributes. An interpretation, not a confirmed product.\n\nThe first call runs the vision model (slow); later calls return the stored result.",
+        "operationId": "analyze_image_api_v1_images__image_id__analysis_post",
+        "parameters": [
+          {
+            "name": "image_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Image Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImageAnalysisResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/images/{image_id}/ocr": {
+      "post": {
+        "tags": [
+          "images"
+        ],
+        "summary": "Ocr Image",
+        "description": "Read the text printed on the item. Approximate: verify before citing a model or SKU.\n\nThe first call runs the vision model (slow); later calls return the stored result.",
+        "operationId": "ocr_image_api_v1_images__image_id__ocr_post",
+        "parameters": [
+          {
+            "name": "image_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Image Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImageOcrResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/images/{image_id}": {
+      "get": {
+        "tags": [
+          "images"
+        ],
+        "summary": "[Scaffold] get image",
+        "description": "Returns 501 for valid requests. Success schema is a proposed contract, not implemented behavior.",
+        "operationId": "get_image_api_v1_images__image_id__get",
+        "parameters": [
+          {
+            "name": "image_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Image Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImageDetailResponse"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Route scaffold only; business logic not implemented",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Request validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-implementation-status": "scaffold"
+      },
+      "delete": {
+        "tags": [
+          "images"
+        ],
+        "summary": "[Scaffold] delete image",
+        "description": "Returns 501 for valid requests. Success schema is a proposed contract, not implemented behavior.",
+        "operationId": "delete_image_api_v1_images__image_id__delete",
+        "parameters": [
+          {
+            "name": "image_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Image Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "501": {
+            "description": "Route scaffold only; business logic not implemented",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Request validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-implementation-status": "scaffold"
+      }
+    },
+    "/api/v1/product-search/by-image": {
+      "post": {
+        "tags": [
+          "product",
+          "product search"
+        ],
+        "summary": "Search By Image",
+        "description": "``exact`` only when the model text read off the photo identifies one product; everything else is ``similar``.",
+        "operationId": "search_by_image_api_v1_product_search_by_image_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductSearchByImageRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductSearchByImageResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/products": {
+      "get": {
+        "tags": [
+          "product"
+        ],
+        "summary": "[Scaffold] list products",
+        "description": "Returns 501 for valid requests. Success schema is a proposed contract, not implemented behavior.",
+        "operationId": "list_products_api_v1_products_get",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Q"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 100
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category"
+            }
+          },
+          {
+            "name": "brand",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 100
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Brand"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductListResponse"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Route scaffold only; business logic not implemented",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Request validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-implementation-status": "scaffold"
+      }
+    },
+    "/api/v1/products/{product_id}": {
+      "get": {
+        "tags": [
+          "product"
+        ],
+        "summary": "[Scaffold] get product",
+        "description": "Returns 501 for valid requests. Success schema is a proposed contract, not implemented behavior.",
+        "operationId": "get_product_api_v1_products__product_id__get",
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Product Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductResponse"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Route scaffold only; business logic not implemented",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Request validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-implementation-status": "scaffold"
+      }
+    },
+    "/api/v1/admin/image-index": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Rebuild Image Index",
+        "description": "(Re)build catalog image embeddings; unchanged items are skipped.\n\nTODO: require an admin user once core/security.py exists.",
+        "operationId": "rebuild_image_index_api_v1_admin_image_index_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IndexCatalogResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/health": {
+      "get": {
+        "tags": [
+          "system"
+        ],
+        "summary": "Health",
+        "operationId": "health_api_v1_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ready": {
+      "get": {
+        "tags": [
+          "system"
+        ],
+        "summary": "[Scaffold] readiness",
+        "description": "Returns 501 for valid requests. Success schema is a proposed contract, not implemented behavior.",
+        "operationId": "readiness_api_v1_ready_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadinessResponse"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Route scaffold only; business logic not implemented",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Request validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-implementation-status": "scaffold"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Body_upload_image_api_v1_images_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "File",
+            "description": "JPEG / PNG / WEBP, checked by content"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_upload_image_api_v1_images_post"
+      },
+      "CreateSessionRequest": {
+        "properties": {
+          "title": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          }
+        },
+        "type": "object",
+        "title": "CreateSessionRequest"
+      },
+      "ErrorBody": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "details": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Details",
+            "default": {}
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "title": "ErrorBody"
+      },
+      "ErrorResponse": {
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/ErrorBody"
+          }
+        },
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "title": "ErrorResponse",
+        "description": "For OpenAPI ``responses=`` declarations."
+      },
+      "GuestClaimResponse": {
+        "properties": {
+          "guest_session_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Guest Session Id"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "User Id"
+          },
+          "chat_sessions_claimed": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Chat Sessions Claimed"
+          },
+          "images_claimed": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Images Claimed"
+          }
+        },
+        "type": "object",
+        "required": [
+          "guest_session_id",
+          "user_id",
+          "chat_sessions_claimed",
+          "images_claimed"
+        ],
+        "title": "GuestClaimResponse"
+      },
+      "GuestSessionResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At"
+          },
+          "image_upload_limit": {
+            "type": "integer",
+            "const": 3,
+            "title": "Image Upload Limit",
+            "default": 3
+          },
+          "image_uploads_used": {
+            "type": "integer",
+            "maximum": 3.0,
+            "minimum": 0.0,
+            "title": "Image Uploads Used"
+          },
+          "image_uploads_remaining": {
+            "type": "integer",
+            "maximum": 3.0,
+            "minimum": 0.0,
+            "title": "Image Uploads Remaining"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "expires_at",
+          "image_uploads_used",
+          "image_uploads_remaining"
+        ],
+        "title": "GuestSessionResponse"
+      },
+      "HealthResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "ok",
+            "title": "Status",
+            "default": "ok"
+          }
+        },
+        "type": "object",
+        "title": "HealthResponse"
+      },
+      "ImageAnalysisResponse": {
+        "properties": {
+          "image_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Image Id"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "attributes": {
+            "$ref": "#/components/schemas/ImageAttributes"
+          },
+          "cached": {
+            "type": "boolean",
+            "title": "Cached",
+            "description": "true = stored result from an earlier analysis of this image"
+          }
+        },
+        "type": "object",
+        "required": [
+          "image_id",
+          "description",
+          "attributes",
+          "cached"
+        ],
+        "title": "ImageAnalysisResponse",
+        "description": "An interpretation of the photo, not a confirmed product."
+      },
+      "ImageAttributes": {
+        "properties": {
+          "is_stationery": {
+            "type": "boolean",
+            "title": "Is Stationery"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category",
+            "description": "closest catalog category, or 'other'"
+          },
+          "brand_text": {
+            "type": "string",
+            "title": "Brand Text",
+            "description": "brand text read off the item; empty if none"
+          },
+          "model_text": {
+            "type": "string",
+            "title": "Model Text",
+            "description": "model/series text read off the item; empty if none"
+          },
+          "colors": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Colors",
+            "default": []
+          },
+          "features": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Features",
+            "description": "visible features: tip size, pack count, shape, material",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "is_stationery",
+          "category",
+          "brand_text",
+          "model_text"
+        ],
+        "title": "ImageAttributes"
+      },
+      "ImageDetailResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "ready | processing | failed"
+          },
+          "mime_type": {
+            "type": "string",
+            "title": "Mime Type"
+          },
+          "size_bytes": {
+            "type": "integer",
+            "title": "Size Bytes"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "status",
+          "mime_type",
+          "size_bytes",
+          "created_at"
+        ],
+        "title": "ImageDetailResponse"
+      },
+      "ImageOcrResponse": {
+        "properties": {
+          "image_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Image Id"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text",
+            "description": "all segments joined by newlines; empty when no text was found"
+          },
+          "segments": {
+            "items": {
+              "$ref": "#/components/schemas/OcrSegmentOut"
+            },
+            "type": "array",
+            "title": "Segments"
+          },
+          "cached": {
+            "type": "boolean",
+            "title": "Cached"
+          }
+        },
+        "type": "object",
+        "required": [
+          "image_id",
+          "text",
+          "segments",
+          "cached"
+        ],
+        "title": "ImageOcrResponse",
+        "description": "Approximate; verify before citing a model or SKU."
+      },
+      "ImageUploadResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "ready | processing | failed"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "status"
+        ],
+        "title": "ImageUploadResponse"
+      },
+      "IndexCatalogResponse": {
+        "properties": {
+          "products": {
+            "type": "integer",
+            "title": "Products"
+          },
+          "chunks_embedded": {
+            "type": "integer",
+            "title": "Chunks Embedded"
+          },
+          "chunks_unchanged": {
+            "type": "integer",
+            "title": "Chunks Unchanged"
+          },
+          "chunks_deleted": {
+            "type": "integer",
+            "title": "Chunks Deleted"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings",
+            "default": []
+          },
+          "seconds": {
+            "type": "number",
+            "title": "Seconds"
+          }
+        },
+        "type": "object",
+        "required": [
+          "products",
+          "chunks_embedded",
+          "chunks_unchanged",
+          "chunks_deleted",
+          "seconds"
+        ],
+        "title": "IndexCatalogResponse"
+      },
+      "LoginRequest": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "maxLength": 320,
+            "minLength": 3,
+            "title": "Email",
+            "description": "Email format validation to be added with auth implementation"
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 1024,
+            "minLength": 1,
+            "title": "Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "title": "LoginRequest"
+      },
+      "MessageListResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/MessageResponse"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "title": "MessageListResponse"
+      },
+      "MessageResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "session_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Session Id"
+          },
+          "sequence_number": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "Sequence Number"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "user",
+              "assistant",
+              "system"
+            ],
+            "title": "Role"
+          },
+          "content": {
+            "type": "string",
+            "title": "Content"
+          },
+          "image_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Id"
+          },
+          "product_refs": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Refs"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "session_id",
+          "sequence_number",
+          "role",
+          "content",
+          "created_at"
+        ],
+        "title": "MessageResponse"
+      },
+      "OcrSegmentOut": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "title": "Text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "title": "OcrSegmentOut"
+      },
+      "ProductListResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ProductResponse"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "title": "ProductListResponse"
+      },
+      "ProductMatch": {
+        "properties": {
+          "product_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Product Id"
+          },
+          "sku": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sku"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category"
+          },
+          "brand": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brand"
+          },
+          "price": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price",
+            "description": "null when the catalog has no price"
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency"
+          },
+          "availability": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Availability",
+            "description": "null when the catalog has no availability data"
+          },
+          "source_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Ref",
+            "description": "where the product data came from"
+          },
+          "image_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Url"
+          },
+          "match_type": {
+            "type": "string",
+            "enum": [
+              "exact",
+              "similar",
+              "suggestion"
+            ],
+            "title": "Match Type"
+          },
+          "score": {
+            "type": "number",
+            "title": "Score",
+            "description": "retrieval score 0-1"
+          }
+        },
+        "type": "object",
+        "required": [
+          "product_id",
+          "sku",
+          "name",
+          "category",
+          "brand",
+          "price",
+          "currency",
+          "availability",
+          "source_ref",
+          "image_url",
+          "match_type",
+          "score"
+        ],
+        "title": "ProductMatch",
+        "description": "Catalog facts come from the products table, never from the model."
+      },
+      "ProductResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "sku": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sku"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category"
+          },
+          "brand": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brand"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "price": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price"
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency"
+          },
+          "availability": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Availability"
+          },
+          "source_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Ref"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "ProductResponse"
+      },
+      "ProductSearchByImageRequest": {
+        "properties": {
+          "image_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Image Id"
+          },
+          "limit": {
+            "type": "integer",
+            "maximum": 10.0,
+            "minimum": 1.0,
+            "title": "Limit",
+            "default": 5
+          }
+        },
+        "type": "object",
+        "required": [
+          "image_id"
+        ],
+        "title": "ProductSearchByImageRequest"
+      },
+      "ProductSearchByImageResponse": {
+        "properties": {
+          "image_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Image Id"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description",
+            "description": "the vision model's reading of the photo; null on the fast path"
+          },
+          "match_level": {
+            "type": "string",
+            "enum": [
+              "exact",
+              "similar",
+              "none"
+            ],
+            "title": "Match Level"
+          },
+          "matches": {
+            "items": {
+              "$ref": "#/components/schemas/ProductMatch"
+            },
+            "type": "array",
+            "title": "Matches"
+          },
+          "path": {
+            "type": "string",
+            "enum": [
+              "fast",
+              "full"
+            ],
+            "title": "Path",
+            "description": "fast = embedding search only; full = vision model used"
+          },
+          "suggestions": {
+            "items": {
+              "$ref": "#/components/schemas/ProductMatch"
+            },
+            "type": "array",
+            "title": "Suggestions",
+            "description": "only when match_level is none: nearest products to offer as 'did you mean?'",
+            "default": []
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message",
+            "description": "customer-facing text when nothing matched (did-you-mean)"
+          },
+          "timings_s": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Timings S",
+            "default": {}
+          }
+        },
+        "type": "object",
+        "required": [
+          "image_id",
+          "description",
+          "match_level",
+          "matches",
+          "path"
+        ],
+        "title": "ProductSearchByImageResponse"
+      },
+      "ReadinessResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ready",
+              "not_ready"
+            ],
+            "title": "Status"
+          },
+          "dependencies": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Dependencies"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "dependencies"
+        ],
+        "title": "ReadinessResponse"
+      },
+      "SendMessageRequest": {
+        "properties": {
+          "content": {
+            "type": "string",
+            "maxLength": 4000,
+            "title": "Content",
+            "description": "Proposed MVP limit, pending policy confirmation",
+            "default": ""
+          },
+          "image_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Id"
+          }
+        },
+        "type": "object",
+        "title": "SendMessageRequest"
+      },
+      "SendMessageResponse": {
+        "properties": {
+          "user_message": {
+            "$ref": "#/components/schemas/MessageResponse"
+          },
+          "assistant_message": {
+            "$ref": "#/components/schemas/MessageResponse"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user_message",
+          "assistant_message"
+        ],
+        "title": "SendMessageResponse"
+      },
+      "SessionListResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/SessionResponse"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "title": "SessionListResponse"
+      },
+      "SessionResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "summary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Summary"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "SessionResponse"
+      },
+      "TokenResponse": {
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "title": "Access Token"
+          },
+          "token_type": {
+            "type": "string",
+            "const": "bearer",
+            "title": "Token Type",
+            "default": "bearer"
+          },
+          "expires_in": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "Expires In"
+          }
+        },
+        "type": "object",
+        "required": [
+          "access_token",
+          "expires_in"
+        ],
+        "title": "TokenResponse"
+      },
+      "UpdateProfileRequest": {
+        "properties": {
+          "display_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Name"
+          }
+        },
+        "type": "object",
+        "title": "UpdateProfileRequest"
+      },
+      "UserProfileResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "display_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Name"
+          },
+          "role": {
+            "type": "string",
+            "title": "Role"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "email",
+          "role"
+        ],
+        "title": "UserProfileResponse"
+      }
+    }
+  }
+}

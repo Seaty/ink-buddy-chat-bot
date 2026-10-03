@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from app.api.deps import get_current_user_id
 from app.core.errors import ErrorResponse
 from app.db.database import get_db
-from app.schemas.vision import ProductSearchByImageRequest, ProductSearchByImageResponse
+from app.schemas.product import ProductSearchByImageRequest, ProductSearchByImageResponse
 from app.services.vision_service import VisionService, get_vision_service
 
 router = APIRouter(prefix="/product-search", tags=["product search"])
