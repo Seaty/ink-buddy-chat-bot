@@ -1,5 +1,10 @@
-# user API
+# User API
 
-ดู paths, schemas และสถานะใน [API_SPEC.md](../API_SPEC.md) ซึ่งเป็นเอกสารหลักร่วมกัน เพื่อไม่ให้ spec แต่ละหมวดไม่ตรงกัน
+ตรวจล่าสุด 2026-10-03 จาก OpenAPI snapshot ดูรายละเอียด request/response และสิทธิ์ใน [API_SPEC](../API_SPEC.md)
 
-โค้ด routes: `backend/app/api/v1/user/`; schemas: `backend/app/schemas/user.py`
+| Operation | สถานะ | Policy |
+|---|---|---|
+| GET /api/v1/users/me | implemented | user |
+| PATCH /api/v1/users/me | scaffold | user |
+
+scaffold ตรวจสิทธิ์ก่อนตอบ 501; ยังไม่มี business logic ดู [Auth review](../auth/AUTH_REVIEW.md) สำหรับเคส credential และข้อจำกัด

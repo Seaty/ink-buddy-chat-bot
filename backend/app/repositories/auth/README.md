@@ -1,3 +1,7 @@
-# auth repositories
+# Auth repositories
 
-Implement SQLAlchemy reads/writes here. Services own transactions, quota locking and ownership decisions; do not call HTTP or AI from repositories.
+ตรวจล่าสุด 2026-10-03
+
+ใช้งานแล้ว: repository.py อ่าน/เขียน Auth และ Guest ด้วย raw SQL ตาม DDL; caller ดูแล transaction
+
+ดู [Backend structure](../../../../docs/architecture/BACKEND_STRUCTURE.md)

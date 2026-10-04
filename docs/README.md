@@ -42,18 +42,18 @@
 | `backend/app/api/` และ `api/v1/` | FastAPI routes และ API versioning |
 | `backend/app/core/` | Configuration, security, logging และส่วนกลาง |
 | `backend/app/db/` | การเชื่อมต่อฐานข้อมูลและ session setup |
-| `backend/app/models/` | SQLAlchemy models |
+| `backend/app/models/` | SQLAlchemy mappings ของ Image RAG; Auth/Guest ใช้ raw SQL ตาม DDL |
 | `backend/app/schemas/` | Pydantic request/response schemas |
 | `backend/app/repositories/` | การอ่าน/เขียนข้อมูล |
 | `backend/app/services/` | กฎธุรกิจของสินค้า แชต และผู้ใช้ |
 | `backend/app/ai/llm/` | การเชื่อมต่อ Ollama และโมเดลภาษา/ภาพ |
-| `backend/app/ai/embeddings/` | การสร้าง embedding ของข้อความสินค้า |
+| `backend/app/ai/embeddings/` | Image/caption embedding ของสินค้า; text BGE-M3 ยังเป็นแผน |
 | `backend/app/ai/rag/` | ดึงข้อมูลจาก catalog เพื่อประกอบคำตอบ |
 | `backend/app/ai/vision/` | วิเคราะห์ภาพและ OCR |
 | `backend/app/ai/prompts/` | Prompt templates |
 | `backend/app/ai/guards/` | การตรวจข้อมูลและขอบเขตคำสั่งที่ส่งให้ AI |
 | `backend/tests/` | การทดสอบ backend |
-| `backend/uploads/` | พื้นที่ไฟล์ชั่วคราวระหว่างรับ/ประมวลผลภาพ; ไฟล์ผู้ใช้จริงควรอยู่ใน private storage ที่จัดการชัดเจน |
+| `backend/uploads/` | private storage ของภาพที่อัปโหลดตาม configuration; ไม่ใช่ไฟล์ชั่วคราวที่ลบหลัง request |
 
 `backend/app/services/document_processing/` และ `backend/app/services/rag/` เป็นโฟลเดอร์ที่เตรียมไว้ตามแผนเก่า หากเริ่มพัฒนาให้ทบทวนกับขอบเขตล่าสุดก่อนใช้: ผู้ใช้ไม่มีการแนบเอกสาร และ RAG ปัจจุบันอ้างข้อมูลสินค้าใน catalog
 
@@ -79,6 +79,8 @@
 
 เอกสารโครงสร้างที่มีตอนนี้:
 
+- [`architecture/TOKEN_AUTH_FLOW.md`](architecture/TOKEN_AUTH_FLOW.md) — วิธีทำงาน User/Guest token, whitelist, โควตารูป และการย้ายข้อมูลหลัง Login
+
 - [`architecture/BACKEND_STRUCTURE.md`](architecture/BACKEND_STRUCTURE.md) — โครง code API ตาม module และขอบเขต routes/services/repositories
 - [`api/README.md`](api/README.md) — สารบัญ API แยกตามหมวด
 
@@ -99,3 +101,15 @@
 - อธิบาย endpoint ที่ implement แล้ว → `docs/api/`
 - สร้างตารางครั้งแรก → `database/ddl/`; เปลี่ยนตารางหลังใช้งาน → `database/migrations/`
 - เพิ่มข้อมูลเริ่มต้น/ทดลองด้วย SQL → `database/seed/`; เก็บชุดข้อมูลต้นทางสำหรับทดลอง → `datasets/`
+
+## ผลตรวจล่าสุด 2026-10-03
+
+- [ผลตรวจเอกสารทั้งหมด](report/DOCUMENTATION_AUDIT.md)
+- [รีวิว Auth และรายละเอียดเคส](api/auth/AUTH_REVIEW.md) — สองประเด็น P2 ยังไม่ได้แก้โค้ด
+- `backend/scripts/` เก็บสคริปต์สร้างบัญชี, cleanup Guest และทดสอบ PostgreSQL
+- Auth service/repository ใช้งานแล้ว; user/session/product module folders บางส่วนยังเป็น placeholder
+
+## แนวทางสำหรับผู้ช่วยพัฒนา backend
+
+- [backend/AGENTS.md](../backend/AGENTS.md) — กฎสิทธิ์, token, transaction, UUIDv7 และการทดสอบ
+- [ink-buddy-auth skill](../.agents/skills/ink-buddy-auth/SKILL.md) — ขั้นตอนพัฒนาและรีวิว Auth/Guest ที่ใช้ซ้ำ เก็บใน repository เท่านั้น

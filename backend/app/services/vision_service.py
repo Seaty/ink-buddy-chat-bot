@@ -4,6 +4,7 @@ The AI layer (ai/) knows nothing about settings, DB or HTTP; this is where
 they meet. Retriever mode comes from ``IMAGE_RETRIEVER``: "mock" (no
 embeddings needed) or "pgvector" (after the catalog is indexed).
 """
+
 from __future__ import annotations
 
 import logging
@@ -22,10 +23,17 @@ from app.ai.rag.chunker import CatalogChunk, build_catalog_chunks
 from app.ai.rag.indexing_service import load_catalog
 from app.ai.rag.retriever import ImageRetriever, MockCatalogRetriever, ProductRetriever
 from app.ai.vision.image_analyzer import ImageAnalyzer
-from app.ai.vision.vision_pipeline import InvalidImageError, PipelineSettings, VisionPipeline, load_upload
+from app.ai.vision.vision_pipeline import (
+    InvalidImageError,
+    PipelineSettings,
+    VisionPipeline,
+    load_upload,
+)
 from app.core.config import Settings, get_settings
 from app.core.errors import ApiError
+from app.core.security import Principal
 from app.db.database import get_sessionmaker
+from app.repositories.auth.repository import AuthRepository
 from app.repositories.image_repository import ImageUploadRepository
 from app.repositories.product_repository import PgImageIndex, ProductRepository
 from app.schemas.vision import (
@@ -34,6 +42,7 @@ from app.schemas.vision import (
     ProductMatch,
     ProductSearchByImageResponse,
 )
+from app.services.auth.service import require_live_guest
 from app.services.image_storage import ImageStorage
 
 logger = logging.getLogger(__name__)
@@ -43,7 +52,12 @@ INVALID_IMAGE_STATUS = {"IMAGE_TOO_LARGE": 413, "UNSUPPORTED_MEDIA_TYPE": 415}
 
 
 class VisionService:
-    def __init__(self, settings: Settings, pipeline: VisionPipeline | None = None, storage: ImageStorage | None = None):
+    def __init__(
+        self,
+        settings: Settings,
+        pipeline: VisionPipeline | None = None,
+        storage: ImageStorage | None = None,
+    ):
         self.settings = settings
         self.pipeline = pipeline or self._build_pipeline()
         self.storage = storage or ImageStorage(settings.image_storage_dir)
@@ -51,7 +65,12 @@ class VisionService:
     # ------------------------------------------------------------------ wiring
     def _embedder(self):
         s = self.settings
-        return get_image_embedder(s.image_embed_model, s.image_embed_device, s.image_embed_dim, s.image_embed_max_pixels)
+        return get_image_embedder(
+            s.image_embed_model,
+            s.image_embed_device,
+            s.image_embed_dim,
+            s.image_embed_max_pixels,
+        )
 
     def _build_pipeline(self) -> VisionPipeline:
         s = self.settings
@@ -63,7 +82,10 @@ class VisionService:
         retriever: ProductRetriever
         if s.image_retriever == "pgvector":
             retriever = ImageRetriever(
-                self._embedder(), PgImageIndex(get_sessionmaker()), w_image=s.image_w_image, w_caption=s.image_w_caption
+                self._embedder(),
+                PgImageIndex(get_sessionmaker()),
+                w_image=s.image_w_image,
+                w_caption=s.image_w_caption,
             )
         else:
             retriever = MockCatalogRetriever(s.catalog_dir)
@@ -82,28 +104,60 @@ class VisionService:
         )
 
     # ------------------------------------------------------------------ upload
-    def upload_image(self, db: Session, user_id: UUID, data: bytes) -> ImageUploadResponse:
+    def upload_image(
+        self, db: Session, user_id: UUID | Principal, data: bytes
+    ) -> ImageUploadResponse:
         """Validate by content, store privately without metadata, record in image_uploads."""
         try:
-            img = load_upload(data, self.settings.image_max_bytes, self.settings.image_max_pixels)
+            img = load_upload(
+                data, self.settings.image_max_bytes, self.settings.image_max_pixels
+            )
         except InvalidImageError as e:
             raise ApiError(INVALID_IMAGE_STATUS.get(e.code, 422), e.code, str(e)) from e
 
-        stored = self.storage.save(img, img.format)
+        owner = (
+            user_id if isinstance(user_id, Principal) else Principal("user", user_id)
+        )
+        stored = None
         try:
-            row = ImageUploadRepository(db).create(user_id, stored.storage_key, stored.mime_type, stored.size_bytes)
+            if owner.kind == "guest":
+                repo = AuthRepository(db)
+                guest = require_live_guest(repo.lock_guest(owner.id))
+                if guest["image_uploads_used"] >= guest["image_upload_limit"]:
+                    raise ApiError(
+                        403,
+                        "GUEST_IMAGE_QUOTA_EXCEEDED",
+                        "guest image quota exceeded",
+                        {"limit": 3, "used": 3, "remaining": 0},
+                    )
+                repo.execute(
+                    "UPDATE guest_sessions SET image_uploads_used=image_uploads_used+1 WHERE id=:id",
+                    id=owner.id,
+                )
+            stored = self.storage.save(img, img.format)
+            row = ImageUploadRepository(db).create(
+                owner, stored.storage_key, stored.mime_type, stored.size_bytes
+            )
             db.commit()
         except Exception:
             db.rollback()
-            self.storage.delete(stored.storage_key)
+            if stored is not None:
+                self.storage.delete(stored.storage_key)
             raise
         return ImageUploadResponse(id=row.id, status=row.status)
 
     # ------------------------------------------------------------------ search
-    def search_by_image(self, db: Session, user_id: UUID, image_id: UUID, limit: int) -> ProductSearchByImageResponse:
+    def search_by_image(
+        self, db: Session, user_id: UUID, image_id: UUID, limit: int
+    ) -> ProductSearchByImageResponse:
         """Blocking (embedding, maybe VLM); call from a worker thread."""
         images = ImageUploadRepository(db)
-        upload = images.get_owned(image_id, user_id)
+        owner = (
+            user_id if isinstance(user_id, Principal) else Principal("user", user_id)
+        )
+        if owner.kind == "guest":
+            require_live_guest(AuthRepository(db).lock_guest(owner.id))
+        upload = images.get_owned(image_id, owner)
         if upload is None:
             raise ApiError(404, "IMAGE_NOT_FOUND", "image not found")
         if upload.status != "ready":
@@ -118,26 +172,45 @@ class VisionService:
         except (OllamaError, VisionModelError) as e:
             raise ApiError(503, "VISION_UNAVAILABLE", "vision model unavailable") from e
 
-        catalog = ProductRepository(db).catalog_by_sku(p["sku"] for p in result.products)
+        catalog = ProductRepository(db).catalog_by_sku(
+            p["sku"] for p in result.products
+        )
         matches = []
         for p in result.products[:limit]:
             row = catalog.get(p["sku"])
-            if row is None:  # indexed but not seeded into products — never invent the product
+            if (
+                row is None
+            ):  # indexed but not seeded into products — never invent the product
                 logger.warning("indexed sku %s missing from products table", p["sku"])
                 continue
             exact = result.match_level == MatchLevel.EXACT and not matches
-            matches.append(ProductMatch(
-                product_id=row["id"], sku=row["sku"], name=row["name"], category=row["category"],
-                brand=row["brand"], price=float(row["price"]) if row["price"] is not None else None,
-                currency=row["currency"], availability=row["availability"], source_ref=row["source_ref"],
-                image_url=row["image_url"], match_type="exact" if exact else "similar", score=p["score"],
-            ))
+            matches.append(
+                ProductMatch(
+                    product_id=row["id"],
+                    sku=row["sku"],
+                    name=row["name"],
+                    category=row["category"],
+                    brand=row["brand"],
+                    price=float(row["price"]) if row["price"] is not None else None,
+                    currency=row["currency"],
+                    availability=row["availability"],
+                    source_ref=row["source_ref"],
+                    image_url=row["image_url"],
+                    match_type="exact" if exact else "similar",
+                    score=p["score"],
+                )
+            )
 
         if result.analysis is not None:
             a = result.analysis
-            images.save_analysis(image_id, a.model_dump(mode="json"), " ".join(filter(None, [a.brand_text, a.model_text])))
+            images.save_analysis(
+                image_id,
+                a.model_dump(mode="json"),
+                " ".join(filter(None, [a.brand_text, a.model_text])),
+            )
             db.commit()
 
+        db.commit()  # Release Guest lock even when fast path has no analysis.
         return ProductSearchByImageResponse(
             image_id=image_id,
             description=result.analysis.description if result.analysis else None,
@@ -167,7 +240,9 @@ class VisionService:
         captions = [c for c in changed if c.chunk_type == "caption"]
         vectors = {}
         if images:
-            embs = embedder.embed_images([Image.open(self.settings.catalog_dir / c.content) for c in images])
+            embs = embedder.embed_images(
+                [Image.open(self.settings.catalog_dir / c.content) for c in images]
+            )
             vectors.update({_key(c): v for c, v in zip(images, embs)})
         if captions:
             embs = embedder.embed_texts([c.content for c in captions])
