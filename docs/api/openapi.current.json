@@ -413,6 +413,245 @@
         ]
       }
     },
+    "/api/v1/auth/register": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Register",
+        "operationId": "register_api_v1_auth_register_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthMessageResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-access-policy": "public",
+        "security": []
+      }
+    },
+    "/api/v1/auth/forgot-password": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Forgot Password",
+        "operationId": "forgot_password_api_v1_auth_forgot_password_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPasswordRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthMessageResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-access-policy": "public",
+        "security": []
+      }
+    },
+    "/api/v1/auth/reset-password": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Reset Password",
+        "operationId": "reset_password_api_v1_auth_reset_password_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthMessageResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-access-policy": "public",
+        "security": []
+      }
+    },
     "/api/v1/users/me": {
       "get": {
         "tags": [
@@ -542,8 +781,7 @@
         "tags": [
           "session"
         ],
-        "summary": "[Scaffold] create chat session",
-        "description": "Returns 501 for valid requests. Success schema is a proposed contract, not implemented behavior.",
+        "summary": "Create Chat Session",
         "operationId": "create_chat_session_api_v1_chat_sessions_post",
         "requestBody": {
           "required": true,
@@ -566,25 +804,25 @@
               }
             }
           },
-          "501": {
-            "description": "Route scaffold only; business logic not implemented",
+          "404": {
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            }
+            },
+            "description": "Not Found"
           },
           "422": {
-            "description": "Request validation failed",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            }
+            },
+            "description": "Unprocessable Content"
           },
           "401": {
             "description": "Authentication or policy rejected",
@@ -607,7 +845,6 @@
             }
           }
         },
-        "x-implementation-status": "scaffold",
         "x-access-policy": "guest_or_user",
         "security": [
           {
@@ -622,8 +859,7 @@
         "tags": [
           "session"
         ],
-        "summary": "[Scaffold] list chat sessions",
-        "description": "Returns 501 for valid requests. Success schema is a proposed contract, not implemented behavior.",
+        "summary": "List Chat Sessions",
         "operationId": "list_chat_sessions_api_v1_chat_sessions_get",
         "parameters": [
           {
@@ -666,25 +902,25 @@
               }
             }
           },
-          "501": {
-            "description": "Route scaffold only; business logic not implemented",
+          "404": {
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            }
+            },
+            "description": "Not Found"
           },
           "422": {
-            "description": "Request validation failed",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            }
+            },
+            "description": "Unprocessable Content"
           },
           "401": {
             "description": "Authentication or policy rejected",
@@ -707,7 +943,6 @@
             }
           }
         },
-        "x-implementation-status": "scaffold",
         "x-access-policy": "guest_or_user",
         "security": [
           {
@@ -724,8 +959,7 @@
         "tags": [
           "session"
         ],
-        "summary": "[Scaffold] get chat session",
-        "description": "Returns 501 for valid requests. Success schema is a proposed contract, not implemented behavior.",
+        "summary": "Get Chat Session",
         "operationId": "get_chat_session_api_v1_chat_sessions__session_id__get",
         "parameters": [
           {
@@ -750,25 +984,25 @@
               }
             }
           },
-          "501": {
-            "description": "Route scaffold only; business logic not implemented",
+          "404": {
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            }
+            },
+            "description": "Not Found"
           },
           "422": {
-            "description": "Request validation failed",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            }
+            },
+            "description": "Unprocessable Content"
           },
           "401": {
             "description": "Authentication or policy rejected",
@@ -791,7 +1025,96 @@
             }
           }
         },
-        "x-implementation-status": "scaffold",
+        "x-access-policy": "guest_or_user",
+        "security": [
+          {
+            "UserBearer": []
+          },
+          {
+            "GuestCookie": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "session"
+        ],
+        "summary": "Rename Chat Session",
+        "operationId": "rename_chat_session_api_v1_chat_sessions__session_id__patch",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RenameSessionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "401": {
+            "description": "Authentication or policy rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authentication or policy rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
         "x-access-policy": "guest_or_user",
         "security": [
           {
@@ -806,8 +1129,7 @@
         "tags": [
           "session"
         ],
-        "summary": "[Scaffold] delete chat session",
-        "description": "Returns 501 for valid requests. Success schema is a proposed contract, not implemented behavior.",
+        "summary": "Delete Chat Session",
         "operationId": "delete_chat_session_api_v1_chat_sessions__session_id__delete",
         "parameters": [
           {
@@ -825,25 +1147,25 @@
           "204": {
             "description": "Successful Response"
           },
-          "501": {
-            "description": "Route scaffold only; business logic not implemented",
+          "404": {
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            }
+            },
+            "description": "Not Found"
           },
           "422": {
-            "description": "Request validation failed",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            }
+            },
+            "description": "Unprocessable Content"
           },
           "401": {
             "description": "Authentication or policy rejected",
@@ -866,7 +1188,6 @@
             }
           }
         },
-        "x-implementation-status": "scaffold",
         "x-access-policy": "guest_or_user",
         "security": [
           {
@@ -883,8 +1204,7 @@
         "tags": [
           "session"
         ],
-        "summary": "[Scaffold] list messages",
-        "description": "Returns 501 for valid requests. Success schema is a proposed contract, not implemented behavior.",
+        "summary": "List Messages",
         "operationId": "list_messages_api_v1_chat_sessions__session_id__messages_get",
         "parameters": [
           {
@@ -937,25 +1257,25 @@
               }
             }
           },
-          "501": {
-            "description": "Route scaffold only; business logic not implemented",
+          "404": {
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            }
+            },
+            "description": "Not Found"
           },
           "422": {
-            "description": "Request validation failed",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            }
+            },
+            "description": "Unprocessable Content"
           },
           "401": {
             "description": "Authentication or policy rejected",
@@ -978,7 +1298,6 @@
             }
           }
         },
-        "x-implementation-status": "scaffold",
         "x-access-policy": "guest_or_user",
         "security": [
           {
@@ -994,7 +1313,6 @@
           "session"
         ],
         "summary": "[Scaffold] send message",
-        "description": "Returns 501 for valid requests. Success schema is a proposed contract, not implemented behavior.",
         "operationId": "send_message_api_v1_chat_sessions__session_id__messages_post",
         "parameters": [
           {
@@ -1029,8 +1347,18 @@
               }
             }
           },
-          "501": {
-            "description": "Route scaffold only; business logic not implemented",
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "description": "Request validation failed",
             "content": {
               "application/json": {
                 "schema": {
@@ -1039,8 +1367,8 @@
               }
             }
           },
-          "422": {
-            "description": "Request validation failed",
+          "501": {
+            "description": "Route scaffold only; business logic not implemented",
             "content": {
               "application/json": {
                 "schema": {
@@ -1844,6 +2172,19 @@
   },
   "components": {
     "schemas": {
+      "AuthMessageResponse": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "title": "AuthMessageResponse"
+      },
       "Body_upload_image_api_v1_images_post": {
         "properties": {
           "file": {
@@ -1914,6 +2255,21 @@
         ],
         "title": "ErrorResponse",
         "description": "For OpenAPI ``responses=`` declarations."
+      },
+      "ForgotPasswordRequest": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "maxLength": 320,
+            "format": "email",
+            "title": "Email"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email"
+        ],
+        "title": "ForgotPasswordRequest"
       },
       "GuestClaimResponse": {
         "properties": {
@@ -2595,6 +2951,79 @@
           "dependencies"
         ],
         "title": "ReadinessResponse"
+      },
+      "RegisterRequest": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "maxLength": 320,
+            "format": "email",
+            "title": "Email"
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 1024,
+            "minLength": 12,
+            "title": "Password"
+          },
+          "display_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Name"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "title": "RegisterRequest"
+      },
+      "RenameSessionRequest": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Title"
+          }
+        },
+        "type": "object",
+        "required": [
+          "title"
+        ],
+        "title": "RenameSessionRequest"
+      },
+      "ResetPasswordRequest": {
+        "properties": {
+          "token": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 43,
+            "title": "Token"
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 1024,
+            "minLength": 12,
+            "title": "Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "token",
+          "password"
+        ],
+        "title": "ResetPasswordRequest"
       },
       "SendMessageRequest": {
         "properties": {

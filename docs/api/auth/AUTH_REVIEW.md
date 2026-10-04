@@ -35,7 +35,7 @@
 | Image search — ownership | ใช้ verified principal; รูปของคนอื่นตอบ 404 Guest search ถือ lock ระหว่าง pipeline เพื่อไม่แข่งกับ claim |
 | Guest เข้า User/Admin | ไม่มี User Bearer ตอบ 401; User ที่ role ไม่ใช่ admin ตอบ 403 |
 | Admin indexing | ตรวจ admin role และ feature flag ก่อน indexing; ค้นจริงยังต้อง AI/storage configuration |
-| Chat/Product/Profile PATCH/Image detail-delete/Readiness | ตรวจ policy ก่อนตอบ 501; ownership/business rules ของ stub ยังไม่ได้ implement ครบ |
+| Send message/Product/Profile PATCH/Image detail-delete/Readiness | ตรวจ policy ก่อนตอบ 501; ownership/business rules ของ stub ยังไม่ได้ implement ครบ |
 | Health | Public; health สำเร็จไม่เท่ากับยืนยัน DB และ AI พร้อมใช้งาน |
 
 ## Security และการปฏิบัติการ
@@ -54,3 +54,6 @@
 Auth tests ใช้ fake Vision pipeline ไม่ยืนยัน Ollama/embedding จริง ความแม่นยำสินค้า หรือ frontend ไม่ได้รันชุดทดสอบโค้ดใหม่ในการปรับเอกสารเท่านั้นครั้งนี้ และผลผ่านเดิมไม่ได้หมายความว่าสอง P2 ข้างต้นถูกแก้แล้ว
 
 ดู [Auth setup](README.md), [Token flow](../../architecture/TOKEN_AUTH_FLOW.md), [Database Schema](../../../database/DATABASE_SCHEMA.md)
+
+
+อัปเดต 2026-10-04: Chat Session CRUD/rename/history ใช้งานแล้วและทดสอบ ownership/claim race ผ่าน PostgreSQL; Frontend Auth/Guest UI ทำแล้ว ส่วนสอง P2 ด้านบนยังเปิดอยู่
