@@ -113,3 +113,12 @@ UserJWT,opaqueGuest/refresh,refreshrotation/reuse,immediateLogout,default-deny,G
 UUID ที่สร้างใหม่ใช้ v7 ทั้ง database defaults, Python storage keys และ scripts ฐาน local สำรองแล้วและ apply migration 004 เรียบร้อย ID เดิมและ FK ไม่เปลี่ยน API ยังรับ UUID เดิมได้ ดู [RFC 9562](https://www.rfc-editor.org/rfc/rfc9562.html#section-5.7) สำหรับรูปแบบ
 
 ผลทดสอบหลังเปลี่ยน: regression 113 passed / 23 skipped; PostgreSQL integration 19 passed แยกผ่าน Podman (รวม migration repeat-safe, defaults ทั้ง 12 UUID tables, timestamp/version และ uniqueness) ค่า integer ID คงชนิดเดิม
+
+
+## Frontend implementation — 2026-10-04
+
+มี Auth bootstrap และ Guest/Login/Logout/claim UI แล้ว ใช้ access token/drafts ใน memory, refresh single-flight และ retry GET ครั้งเดียว Mutation ไม่ retry อัตโนมัติ Guest401 แจ้งผู้ใช้ก่อนเริ่มใหม่ รายละเอียดอยู่ใน [Frontend README](../../frontend/README.md) การส่งข้อความยังไม่เปิดใช้งาน
+
+## Register และ Password Reset — 2026-10-04
+
+Register สร้าง user active แล้วให้ Login เอง ไม่บังคับยืนยันอีเมล Forgot Password คืนคำตอบทั่วไปและส่งลิงก์ token แบบสุ่มผ่านอีเมล (local Mailpit); DB เก็บเฉพาะ hash อายุเริ่มต้น 15 นาที ใช้ครั้งเดียว ขอใหม่ยกเลิกตัวเดิม cooldown 60 วินาที ลิงก์ fragment ถูกอ่านใน frontend memory แล้วลบจาก URL Reset transaction เปลี่ยน Argon2id hash, revoke auth_sessions/refresh_tokens ทั้งบัญชี ทำให้ access JWT เดิมใช้ไม่ได้ทันที ส่ง notification โดยไม่มี password ดู [การตั้งค่าและข้อจำกัด SMTP](../api/auth/README.md)

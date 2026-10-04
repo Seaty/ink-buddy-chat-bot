@@ -59,3 +59,8 @@
 UUID ที่สร้างใหม่ใช้ v7 ทั้ง database defaults, Python storage keys และ scripts ฐาน local สำรองแล้วและ apply migration 004 เรียบร้อย ID เดิมและ FK ไม่เปลี่ยน API ยังรับ UUID เดิมได้ ดู [RFC 9562](https://www.rfc-editor.org/rfc/rfc9562.html#section-5.7) สำหรับรูปแบบ
 
 ผลทดสอบหลังเปลี่ยน: regression 113 passed / 23 skipped; PostgreSQL integration 19 passed แยกผ่าน Podman (รวม migration repeat-safe, defaults ทั้ง 12 UUID tables, timestamp/version และ uniqueness) ค่า integer ID คงชนิดเดิม
+
+
+## หลังเพิ่ม Chat Session — 2026-10-04
+
+API ปัจจุบัน 24 operations / 18 paths: 17 implemented / 7 scaffold Frontend Auth/Session/prompt draft ทำแล้ว API Spec/OpenAPI/Project Status/Frontend README/Session module guides อัปเดตตามโค้ด แผนเก่ายังคงติด banner ประวัติไว้ ไม่ใช่ contractปัจจุบัน

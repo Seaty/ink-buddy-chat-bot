@@ -1,45 +1,39 @@
-# Ink Buddy — สถานะปัจจุบัน2026-10-03
+# Ink Buddy — สถานะปัจจุบัน 2026-10-04
 
-## Authentication / Guest
+## ทำงานแล้ว
 
-- 23operationsบน18paths:11implementedและ12scaffoldหลังตรวจสิทธิ์
-- UserJWT15นาที,refreshsessionสูงสุด7วัน,rotation/reuse revokeและLogoutมีผลทันที
-- Guest24ชั่วโมง,3รูปต่อsession,Origincheck,ownership,atomicquotaและclaim
-- ทุกrouteประกาศpolicyและstartupปฏิเสธrouteที่ไม่ประกาศ; Adminindexตรวจrole+flag
-- ProfileGETทำแล้ว PATCH/Chat/Product/ImageDetailDelete/Readinessยังscaffold
-- มีscriptsสร้างuser/admin,cleanupGuestหลังexpiryอีก24ชั่วโมงและPostgreSQLintegrationtests
+- 27 operations บน 21 paths: 20 implemented และ 7 scaffold
+- Auth: User access JWT 15 นาที, refresh session สูงสุด 7 วัน, rotation/reuse revocation และ Logout ทันที
+- Guest: อายุ 24 ชั่วโมง, โควตารูป 3 รูปรวมทุกแชต, Origin/ownership guards และ atomic claim
+- Chat Session: สร้าง/รายการ/รายละเอียด/เปลี่ยนชื่อ/soft delete และอ่านประวัติ พร้อม cursor pagination และ Guest-before-chat lock
+- Frontend: Next.js/TypeScript/Tailwind, Guest/Login/Logout/claim, Chat UI, prompt 3 รายการ และร่างข้อความใน memory
+- Mobile แสดงรายการกับแชตทีละหน้า; Tablet ใช้ drawer; Desktop มี sidebar; theme tokens แยกจาก components
+- Image upload/search และ admin indexing มี implementation; retrieval เริ่มต้น mock
+- PostgreSQL 16 + pgvector ผ่าน docker/compose.yaml, 14 ตาราง, UUIDv7 defaults และ migration 005
+- Scripts สร้าง User/Admin, cleanup Guest และ isolated PostgreSQL tests
 
-## Database / Runtime
+## ยังไม่ทำ
 
-Podmanพร้อมและPostgreSQL16+pgvectorรันผ่านdocker/compose.yaml SQLinit13ตาราง ฐานlocalapplymigration004แล้วพร้อมbackup .local/backups สร้างbackend/.envที่ignoredพร้อมsecretสุ่ม ไม่สร้างบัญชี/passwordเริ่มต้น
+การส่งข้อความ/AI response (POST messages ยัง501), text product search/recommendations, citations/summary, upload UI, Product list/detail, Profile PATCH, Image detail/delete และ Readiness
 
-ฐานใหม่ใช้init ฐานเดิมดูmigration001–004และbackupก่อน ไม่reruninitบนvolumeเดิม Authtablesใช้rawSQLตามDDL ImageembeddingmodelยังSQLAlchemy
+ยังไม่มี Email Verification และ cleanup scheduler production Shared limiter และ partial image write ยังมีประเด็น P2 ดู Auth Review
 
-## AI
+## หลักฐานตรวจ
 
-ImageRAGของทีมคงเดิม:Qwen3-VLผ่านOllamaและQwen3-VL-Embedding-2B/vector2048 ค่าเริ่มต้นretrievalmock ต้องindexและตั้งpgvectorก่อนค้นจริง TextBGE-M3/vector1024แยกspace ยังไม่ครบtextchatRAG
+2026-10-04: backend regression 108 passed / 27 skipped (PostgreSQL 23 รันแยก + model-dependent 4), PostgreSQL integration 23 passed บนฐาน disposable ผ่าน Podman; frontend unit/component 7 passed, browser 6 passed บน Mobile/Tablet/Desktop และ TypeScript/production build ผ่าน
 
-Authintegrationtestsใช้fakeVisionpipeline ไม่ได้ยืนยันOllama/embeddingจริงหรือprecisionของexactlabel
+Browser tests ใช้ API mock; DB transaction tests ใช้ PostgreSQL จริงแยกจาก browser Auth/Vision tests ไม่ยืนยันโมเดล AI จริง ไม่มีการส่งข้อความจาก draft
 
-## งานถัดไป
+ดู [API Spec](../api/API_SPEC.md), [Frontend setup](../../frontend/README.md), [Database Schema](../../database/DATABASE_SCHEMA.md), [Auth Review](../api/auth/AUTH_REVIEW.md)
 
-FrontendAuthbootstrap/single-flightrefresh,Chatbusinesslogic,ProductAPI,ImageDetailDelete,Readinessimplementation,accountregister/reset,emailverification และproductionsharedlimiter/cleanup scheduler ยังไม่ได้ทำ
+## Register / Reset Password — 2026-10-04
 
-ดู [API_SPEC](../api/API_SPEC.md), [Auth setup](../api/auth/README.md), [Token flow](TOKEN_AUTH_FLOW.md), [Database Schema](../../database/DATABASE_SCHEMA.md)
+ทำแล้ว: Register user active ไม่บังคับ email verification; Forgot/Reset single-use token พร้อม revoke ทุก Login session; หน้า register/forgot/reset; Mailpit local + configurable SMTP; migration 005 และ schema 14 ตาราง Main local DB apply แล้วหลัง backup
 
-## ผลตรวจหลัง implementation
+ตรวจแล้ว: backend 109 passed; PG 27 passed; frontend 11 passed; browser 9 passed (API mocks); typecheck/build และ Mailpit transport ผ่าน Node 24.19.0 ตรวจแล้ว
 
-2026-10-03: regression111passed;22skippedประกอบด้วยPostgreSQLtests18ที่รันแยกและmodel-dependent4 PostgreSQLintegrationรันแยกผ่าน18testsบนPodman dependencycheckผ่าน Localhealth200,profileไม่มีtoken401 ไม่มีการรันโมเดลAIจริงในAuthtests
+ยังเหลือ Email Verification, durable mail outbox/retry, AI/message sending และ upload UI ดูขอบเขต API scaffold ใน API_SPEC.md
 
-## ประเด็นจากรีวิวที่ยังเปิดอยู่
+## Frontend container — 2026-10-04
 
-ดู [Auth review](../api/auth/AUTH_REVIEW.md): custom app configuration ยังอาจไม่ถูกใช้โดย global limiter และการเขียนไฟล์ภาพล้มเหลวระหว่างทางอาจเหลือไฟล์บางส่วน โค้ดยังไม่ได้แก้สองประเด็นนี้ ผลทดสอบเดิมไม่ครอบคลุมการยืนยันว่าแก้แล้ว
-
-
-## UUIDv7 (2026-10-03)
-
-ID ใหม่ที่เป็น UUID ใช้ UUIDv7: database defaults เรียก `public.ink_buddy_uuid_v7()` และ Python ใช้ `app.core.identifiers.uuid7()` ชนิด column/API ยังคง UUID เพื่อรองรับ ID เดิม ไม่มีการเปลี่ยน primary/foreign keys ที่มีอยู่ ฐานเดิมต้อง apply `database/migrations/004_uuid_v7.sql` หลัง 003; ฐานใหม่ใช้ init ปัจจุบัน migrations 001–003 เก็บเป็นประวัติเดิม
-
-UUIDv7 มี Unix timestamp ระดับ millisecond และ random bits ตาม [RFC 9562](https://www.rfc-editor.org/rfc/rfc9562.html#section-5.7) ไม่รับประกันลำดับภายใน millisecond หรือเมื่อ clock ย้อนกลับ ไม่ใช้ ID เป็น credential และยังตรวจ ownership ตามเดิม PostgreSQL 16 ใช้ compatibility function เพราะ built-in generator เป็น UUIDv4; ไม่มีการเปลี่ยนคอลัมน์ integer เช่น product_image_embeddings.id
-
-ผล UUIDv7 verification: regression 113 passed / 23 skipped; PostgreSQL integration 19 passed ฐาน local apply 004 แล้วพร้อม backup ก่อนเปลี่ยน
+เพิ่ม docker/frontend.Containerfile แบบ multi-stage, Next standalone, Node 24.19.0, non-root runtime และ healthcheck พร้อม service frontend ใน Podman Compose Bind loopback port 3000; backend ยังรันบน host API URL ฝังตอน build ดู docker/README.md
