@@ -1,7 +1,5 @@
-# Session repositories
+# Chat Session repositories
 
-ตรวจล่าสุด 2026-10-03
-
-ยังเป็นพื้นที่เตรียมไว้สำหรับการแยก business logic/data access ตาม module; ไม่ได้ยืนยันว่าฟีเจอร์ implement แล้ว Profile GET ปัจจุบันอ่าน SQL ใน route; Chat และ Product APIs ส่วนใหญ่ยัง scaffold
+ใช้งานแล้ว: repository.py อ่าน/เขียน owned sessions และ message pagination โดย caller ดูแล transaction
 
 ดู [Backend structure](../../../../docs/architecture/BACKEND_STRUCTURE.md)

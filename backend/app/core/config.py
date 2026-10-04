@@ -37,6 +37,18 @@ class Settings(BaseSettings):
     auth_limiter_storage_uri: str = "memory://"
     auth_workers: int = 1
 
+    auth_reset_seconds: int = 900
+    auth_reset_cooldown_seconds: int = 60
+    auth_frontend_url: str = "http://localhost:3000"
+    smtp_host: str = "127.0.0.1"
+    smtp_port: int = 1025
+    smtp_username: str | None = None
+    smtp_password: str | None = None
+    smtp_starttls: bool = False
+    smtp_ssl: bool = False
+    smtp_sender: str = "Ink Buddy <noreply@ink-buddy.local>"
+    smtp_timeout_seconds: int = 10
+
     @property
     def secure_cookies(self) -> bool:
         return self.app_environment == "production"
@@ -52,10 +64,32 @@ class Settings(BaseSettings):
                 self.auth_session_seconds,
                 self.auth_guest_seconds,
                 self.guest_retention_seconds,
+                self.auth_reset_seconds,
+                self.auth_reset_cooldown_seconds,
+                self.smtp_timeout_seconds,
             )
             <= 0
         ):
             raise RuntimeError("Auth lifetimes must be positive")
+        from urllib.parse import urlsplit
+
+        url = urlsplit(self.auth_frontend_url)
+        if (
+            url.scheme not in ("http", "https")
+            or not url.netloc
+            or url.username
+            or url.password
+            or url.query
+            or url.fragment
+            or url.path not in ("", "/")
+        ):
+            raise RuntimeError("AUTH_FRONTEND_URL must be a trusted frontend origin")
+        if self.smtp_starttls and self.smtp_ssl:
+            raise RuntimeError("SMTP_STARTTLS and SMTP_SSL are mutually exclusive")
+        if self.app_environment == "production" and (
+            url.scheme != "https" or not (self.smtp_starttls or self.smtp_ssl)
+        ):
+            raise RuntimeError("Production password reset requires HTTPS and SMTP TLS")
         if self.auth_workers < 1:
             raise RuntimeError("AUTH_WORKERS must be positive")
         if self.auth_workers > 1 and self.auth_limiter_storage_uri == "memory://":

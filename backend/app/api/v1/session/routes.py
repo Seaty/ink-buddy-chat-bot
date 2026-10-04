@@ -1,96 +1,100 @@
-from __future__ import annotations
-
 from uuid import UUID
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Depends, Query, Response
+from sqlalchemy.orm import Session
 
+from app.api.deps import get_principal
 from app.api.policy import access_policy
 from app.api.scaffold import SCAFFOLD_OPENAPI, SCAFFOLD_RESPONSES, not_implemented
+from app.core.errors import ErrorResponse
+from app.core.security import Principal
+from app.db.database import get_db
 from app.schemas.session import (
     CreateSessionRequest,
     MessageListResponse,
+    RenameSessionRequest,
     SendMessageRequest,
     SendMessageResponse,
     SessionListResponse,
     SessionResponse,
 )
+from app.services.session.service import ChatSessionService
 
-router = APIRouter(prefix="/chat-sessions", tags=["session"])
-
-
-@router.post(
-    "",
-    status_code=201,
-    response_model=SessionResponse,
-    responses=SCAFFOLD_RESPONSES,
-    openapi_extra=SCAFFOLD_OPENAPI,
-    summary="[Scaffold] create chat session",
-    description="Returns 501 for valid requests. Success schema is a proposed contract, not implemented behavior.",
+router = APIRouter(
+    prefix="/chat-sessions",
+    tags=["session"],
+    responses={404: {"model": ErrorResponse}, 422: {"model": ErrorResponse}},
 )
+
+
+def service(response: Response, db: Session = Depends(get_db)):
+    response.headers["Cache-Control"] = "no-store"
+    return ChatSessionService(db)
+
+
+@router.post("", status_code=201, response_model=SessionResponse)
 @access_policy("guest_or_user")
-def create_chat_session(body: CreateSessionRequest):
-    not_implemented("create_chat_session")
+def create_chat_session(
+    body: CreateSessionRequest,
+    principal: Principal = Depends(get_principal),
+    chats: ChatSessionService = Depends(service),
+):
+    return chats.create(principal, body.title)
 
 
-@router.get(
-    "",
-    status_code=200,
-    response_model=SessionListResponse,
-    responses=SCAFFOLD_RESPONSES,
-    openapi_extra=SCAFFOLD_OPENAPI,
-    summary="[Scaffold] list chat sessions",
-    description="Returns 501 for valid requests. Success schema is a proposed contract, not implemented behavior.",
-)
+@router.get("", response_model=SessionListResponse)
 @access_policy("guest_or_user")
 def list_chat_sessions(
-    limit: int = Query(20, ge=1, le=100), cursor: str | None = Query(None)
+    limit: int = Query(20, ge=1, le=100),
+    cursor: str | None = Query(None),
+    principal: Principal = Depends(get_principal),
+    chats: ChatSessionService = Depends(service),
 ):
-    not_implemented("list_chat_sessions")
+    return chats.list(principal, limit, cursor)
 
 
-@router.get(
-    "/{session_id}",
-    status_code=200,
-    response_model=SessionResponse,
-    responses=SCAFFOLD_RESPONSES,
-    openapi_extra=SCAFFOLD_OPENAPI,
-    summary="[Scaffold] get chat session",
-    description="Returns 501 for valid requests. Success schema is a proposed contract, not implemented behavior.",
-)
+@router.get("/{session_id}", response_model=SessionResponse)
 @access_policy("guest_or_user")
-def get_chat_session(session_id: UUID):
-    not_implemented("get_chat_session")
+def get_chat_session(
+    session_id: UUID,
+    principal: Principal = Depends(get_principal),
+    chats: ChatSessionService = Depends(service),
+):
+    return chats.get(principal, session_id)
 
 
-@router.delete(
-    "/{session_id}",
-    status_code=204,
-    responses=SCAFFOLD_RESPONSES,
-    openapi_extra=SCAFFOLD_OPENAPI,
-    summary="[Scaffold] delete chat session",
-    description="Returns 501 for valid requests. Success schema is a proposed contract, not implemented behavior.",
-)
+@router.patch("/{session_id}", response_model=SessionResponse)
 @access_policy("guest_or_user")
-def delete_chat_session(session_id: UUID):
-    not_implemented("delete_chat_session")
+def rename_chat_session(
+    session_id: UUID,
+    body: RenameSessionRequest,
+    principal: Principal = Depends(get_principal),
+    chats: ChatSessionService = Depends(service),
+):
+    return chats.rename(principal, session_id, body.title)
 
 
-@router.get(
-    "/{session_id}/messages",
-    status_code=200,
-    response_model=MessageListResponse,
-    responses=SCAFFOLD_RESPONSES,
-    openapi_extra=SCAFFOLD_OPENAPI,
-    summary="[Scaffold] list messages",
-    description="Returns 501 for valid requests. Success schema is a proposed contract, not implemented behavior.",
-)
+@router.delete("/{session_id}", status_code=204)
+@access_policy("guest_or_user")
+def delete_chat_session(
+    session_id: UUID,
+    principal: Principal = Depends(get_principal),
+    chats: ChatSessionService = Depends(service),
+):
+    chats.delete(principal, session_id)
+    return Response(status_code=204, headers={"Cache-Control": "no-store"})
+
+
+@router.get("/{session_id}/messages", response_model=MessageListResponse)
 @access_policy("guest_or_user")
 def list_messages(
     session_id: UUID,
     limit: int = Query(20, ge=1, le=100),
     cursor: str | None = Query(None),
+    principal: Principal = Depends(get_principal),
+    chats: ChatSessionService = Depends(service),
 ):
-    not_implemented("list_messages")
+    return chats.messages(principal, session_id, limit, cursor)
 
 
 @router.post(
@@ -100,7 +104,6 @@ def list_messages(
     responses=SCAFFOLD_RESPONSES,
     openapi_extra=SCAFFOLD_OPENAPI,
     summary="[Scaffold] send message",
-    description="Returns 501 for valid requests. Success schema is a proposed contract, not implemented behavior.",
 )
 @access_policy("guest_or_user")
 def send_message(session_id: UUID, body: SendMessageRequest):

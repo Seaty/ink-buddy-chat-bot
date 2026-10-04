@@ -1,13 +1,24 @@
 from __future__ import annotations
-from typing import Literal
-from uuid import UUID
-from pydantic import BaseModel, Field
 
 from datetime import datetime
-from pydantic import model_validator
+from typing import Literal
+from uuid import UUID
+
+from pydantic import BaseModel, Field, field_validator, model_validator
+
 
 class CreateSessionRequest(BaseModel):
     title: str | None = Field(default=None, min_length=1, max_length=200)
+
+    @field_validator("title", mode="before")
+    @classmethod
+    def trim_title(cls, value):
+        return value.strip() if isinstance(value, str) else value
+
+
+class RenameSessionRequest(CreateSessionRequest):
+    title: str = Field(min_length=1, max_length=200)
+
 
 class SessionResponse(BaseModel):
     id: UUID
@@ -16,12 +27,18 @@ class SessionResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
 
+
 class SessionListResponse(BaseModel):
     items: list[SessionResponse]
     next_cursor: str | None = None
 
+
 class SendMessageRequest(BaseModel):
-    content: str = Field(default="", max_length=4000, description="Proposed MVP limit, pending policy confirmation")
+    content: str = Field(
+        default="",
+        max_length=4000,
+        description="Proposed MVP limit, pending policy confirmation",
+    )
     image_id: UUID | None = None
 
     @model_validator(mode="after")
@@ -29,6 +46,7 @@ class SendMessageRequest(BaseModel):
         if not self.content.strip() and self.image_id is None:
             raise ValueError("content or image_id is required")
         return self
+
 
 class MessageResponse(BaseModel):
     id: UUID
@@ -40,9 +58,11 @@ class MessageResponse(BaseModel):
     product_refs: list[dict] | None = None
     created_at: datetime
 
+
 class MessageListResponse(BaseModel):
     items: list[MessageResponse]
     next_cursor: str | None = None
+
 
 class SendMessageResponse(BaseModel):
     user_message: MessageResponse

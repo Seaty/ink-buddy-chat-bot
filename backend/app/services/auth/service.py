@@ -2,9 +2,11 @@
 
 from datetime import timedelta
 
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.core.config import Settings
+from app.core.errors import ApiError
 from app.core.security import (
     Principal,
     access_token,
@@ -20,6 +22,7 @@ from app.core.security import (
 )
 from app.repositories.auth.repository import AuthRepository
 from app.schemas.auth import GuestClaimResponse, GuestSessionResponse, TokenResponse
+from app.services.auth.mail import Mailer
 
 
 def require_live_guest(row):
@@ -198,4 +201,125 @@ class AuthService:
             user_id=user.id,
             chat_sessions_claimed=chats,
             images_claimed=images,
+        )
+
+    def register(self, email, password, display_name):
+        hashed = hash_password(password)
+        try:
+            role = self.repo.one("SELECT id FROM roles WHERE name='user'")
+            if not role:
+                raise ApiError(
+                    503, "AUTH_CONFIGURATION_ERROR", "registration unavailable"
+                )
+            self.repo.execute(
+                "INSERT INTO users(role_id,email,password_hash,display_name) VALUES(:role,:email,:hash,:name)",
+                role=role["id"],
+                email=email.lower(),
+                hash=hashed,
+                name=display_name,
+            )
+            self.db.commit()
+        except IntegrityError as error:
+            self.db.rollback()
+            if getattr(error.orig, "sqlstate", None) == "23505":
+                raise ApiError(
+                    409, "EMAIL_ALREADY_REGISTERED", "email already registered"
+                ) from None
+            raise
+
+    def forgot_password(self, email):
+        user = self.repo.one(
+            "SELECT * FROM users WHERE lower(email)=lower(:email) FOR UPDATE",
+            email=email,
+        )
+        if not user or not user["is_active"]:
+            return None
+        recent = self.repo.one(
+            "SELECT id FROM password_reset_tokens WHERE user_id=:uid AND created_at > clock_timestamp()-(:seconds * interval '1 second') LIMIT 1",
+            uid=user["id"],
+            seconds=self.settings.auth_reset_cooldown_seconds,
+        )
+        if recent:
+            return None
+        raw = new_token()
+        self.repo.execute(
+            "UPDATE password_reset_tokens SET revoked_at=clock_timestamp() WHERE user_id=:uid AND used_at IS NULL AND revoked_at IS NULL",
+            uid=user["id"],
+        )
+        self.repo.execute(
+            "INSERT INTO password_reset_tokens(user_id,token_hash,expires_at) VALUES(:uid,:hash,:expiry)",
+            uid=user["id"],
+            hash=token_hash(raw),
+            expiry=utcnow() + timedelta(seconds=self.settings.auth_reset_seconds),
+        )
+        self.db.commit()
+        link = (
+            self.settings.auth_frontend_url.rstrip("/") + "/reset-password#token=" + raw
+        )
+        return Mailer(self.settings).message(
+            user["email"],
+            "Ink Buddy: reset your password",
+            "Use this one-time link within "
+            + str(self.settings.auth_reset_seconds // 60)
+            + " minutes:\n"
+            + link
+            + "\nIf you did not request this, ignore this email.",
+        )
+
+    def reset_password(self, raw, password):
+        hashed_token = token_hash(raw)
+        found = self.repo.one(
+            "SELECT user_id FROM password_reset_tokens WHERE token_hash=:hash",
+            hash=hashed_token,
+        )
+        if not found:
+            raise ApiError(400, "INVALID_RESET_TOKEN", "invalid or expired reset link")
+        user = self.repo.one(
+            "SELECT * FROM users WHERE id=:uid FOR UPDATE", uid=found["user_id"]
+        )
+        token = self.repo.one(
+            "SELECT * FROM password_reset_tokens WHERE token_hash=:hash FOR UPDATE",
+            hash=hashed_token,
+        )
+        if (
+            not user
+            or not user["is_active"]
+            or not token
+            or token["used_at"]
+            or token["revoked_at"]
+            or token["expires_at"] <= utcnow()
+        ):
+            raise ApiError(400, "INVALID_RESET_TOKEN", "invalid or expired reset link")
+        self.repo.execute(
+            "UPDATE users SET password_hash=:hash,updated_at=clock_timestamp() WHERE id=:uid",
+            hash=hash_password(password),
+            uid=user["id"],
+        )
+        # Parent-before-refresh-token order matches refresh/logout; serialize each session.
+        self.repo.execute(
+            "SELECT id FROM auth_sessions WHERE user_id=:uid ORDER BY id FOR UPDATE",
+            uid=user["id"],
+        )
+        self.repo.execute(
+            "UPDATE auth_sessions SET revoked_at=COALESCE(revoked_at,clock_timestamp()) WHERE user_id=:uid",
+            uid=user["id"],
+        )
+        self.repo.execute(
+            "UPDATE refresh_tokens SET revoked_at=COALESCE(revoked_at,clock_timestamp()) WHERE user_id=:uid",
+            uid=user["id"],
+        )
+        self.repo.execute(
+            "UPDATE password_reset_tokens SET used_at=clock_timestamp() WHERE id=:id",
+            id=token["id"],
+        )
+        self.repo.execute(
+            "UPDATE password_reset_tokens SET revoked_at=clock_timestamp() WHERE user_id=:uid AND id<>:id AND used_at IS NULL AND revoked_at IS NULL",
+            uid=user["id"],
+            id=token["id"],
+        )
+        self.db.commit()
+        return Mailer(self.settings).message(
+            user["email"],
+            "Ink Buddy: password changed",
+            "Your password was changed and existing login sessions were signed out. If you did not make this change, contact your support team.",
         )
