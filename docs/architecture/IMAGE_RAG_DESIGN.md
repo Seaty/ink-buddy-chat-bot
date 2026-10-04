@@ -20,7 +20,7 @@
 | exact เฉพาะเมื่อยืนยันรุ่นได้ | ✅ (§1.5) |
 | Seed `products` / `product_images` จาก CSV | ✅ `database/seed/` |
 | ตาราง vector ของส่วนรูป | ⚠️ ชั่วคราว: สร้างด้วย `create_all` และผูกด้วย SKU (§2.5) |
-| Auth | ⚠️ `DEV_AUTH_EMAIL` ชั่วคราวจนกว่าจะมี JWT |
+| Auth | ✅ ใช้ระบบของทีม: policy `guest_or_user`, User (JWT) หรือ Guest (cookie, 3 รูปต่อ session); รูปของคนอื่นตอบ 404 |
 | รูป + ข้อความในแชต | ⏳ รอ endpoint แชตของทีม text (§1.6) |
 | `/images/{id}/analysis`, `/images/{id}/ocr` | ✅ เก็บผลไว้ใน `image_uploads` (เรียกซ้ำไม่เรียกโมเดลอีก) · ⚠️ OCR กับรูปที่มีข้อความเยอะใช้ไม่ได้กับ `qwen3-vl:latest` (§5) |
 | Rate limit | ⏳ ยังไม่ทำ |
@@ -62,7 +62,7 @@ matches ─► JOIN products (id, ราคา, availability, source_ref) ─►
 backend/app/
 ├── main.py                              FastAPI + error handlers + /api/v1 router
 ├── api/
-│   ├── deps.py                          get_current_user_id (DEV_AUTH_EMAIL ชั่วคราว)
+│   ├── deps.py · policy.py              authorize / get_principal (User หรือ Guest) และ policy ต่อ route
 │   └── v1/  router.py · images.py (upload, analysis, ocr) · product_search.py · admin.py
 ├── core/  config.py (.env) · errors.py (ApiError + error format)
 ├── db/    database.py (engine, session, init_db)
@@ -144,7 +144,6 @@ Spec แนบรูปในแชตผ่าน `POST /chat-sessions/{id}/mes
 | `IMAGE_MAX_BYTES` / `IMAGE_MAX_PIXELS` | 5 MB / 40 ล้าน | |
 | `IMAGE_STORAGE_DIR` | `uploads` | private, อยู่ใน `.gitignore` |
 | `VISION_ADMIN_ENABLED` | `false` | เปิด `POST /admin/image-index` |
-| `DEV_AUTH_EMAIL` | ว่าง | ชั่วคราว: ว่าง = ทุก endpoint ตอบ 401 |
 
 แก้ `.env` แล้วต้อง restart server (`--reload` ไม่ดูไฟล์นี้)
 
@@ -284,4 +283,5 @@ Get-Content database\seed\001_catalog_products.sql | docker exec -i docker-postg
 | `from __future__ import annotations` ทำให้ transformers 5 โหลดโมเดลไม่ได้ | ตั้ง `config_class` ตรงๆ |
 | DB test เขียนลงตารางจริงเมื่อใช้แค่ `search_path` | `schema_translate_map` และ transaction ที่ rollback |
 | Container ฐานข้อมูลหยุดหลังเครื่อง sleep แล้ว test ค้าง | `docker compose -f docker/compose.yaml up -d` ก่อนทดสอบ |
+| Guest: `search` / `analysis` / `ocr` ล็อกแถว `guest_sessions` (FOR UPDATE) ไว้ตลอดการเรียก vision model เพื่อให้ทำงานต่อคิวกับ claim — ถ้าเข้า full path คำขออื่นของ Guest คนเดียวกัน (เช่นอัปโหลด) ต้องรอหลายนาที | ยังไม่แก้: ต้องตกลงกับทีม auth ว่าจะปล่อย lock ก่อนเรียกโมเดลได้หรือไม่ |
 | OCR รูปที่มีข้อความเยอะ (เช่น แพ็คเทป Scotch) ได้คำตอบว่าง: `qwen3-vl:latest` คิดยาวจน context 4096 เต็มก่อนตอบ (296 วินาที, `done_reason=length`) · ตั้ง `num_ctx` 16384 แล้วโมเดลโตเป็น 8.1 GB รันบน CPU 57% เกิน 30 นาทีไม่ได้คำตอบ · รูปที่ไม่มีข้อความตอบถูก (`[]`, 10 วินาที) | ยังไม่แก้: เปลี่ยนเป็น VLM รุ่น instruct หรือใช้ EasyOCR / Tesseract ผ่าน `OcrService` (ออกแบบให้เปลี่ยน engine ได้) |

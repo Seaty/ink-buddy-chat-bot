@@ -4,6 +4,7 @@ The AI layer (ai/) knows nothing about settings, DB or HTTP; this is where
 they meet. Retriever mode comes from ``IMAGE_RETRIEVER``: "mock" (no
 embeddings needed) or "pgvector" (after the catalog is indexed).
 """
+
 from __future__ import annotations
 
 import logging
@@ -23,10 +24,17 @@ from app.ai.rag.indexing_service import load_catalog
 from app.ai.rag.retriever import ImageRetriever, MockCatalogRetriever, ProductRetriever
 from app.ai.vision.image_analyzer import ImageAnalyzer
 from app.ai.vision.ocr_service import OcrService
-from app.ai.vision.vision_pipeline import InvalidImageError, PipelineSettings, VisionPipeline, load_upload
+from app.ai.vision.vision_pipeline import (
+    InvalidImageError,
+    PipelineSettings,
+    VisionPipeline,
+    load_upload,
+)
 from app.core.config import Settings, get_settings
 from app.core.errors import ApiError
+from app.core.security import Principal
 from app.db.database import get_sessionmaker
+from app.repositories.auth.repository import AuthRepository
 from app.repositories.image_repository import ImageUpload, ImageUploadRepository
 from app.repositories.product_repository import PgImageIndex, ProductRepository
 from app.schemas.admin import IndexCatalogResponse
@@ -38,6 +46,7 @@ from app.schemas.image import (
     OcrSegmentOut,
 )
 from app.schemas.product import ProductMatch, ProductSearchByImageResponse
+from app.services.auth.service import require_live_guest
 from app.services.image_storage import ImageStorage
 
 logger = logging.getLogger(__name__)
@@ -62,7 +71,12 @@ class VisionService:
     # ------------------------------------------------------------------ wiring
     def _embedder(self):
         s = self.settings
-        return get_image_embedder(s.image_embed_model, s.image_embed_device, s.image_embed_dim, s.image_embed_max_pixels)
+        return get_image_embedder(
+            s.image_embed_model,
+            s.image_embed_device,
+            s.image_embed_dim,
+            s.image_embed_max_pixels,
+        )
 
     def _build_pipeline(self) -> VisionPipeline:
         s = self.settings
@@ -75,7 +89,10 @@ class VisionService:
         retriever: ProductRetriever
         if s.image_retriever == "pgvector":
             retriever = ImageRetriever(
-                self._embedder(), PgImageIndex(get_sessionmaker()), w_image=s.image_w_image, w_caption=s.image_w_caption
+                self._embedder(),
+                PgImageIndex(get_sessionmaker()),
+                w_image=s.image_w_image,
+                w_caption=s.image_w_caption,
             )
         else:
             retriever = MockCatalogRetriever(s.catalog_dir)
@@ -96,40 +113,69 @@ class VisionService:
         )
 
     # ------------------------------------------------------------------ upload
-    def upload_image(self, db: Session, user_id: UUID, data: bytes) -> ImageUploadResponse:
+    def upload_image(
+        self, db: Session, user_id: UUID | Principal, data: bytes
+    ) -> ImageUploadResponse:
         """Validate by content, store privately without metadata, record in image_uploads."""
         try:
-            img = load_upload(data, self.settings.image_max_bytes, self.settings.image_max_pixels)
+            img = load_upload(
+                data, self.settings.image_max_bytes, self.settings.image_max_pixels
+            )
         except InvalidImageError as e:
             raise ApiError(INVALID_IMAGE_STATUS.get(e.code, 422), e.code, str(e)) from e
 
-        stored = self.storage.save(img, img.format)
+        owner = _as_principal(user_id)
+        stored = None
         try:
-            row = ImageUploadRepository(db).create(user_id, stored.storage_key, stored.mime_type, stored.size_bytes)
+            if owner.kind == "guest":
+                repo = AuthRepository(db)
+                guest = require_live_guest(repo.lock_guest(owner.id))
+                if guest["image_uploads_used"] >= guest["image_upload_limit"]:
+                    raise ApiError(
+                        403,
+                        "GUEST_IMAGE_QUOTA_EXCEEDED",
+                        "guest image quota exceeded",
+                        {"limit": 3, "used": 3, "remaining": 0},
+                    )
+                repo.execute(
+                    "UPDATE guest_sessions SET image_uploads_used=image_uploads_used+1 WHERE id=:id",
+                    id=owner.id,
+                )
+            stored = self.storage.save(img, img.format)
+            row = ImageUploadRepository(db).create(
+                owner, stored.storage_key, stored.mime_type, stored.size_bytes
+            )
             db.commit()
         except Exception:
             db.rollback()
-            self.storage.delete(stored.storage_key)
+            if stored is not None:
+                self.storage.delete(stored.storage_key)
             raise
         return ImageUploadResponse(id=row.id, status=row.status)
 
     # ------------------------------------------------------------------ search
-    def search_by_image(self, db: Session, user_id: UUID, image_id: UUID, limit: int) -> ProductSearchByImageResponse:
+    def search_by_image(
+        self, db: Session, user_id: UUID | Principal, image_id: UUID, limit: int
+    ) -> ProductSearchByImageResponse:
         """Blocking (embedding, maybe VLM); call from a worker thread."""
         images = ImageUploadRepository(db)
-        _, img = self._owned_image(images, user_id, image_id)
+        _, img = self._owned_image(db, images, _as_principal(user_id), image_id)
         with _vision_errors():
             result = self.pipeline.run(img, None, limit=limit, with_answer=False)
 
-        catalog = ProductRepository(db).catalog_by_sku(p["sku"] for p in result.products + result.suggestions)
-        matches = _to_matches(result.products[:limit], catalog,
-                              lambda i: "exact" if i == 0 and result.match_level == MatchLevel.EXACT else "similar")
+        catalog = ProductRepository(db).catalog_by_sku(
+            p["sku"] for p in result.products + result.suggestions
+        )
+        matches = _to_matches(
+            result.products[:limit],
+            catalog,
+            lambda i: "exact" if i == 0 and result.match_level == MatchLevel.EXACT else "similar",
+        )
         suggestions = _to_matches(result.suggestions, catalog, lambda i: "suggestion")
 
         if result.analysis is not None:  # brand/model readings are not OCR: ocr_text is left alone
             images.save_analysis(image_id, result.analysis.model_dump(mode="json"))
-            db.commit()
-
+        db.commit()  # saves the analysis and releases the Guest lock, also on the fast path
         return ProductSearchByImageResponse(
             image_id=image_id,
             description=result.analysis.description if result.analysis else None,
@@ -142,18 +188,21 @@ class VisionService:
         )
 
     # ------------------------------------------------------------------ analysis / OCR
-    def analyze_image(self, db: Session, user_id: UUID, image_id: UUID) -> ImageAnalysisResponse:
+    def analyze_image(
+        self, db: Session, user_id: UUID | Principal, image_id: UUID
+    ) -> ImageAnalysisResponse:
         """Vision-model reading of the photo; cached in image_uploads.analysis (also filled by a full-path search)."""
         images = ImageUploadRepository(db)
-        upload = self._owned_upload(images, user_id, image_id)
+        owner = _as_principal(user_id)
+        upload = self._owned_upload(db, images, owner, image_id)
         analysis = _cached_analysis(upload)
         cached = analysis is not None
         if analysis is None:
-            _, img = self._owned_image(images, user_id, image_id)
+            img = self._open(upload)
             with _vision_errors():
                 analysis = self.pipeline.analyzer.vision.analyze(img)
             images.save_analysis(image_id, analysis.model_dump(mode="json"))
-            db.commit()
+        db.commit()  # saves a new analysis and releases the Guest lock
         return ImageAnalysisResponse(
             image_id=image_id,
             description=analysis.description,
@@ -165,19 +214,21 @@ class VisionService:
             cached=cached,
         )
 
-    def ocr_image(self, db: Session, user_id: UUID, image_id: UUID) -> ImageOcrResponse:
+    def ocr_image(
+        self, db: Session, user_id: UUID | Principal, image_id: UUID
+    ) -> ImageOcrResponse:
         """Text printed on the item; cached in image_uploads.ocr_text."""
         images = ImageUploadRepository(db)
-        upload = self._owned_upload(images, user_id, image_id)
+        upload = self._owned_upload(db, images, _as_principal(user_id), image_id)
         cached = upload.ocr_text is not None
         if cached:
             segments = [line for line in upload.ocr_text.split("\n") if line]
         else:
-            _, img = self._owned_image(images, user_id, image_id)
+            img = self._open(upload)
             with _vision_errors():
                 segments = self._ocr_service().read(img)
             images.save_ocr(image_id, "\n".join(segments))
-            db.commit()
+        db.commit()  # saves new OCR text and releases the Guest lock
         return ImageOcrResponse(image_id=image_id, text="\n".join(segments),
                                 segments=[OcrSegmentOut(text=t) for t in segments], cached=cached)
 
@@ -187,18 +238,32 @@ class VisionService:
         return self._ocr
 
     # ------------------------------------------------------------------ shared
-    def _owned_upload(self, images: ImageUploadRepository, user_id: UUID, image_id: UUID) -> ImageUpload:
-        upload = images.get_owned(image_id, user_id)
+    def _owned_upload(
+        self, db: Session, images: ImageUploadRepository, owner: Principal, image_id: UUID
+    ) -> ImageUpload:
+        """The principal's ready image, or 404 (also for another principal's image).
+
+        A Guest must be live; its row stays locked (FOR UPDATE) until the caller commits,
+        which serializes this request with claim and quota updates.
+        """
+        if owner.kind == "guest":
+            require_live_guest(AuthRepository(db).lock_guest(owner.id))
+        upload = images.get_owned(image_id, owner)
         if upload is None:
             raise ApiError(404, "IMAGE_NOT_FOUND", "image not found")
         if upload.status != "ready":
             raise ApiError(422, "IMAGE_NOT_READY", f"image status is {upload.status}")
         return upload
 
-    def _owned_image(self, images: ImageUploadRepository, user_id: UUID, image_id: UUID) -> tuple[ImageUpload, Image.Image]:
-        upload = self._owned_upload(images, user_id, image_id)
+    def _owned_image(
+        self, db: Session, images: ImageUploadRepository, owner: Principal, image_id: UUID
+    ) -> tuple[ImageUpload, Image.Image]:
+        upload = self._owned_upload(db, images, owner, image_id)
+        return upload, self._open(upload)
+
+    def _open(self, upload: ImageUpload) -> Image.Image:
         try:
-            return upload, self.storage.open(upload.storage_key)
+            return self.storage.open(upload.storage_key)
         except FileNotFoundError as e:
             raise ApiError(404, "IMAGE_NOT_FOUND", "image file is missing") from e
 
@@ -222,7 +287,9 @@ class VisionService:
         captions = [c for c in changed if c.chunk_type == "caption"]
         vectors = {}
         if images:
-            embs = embedder.embed_images([Image.open(self.settings.catalog_dir / c.content) for c in images])
+            embs = embedder.embed_images(
+                [Image.open(self.settings.catalog_dir / c.content) for c in images]
+            )
             vectors.update({_key(c): v for c, v in zip(images, embs)})
         if captions:
             embs = embedder.embed_texts([c.content for c in captions])
@@ -253,6 +320,11 @@ class VisionService:
             warnings=report.warnings,
             seconds=round(time.perf_counter() - t0, 2),
         )
+
+
+def _as_principal(owner: UUID | Principal) -> Principal:
+    """Routes pass a Principal; a bare UUID (older callers/tests) means a User."""
+    return owner if isinstance(owner, Principal) else Principal("user", owner)
 
 
 def _to_matches(items: list[dict], catalog: dict[str, dict], match_type) -> list[ProductMatch]:

@@ -4,13 +4,15 @@ Skipped unless TEST_DATABASE_URL is set, e.g.
   TEST_DATABASE_URL=postgresql+psycopg://inkbuddy:inkbuddy@127.0.0.1:5432/inkbuddy
 Uses a throwaway schema, so existing tables are untouched.
 """
+
 import os
-import uuid
 
 import numpy as np
 import pytest
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
+
+from app.core.identifiers import uuid7
 
 URL = os.getenv("TEST_DATABASE_URL")
 pytestmark = pytest.mark.skipif(not URL, reason="TEST_DATABASE_URL not set")
@@ -20,12 +22,11 @@ DIM = 2048
 
 @pytest.fixture
 def session():
-    from app.db.database import Base
     import app.models  # noqa: F401
-
+    from app.db.database import Base
     from app.repositories.product_repository import ProductRepository
 
-    schema = f"test_{uuid.uuid4().hex[:8]}"
+    schema = f"test_{uuid7().hex[:8]}"
     base_engine = create_engine(URL)
     with base_engine.begin() as conn:
         conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
@@ -36,7 +37,9 @@ def session():
     engine = base_engine.execution_options(schema_translate_map={None: schema})
     Base.metadata.create_all(engine)
     s = sessionmaker(bind=engine)()
-    assert ProductRepository(s).count() == 0, "not an empty test table — refusing to run"
+    assert ProductRepository(s).count() == 0, (
+        "not an empty test table — refusing to run"
+    )
     yield s
     s.close()
     with base_engine.begin() as conn:
@@ -51,8 +54,16 @@ def unit(i: int) -> np.ndarray:
 
 
 def row(sku, chunk_type, vec, h="h", **meta):
-    return {"sku": sku, "chunk_type": chunk_type, "variant": 0, "content": sku, "content_hash": h,
-            "embedding": vec, "embed_model": "m", "meta": {"sku": sku, "is_active": True, **meta}}
+    return {
+        "sku": sku,
+        "chunk_type": chunk_type,
+        "variant": 0,
+        "content": sku,
+        "content_hash": h,
+        "embedding": vec,
+        "embed_model": "m",
+        "meta": {"sku": sku, "is_active": True, **meta},
+    }
 
 
 def test_upsert_search_refresh_delete(session):
@@ -60,7 +71,13 @@ def test_upsert_search_refresh_delete(session):
 
     repo = ProductRepository(session)
     near_a = unit(0) * 0.9 + unit(1) * 0.1
-    repo.upsert([row("a", "image", unit(0)), row("b", "image", unit(1)), row("a", "caption", unit(2))])
+    repo.upsert(
+        [
+            row("a", "image", unit(0)),
+            row("b", "image", unit(1)),
+            row("a", "caption", unit(2)),
+        ]
+    )
     session.commit()
     assert repo.count() == 3
 

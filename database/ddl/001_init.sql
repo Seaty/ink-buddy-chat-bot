@@ -1,22 +1,37 @@
 -- Ink Buddy initial schema. Run once against an empty PostgreSQL database.
 -- Requires PostgreSQL 13+ (gen_random_uuid), pgvector, and pg_trgm.
 -- Fresh-install snapshot including Guest sessions and Image RAG.
--- Existing databases: apply migrations/001_guest_sessions.sql and 002_product_image_embeddings.sql; do not rerun init.
+-- Existing databases: apply pending migrations 001, 002, 003 and 004 in order; do not rerun init.
 
 BEGIN;
 
 CREATE EXTENSION IF NOT EXISTS vector;
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
+-- RFC 9562 section 5.7: 48-bit Unix milliseconds + 74 random bits.
+-- PostgreSQL 16 compatibility; gen_random_uuid supplies cryptographic randomness.
+CREATE OR REPLACE FUNCTION public.ink_buddy_uuid_v7() RETURNS uuid
+LANGUAGE plpgsql VOLATILE PARALLEL SAFE SET search_path = pg_catalog AS $$
+DECLARE
+    value bytea := uuid_send(gen_random_uuid());
+    milliseconds bigint := floor(extract(epoch FROM clock_timestamp()) * 1000)::bigint;
+BEGIN
+    value := overlay(value placing substring(int8send(milliseconds) from 3 for 6) from 1 for 6);
+    value := set_byte(value, 6, (get_byte(value, 6) & 15) | 112);
+    value := set_byte(value, 8, (get_byte(value, 8) & 63) | 128);
+    RETURN encode(value, 'hex')::uuid;
+END;
+$$;
+
 CREATE TABLE roles (
-    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    id uuid PRIMARY KEY DEFAULT public.ink_buddy_uuid_v7(),
     name varchar(50) NOT NULL UNIQUE,
     description text,
     CONSTRAINT roles_name_not_blank CHECK (length(btrim(name)) > 0)
 );
 
 CREATE TABLE users (
-    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    id uuid PRIMARY KEY DEFAULT public.ink_buddy_uuid_v7(),
     role_id uuid NOT NULL REFERENCES roles(id) ON DELETE RESTRICT,
     email varchar(320) NOT NULL,
     password_hash text NOT NULL,
@@ -31,23 +46,44 @@ CREATE TABLE users (
 CREATE UNIQUE INDEX users_email_lower_uq ON users (lower(email));
 CREATE INDEX users_role_id_idx ON users (role_id);
 
-CREATE TABLE refresh_tokens (
-    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+CREATE TABLE auth_sessions (
+    id uuid PRIMARY KEY DEFAULT public.ink_buddy_uuid_v7(),
     user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    created_at timestamptz NOT NULL DEFAULT now(),
+    expires_at timestamptz NOT NULL,
+    revoked_at timestamptz,
+    CONSTRAINT auth_sessions_expiry_check CHECK (expires_at > created_at),
+    CONSTRAINT auth_sessions_revoked_check CHECK (revoked_at IS NULL OR revoked_at >= created_at),
+    CONSTRAINT auth_sessions_id_user_uq UNIQUE (id, user_id)
+);
+CREATE INDEX auth_sessions_user_idx ON auth_sessions (user_id, expires_at);
+CREATE INDEX auth_sessions_expires_idx ON auth_sessions (expires_at);
+
+CREATE TABLE refresh_tokens (
+    id uuid PRIMARY KEY DEFAULT public.ink_buddy_uuid_v7(),
+    user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    session_id uuid,
+    rotated_at timestamptz,
+    replaced_by_id uuid REFERENCES refresh_tokens(id) ON DELETE SET NULL,
     token_hash text NOT NULL UNIQUE,
     expires_at timestamptz NOT NULL,
     revoked_at timestamptz,
     created_at timestamptz NOT NULL DEFAULT now(),
+    CONSTRAINT refresh_tokens_session_fk FOREIGN KEY (session_id, user_id) REFERENCES auth_sessions(id, user_id) ON DELETE CASCADE,
+    CONSTRAINT refresh_tokens_session_check CHECK (session_id IS NOT NULL OR revoked_at IS NOT NULL),
+    CONSTRAINT refresh_tokens_rotation_check CHECK (rotated_at IS NULL OR (revoked_at IS NOT NULL AND rotated_at >= created_at)),
     CONSTRAINT refresh_tokens_hash_not_blank CHECK (length(btrim(token_hash)) > 0),
     CONSTRAINT refresh_tokens_expiry_check CHECK (expires_at > created_at),
     CONSTRAINT refresh_tokens_revoked_check CHECK (revoked_at IS NULL OR revoked_at >= created_at)
 );
 
 CREATE INDEX refresh_tokens_user_expires_idx ON refresh_tokens (user_id, expires_at);
+CREATE INDEX refresh_tokens_session_idx ON refresh_tokens (session_id);
+CREATE INDEX refresh_tokens_replaced_idx ON refresh_tokens (replaced_by_id) WHERE replaced_by_id IS NOT NULL;
 CREATE INDEX refresh_tokens_expires_idx ON refresh_tokens (expires_at);
 
 CREATE TABLE guest_sessions (
-    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    id uuid PRIMARY KEY DEFAULT public.ink_buddy_uuid_v7(),
     token_hash text NOT NULL UNIQUE,
     image_upload_limit smallint NOT NULL DEFAULT 3,
     image_uploads_used smallint NOT NULL DEFAULT 0,
@@ -73,7 +109,7 @@ CREATE INDEX guest_sessions_claimed_user_idx ON guest_sessions (claimed_by_user_
     WHERE claimed_by_user_id IS NOT NULL;
 
 CREATE TABLE chat_sessions (
-    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    id uuid PRIMARY KEY DEFAULT public.ink_buddy_uuid_v7(),
     user_id uuid REFERENCES users(id) ON DELETE RESTRICT,
     guest_session_id uuid REFERENCES guest_sessions(id) ON DELETE RESTRICT,
     title varchar(200),
@@ -101,7 +137,7 @@ CREATE INDEX chat_sessions_owner_recent_idx
     WHERE deleted_at IS NULL;
 
 CREATE TABLE image_uploads (
-    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    id uuid PRIMARY KEY DEFAULT public.ink_buddy_uuid_v7(),
     user_id uuid REFERENCES users(id) ON DELETE RESTRICT,
     guest_session_id uuid REFERENCES guest_sessions(id) ON DELETE RESTRICT,
     storage_key text NOT NULL UNIQUE,
@@ -134,7 +170,7 @@ CREATE INDEX image_uploads_owner_recent_idx
     WHERE deleted_at IS NULL;
 
 CREATE TABLE chat_messages (
-    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    id uuid PRIMARY KEY DEFAULT public.ink_buddy_uuid_v7(),
     session_id uuid NOT NULL REFERENCES chat_sessions(id) ON DELETE CASCADE,
     sequence_number integer NOT NULL,
     role varchar(20) NOT NULL,
@@ -153,7 +189,7 @@ CREATE TABLE chat_messages (
 CREATE INDEX chat_messages_image_id_idx ON chat_messages (image_id) WHERE image_id IS NOT NULL;
 
 CREATE TABLE products (
-    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    id uuid PRIMARY KEY DEFAULT public.ink_buddy_uuid_v7(),
     sku varchar(100),
     name text NOT NULL,
     category varchar(100),
@@ -181,7 +217,7 @@ CREATE INDEX products_category_brand_idx ON products (category, brand, id);
 CREATE INDEX products_brand_idx ON products (brand, id);
 
 CREATE TABLE product_images (
-    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    id uuid PRIMARY KEY DEFAULT public.ink_buddy_uuid_v7(),
     product_id uuid NOT NULL REFERENCES products(id) ON DELETE CASCADE,
     storage_key text NOT NULL UNIQUE,
     is_primary boolean NOT NULL DEFAULT false,
@@ -194,7 +230,7 @@ CREATE UNIQUE INDEX product_images_one_primary_uq
     ON product_images (product_id) WHERE is_primary = true;
 
 CREATE TABLE product_embeddings (
-    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    id uuid PRIMARY KEY DEFAULT public.ink_buddy_uuid_v7(),
     product_id uuid NOT NULL REFERENCES products(id) ON DELETE CASCADE,
     model_name varchar(100) NOT NULL,
     source_text text NOT NULL,
@@ -229,7 +265,7 @@ CREATE INDEX ix_product_image_embeddings_meta ON product_image_embeddings USING 
 -- Use exact scan for the small catalog; evaluate halfvec expression indexing at scale.
 
 CREATE TABLE audit_logs (
-    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    id uuid PRIMARY KEY DEFAULT public.ink_buddy_uuid_v7(),
     actor_user_id uuid REFERENCES users(id) ON DELETE SET NULL,
     action varchar(100) NOT NULL,
     resource_type varchar(50),

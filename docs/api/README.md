@@ -4,7 +4,7 @@
 - [openapi.current.json](openapi.current.json) — snapshot จาก FastAPI; generate ใหม่เมื่อเปลี่ยน schemas/routes
 - [Backend structure](../architecture/BACKEND_STRUCTURE.md) — ตำแหน่งโค้ดและกติกาการแบ่ง module
 
-25 operations: 6 ทำงานจริง และ 19 โครงตอบ 501 สำหรับคำขอที่ถูกต้อง ไม่มี JWT/Guest quota logic แล้วเสร็จ
+25 operations: 13 implemented และ 12 scaffold ที่ตรวจสิทธิ์ก่อนตอบ 501 Auth/Guest token, whitelist, quota 3 รูป และ claim ใช้งานแล้ว ดู [คู่มือ Auth](auth/README.md) สำหรับ setup/testing
 
 ## Modules
 

@@ -10,8 +10,7 @@
         "tags": [
           "auth"
         ],
-        "summary": "[Scaffold] login",
-        "description": "Returns 501 for valid requests. Success schema is a proposed contract, not implemented behavior.",
+        "summary": "Login",
         "operationId": "login_api_v1_auth_login_post",
         "requestBody": {
           "content": {
@@ -34,8 +33,18 @@
               }
             }
           },
-          "501": {
-            "description": "Route scaffold only; business logic not implemented",
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -45,7 +54,17 @@
             }
           },
           "422": {
-            "description": "Request validation failed",
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
             "content": {
               "application/json": {
                 "schema": {
@@ -55,7 +74,8 @@
             }
           }
         },
-        "x-implementation-status": "scaffold"
+        "x-access-policy": "public",
+        "security": []
       }
     },
     "/api/v1/auth/refresh": {
@@ -63,8 +83,7 @@
         "tags": [
           "auth"
         ],
-        "summary": "[Scaffold] refresh token",
-        "description": "Returns 501 for valid requests. Success schema is a proposed contract, not implemented behavior.",
+        "summary": "Refresh Token",
         "operationId": "refresh_token_api_v1_auth_refresh_post",
         "responses": {
           "200": {
@@ -77,8 +96,18 @@
               }
             }
           },
-          "501": {
-            "description": "Route scaffold only; business logic not implemented",
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -88,7 +117,17 @@
             }
           },
           "422": {
-            "description": "Request validation failed",
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
             "content": {
               "application/json": {
                 "schema": {
@@ -98,7 +137,12 @@
             }
           }
         },
-        "x-implementation-status": "scaffold"
+        "x-access-policy": "refresh",
+        "security": [
+          {
+            "RefreshCookie": []
+          }
+        ]
       }
     },
     "/api/v1/auth/logout": {
@@ -106,15 +150,24 @@
         "tags": [
           "auth"
         ],
-        "summary": "[Scaffold] logout",
-        "description": "Returns 501 for valid requests. Success schema is a proposed contract, not implemented behavior.",
+        "summary": "Logout",
         "operationId": "logout_api_v1_auth_logout_post",
         "responses": {
           "204": {
             "description": "Successful Response"
           },
-          "501": {
-            "description": "Route scaffold only; business logic not implemented",
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -124,7 +177,17 @@
             }
           },
           "422": {
-            "description": "Request validation failed",
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
             "content": {
               "application/json": {
                 "schema": {
@@ -134,7 +197,12 @@
             }
           }
         },
-        "x-implementation-status": "scaffold"
+        "x-access-policy": "refresh",
+        "security": [
+          {
+            "RefreshCookie": []
+          }
+        ]
       }
     },
     "/api/v1/auth/guest-sessions": {
@@ -142,8 +210,7 @@
         "tags": [
           "auth"
         ],
-        "summary": "[Scaffold] create guest session",
-        "description": "Returns 501 for valid requests. Success schema is a proposed contract, not implemented behavior.",
+        "summary": "Create Guest Session",
         "operationId": "create_guest_session_api_v1_auth_guest_sessions_post",
         "responses": {
           "201": {
@@ -156,8 +223,18 @@
               }
             }
           },
-          "501": {
-            "description": "Route scaffold only; business logic not implemented",
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -167,7 +244,7 @@
             }
           },
           "422": {
-            "description": "Request validation failed",
+            "description": "Unprocessable Entity",
             "content": {
               "application/json": {
                 "schema": {
@@ -175,9 +252,30 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuestSessionResponse"
+                }
+              }
+            }
           }
         },
-        "x-implementation-status": "scaffold"
+        "x-access-policy": "public",
+        "security": []
       }
     },
     "/api/v1/auth/guest-sessions/current": {
@@ -185,8 +283,7 @@
         "tags": [
           "auth"
         ],
-        "summary": "[Scaffold] get guest session",
-        "description": "Returns 501 for valid requests. Success schema is a proposed contract, not implemented behavior.",
+        "summary": "Get Guest Session",
         "operationId": "get_guest_session_api_v1_auth_guest_sessions_current_get",
         "responses": {
           "200": {
@@ -199,8 +296,18 @@
               }
             }
           },
-          "501": {
-            "description": "Route scaffold only; business logic not implemented",
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -210,7 +317,17 @@
             }
           },
           "422": {
-            "description": "Request validation failed",
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
             "content": {
               "application/json": {
                 "schema": {
@@ -220,7 +337,12 @@
             }
           }
         },
-        "x-implementation-status": "scaffold"
+        "x-access-policy": "guest",
+        "security": [
+          {
+            "GuestCookie": []
+          }
+        ]
       }
     },
     "/api/v1/auth/guest-sessions/current/claim": {
@@ -228,8 +350,7 @@
         "tags": [
           "auth"
         ],
-        "summary": "[Scaffold] claim guest session",
-        "description": "Returns 501 for valid requests. Success schema is a proposed contract, not implemented behavior.",
+        "summary": "Claim Guest Session",
         "operationId": "claim_guest_session_api_v1_auth_guest_sessions_current_claim_post",
         "responses": {
           "200": {
@@ -242,8 +363,18 @@
               }
             }
           },
-          "501": {
-            "description": "Route scaffold only; business logic not implemented",
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -253,7 +384,17 @@
             }
           },
           "422": {
-            "description": "Request validation failed",
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
             "content": {
               "application/json": {
                 "schema": {
@@ -263,7 +404,13 @@
             }
           }
         },
-        "x-implementation-status": "scaffold"
+        "x-access-policy": "claim",
+        "security": [
+          {
+            "UserBearer": [],
+            "GuestCookie": []
+          }
+        ]
       }
     },
     "/api/v1/users/me": {
@@ -271,8 +418,7 @@
         "tags": [
           "user"
         ],
-        "summary": "[Scaffold] get profile",
-        "description": "Returns 501 for valid requests. Success schema is a proposed contract, not implemented behavior.",
+        "summary": "Get Profile",
         "operationId": "get_profile_api_v1_users_me_get",
         "responses": {
           "200": {
@@ -285,8 +431,8 @@
               }
             }
           },
-          "501": {
-            "description": "Route scaffold only; business logic not implemented",
+          "401": {
+            "description": "Authentication or policy rejected",
             "content": {
               "application/json": {
                 "schema": {
@@ -295,8 +441,8 @@
               }
             }
           },
-          "422": {
-            "description": "Request validation failed",
+          "403": {
+            "description": "Authentication or policy rejected",
             "content": {
               "application/json": {
                 "schema": {
@@ -306,7 +452,12 @@
             }
           }
         },
-        "x-implementation-status": "scaffold"
+        "x-access-policy": "user",
+        "security": [
+          {
+            "UserBearer": []
+          }
+        ]
       },
       "patch": {
         "tags": [
@@ -355,9 +506,35 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Authentication or policy rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authentication or policy rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         },
-        "x-implementation-status": "scaffold"
+        "x-implementation-status": "scaffold",
+        "x-access-policy": "user",
+        "security": [
+          {
+            "UserBearer": []
+          }
+        ]
       }
     },
     "/api/v1/chat-sessions": {
@@ -408,9 +585,38 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Authentication or policy rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authentication or policy rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         },
-        "x-implementation-status": "scaffold"
+        "x-implementation-status": "scaffold",
+        "x-access-policy": "guest_or_user",
+        "security": [
+          {
+            "UserBearer": []
+          },
+          {
+            "GuestCookie": []
+          }
+        ]
       },
       "get": {
         "tags": [
@@ -479,9 +685,38 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Authentication or policy rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authentication or policy rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         },
-        "x-implementation-status": "scaffold"
+        "x-implementation-status": "scaffold",
+        "x-access-policy": "guest_or_user",
+        "security": [
+          {
+            "UserBearer": []
+          },
+          {
+            "GuestCookie": []
+          }
+        ]
       }
     },
     "/api/v1/chat-sessions/{session_id}": {
@@ -534,9 +769,38 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Authentication or policy rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authentication or policy rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         },
-        "x-implementation-status": "scaffold"
+        "x-implementation-status": "scaffold",
+        "x-access-policy": "guest_or_user",
+        "security": [
+          {
+            "UserBearer": []
+          },
+          {
+            "GuestCookie": []
+          }
+        ]
       },
       "delete": {
         "tags": [
@@ -580,9 +844,38 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Authentication or policy rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authentication or policy rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         },
-        "x-implementation-status": "scaffold"
+        "x-implementation-status": "scaffold",
+        "x-access-policy": "guest_or_user",
+        "security": [
+          {
+            "UserBearer": []
+          },
+          {
+            "GuestCookie": []
+          }
+        ]
       }
     },
     "/api/v1/chat-sessions/{session_id}/messages": {
@@ -663,9 +956,38 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Authentication or policy rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authentication or policy rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         },
-        "x-implementation-status": "scaffold"
+        "x-implementation-status": "scaffold",
+        "x-access-policy": "guest_or_user",
+        "security": [
+          {
+            "UserBearer": []
+          },
+          {
+            "GuestCookie": []
+          }
+        ]
       },
       "post": {
         "tags": [
@@ -726,9 +1048,38 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Authentication or policy rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authentication or policy rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         },
-        "x-implementation-status": "scaffold"
+        "x-implementation-status": "scaffold",
+        "x-access-policy": "guest_or_user",
+        "security": [
+          {
+            "UserBearer": []
+          },
+          {
+            "GuestCookie": []
+          }
+        ]
       }
     },
     "/api/v1/images": {
@@ -770,6 +1121,16 @@
               }
             }
           },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "413": {
             "description": "Request Entity Too Large",
             "content": {
@@ -800,7 +1161,16 @@
               }
             }
           }
-        }
+        },
+        "x-access-policy": "guest_or_user",
+        "security": [
+          {
+            "UserBearer": []
+          },
+          {
+            "GuestCookie": []
+          }
+        ]
       }
     },
     "/api/v1/images/{image_id}/analysis": {
@@ -809,7 +1179,7 @@
           "images"
         ],
         "summary": "Analyze Image",
-        "description": "Describe the photo and its visible attributes. An interpretation, not a confirmed product.\n\nThe first call runs the vision model (slow); later calls return the stored result.",
+        "description": "Describe the photo and its visible attributes. An interpretation, not a confirmed product.\n\nThe first call runs the vision model (slow); later calls return the stored result.\nAnother principal's image answers 404.",
         "operationId": "analyze_image_api_v1_images__image_id__analysis_post",
         "parameters": [
           {
@@ -844,6 +1214,16 @@
             },
             "description": "Unauthorized"
           },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
           "404": {
             "content": {
               "application/json": {
@@ -874,7 +1254,16 @@
             },
             "description": "Service Unavailable"
           }
-        }
+        },
+        "x-access-policy": "guest_or_user",
+        "security": [
+          {
+            "UserBearer": []
+          },
+          {
+            "GuestCookie": []
+          }
+        ]
       }
     },
     "/api/v1/images/{image_id}/ocr": {
@@ -883,7 +1272,7 @@
           "images"
         ],
         "summary": "Ocr Image",
-        "description": "Read the text printed on the item. Approximate: verify before citing a model or SKU.\n\nThe first call runs the vision model (slow); later calls return the stored result.",
+        "description": "Read the text printed on the item. Approximate: verify before citing a model or SKU.\n\nThe first call runs the vision model (slow); later calls return the stored result.\nAnother principal's image answers 404.",
         "operationId": "ocr_image_api_v1_images__image_id__ocr_post",
         "parameters": [
           {
@@ -918,6 +1307,16 @@
             },
             "description": "Unauthorized"
           },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
           "404": {
             "content": {
               "application/json": {
@@ -948,7 +1347,16 @@
             },
             "description": "Service Unavailable"
           }
-        }
+        },
+        "x-access-policy": "guest_or_user",
+        "security": [
+          {
+            "UserBearer": []
+          },
+          {
+            "GuestCookie": []
+          }
+        ]
       }
     },
     "/api/v1/images/{image_id}": {
@@ -1001,9 +1409,38 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Authentication or policy rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authentication or policy rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         },
-        "x-implementation-status": "scaffold"
+        "x-implementation-status": "scaffold",
+        "x-access-policy": "guest_or_user",
+        "security": [
+          {
+            "UserBearer": []
+          },
+          {
+            "GuestCookie": []
+          }
+        ]
       },
       "delete": {
         "tags": [
@@ -1047,9 +1484,38 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Authentication or policy rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authentication or policy rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         },
-        "x-implementation-status": "scaffold"
+        "x-implementation-status": "scaffold",
+        "x-access-policy": "guest_or_user",
+        "security": [
+          {
+            "UserBearer": []
+          },
+          {
+            "GuestCookie": []
+          }
+        ]
       }
     },
     "/api/v1/product-search/by-image": {
@@ -1059,7 +1525,7 @@
           "product search"
         ],
         "summary": "Search By Image",
-        "description": "``exact`` only when the model text read off the photo identifies one product; everything else is ``similar``.",
+        "description": "``exact`` only when the model text read off the photo identifies one product; everything else is\n``similar``. No match → ``suggestions`` (\"did you mean?\"). Another principal's image answers 404.",
         "operationId": "search_by_image_api_v1_product_search_by_image_post",
         "requestBody": {
           "content": {
@@ -1121,8 +1587,27 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Authentication or policy rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
-        }
+        },
+        "x-access-policy": "guest_or_user",
+        "security": [
+          {
+            "UserBearer": []
+          },
+          {
+            "GuestCookie": []
+          }
+        ]
       }
     },
     "/api/v1/products": {
@@ -1244,9 +1729,38 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Authentication or policy rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authentication or policy rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         },
-        "x-implementation-status": "scaffold"
+        "x-implementation-status": "scaffold",
+        "x-access-policy": "guest_or_user",
+        "security": [
+          {
+            "UserBearer": []
+          },
+          {
+            "GuestCookie": []
+          }
+        ]
       }
     },
     "/api/v1/products/{product_id}": {
@@ -1299,9 +1813,38 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Authentication or policy rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authentication or policy rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         },
-        "x-implementation-status": "scaffold"
+        "x-implementation-status": "scaffold",
+        "x-access-policy": "guest_or_user",
+        "security": [
+          {
+            "UserBearer": []
+          },
+          {
+            "GuestCookie": []
+          }
+        ]
       }
     },
     "/api/v1/admin/image-index": {
@@ -1342,8 +1885,34 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Authentication or policy rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authentication or policy rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
-        }
+        },
+        "x-access-policy": "admin",
+        "security": [
+          {
+            "UserBearer": []
+          }
+        ]
       }
     },
     "/api/v1/health": {
@@ -1363,8 +1932,30 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Authentication or policy rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authentication or policy rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
-        }
+        },
+        "x-access-policy": "public",
+        "security": []
       }
     },
     "/api/v1/ready": {
@@ -1405,9 +1996,35 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Authentication or policy rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authentication or policy rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         },
-        "x-implementation-status": "scaffold"
+        "x-implementation-status": "scaffold",
+        "x-access-policy": "admin",
+        "security": [
+          {
+            "UserBearer": []
+          }
+        ]
       }
     }
   },
@@ -1782,9 +2399,8 @@
           "email": {
             "type": "string",
             "maxLength": 320,
-            "minLength": 3,
-            "title": "Email",
-            "description": "Email format validation to be added with auth implementation"
+            "format": "email",
+            "title": "Email"
           },
           "password": {
             "type": "string",
@@ -2508,6 +3124,23 @@
           "role"
         ],
         "title": "UserProfileResponse"
+      }
+    },
+    "securitySchemes": {
+      "UserBearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      },
+      "GuestCookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "ink_buddy_guest"
+      },
+      "RefreshCookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "ink_buddy_refresh"
       }
     }
   }

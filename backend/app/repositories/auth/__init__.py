@@ -1,1 +1,1 @@
-"""auth repositories boundary; implementation pending."""
+"""DDL-owned authentication and Guest persistence."""

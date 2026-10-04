@@ -1,60 +1,47 @@
-# Ink Buddy — สถานะโปรเจค 2026-10-03
+# Ink Buddy — สถานะปัจจุบัน2026-10-03
 
-อ้างอิงโค้ด `main` commit `b90df77` หลัง merge งาน `feature/vision` และอัปเดต checkout ในเครื่องแบบ fast-forward
+## Authentication / Guest
 
-## สิ่งที่เพิ่มจริง
+- 25 operations บน 20 paths: 13 implemented (รวม image analysis/OCR จาก `feature/vision`) และ 12 scaffold หลังตรวจสิทธิ์
+- UserJWT15นาที,refreshsessionสูงสุด7วัน,rotation/reuse revokeและLogoutมีผลทันที
+- Guest24ชั่วโมง,3รูปต่อsession,Origincheck,ownership,atomicquotaและclaim
+- ทุกrouteประกาศpolicyและstartupปฏิเสธrouteที่ไม่ประกาศ; Adminindexตรวจrole+flag
+- ProfileGETทำแล้ว PATCH/Chat/Product/ImageDetailDelete/Readinessยังscaffold
+- มีscriptsสร้างuser/admin,cleanupGuestหลังexpiryอีก24ชั่วโมงและPostgreSQLintegrationtests
 
-- FastAPI entry point: `backend/app/main.py`
-- API `POST /api/v1/images` รับ JPEG/PNG/WEBP, ตรวจชนิดจากเนื้อหา, จำกัดขนาด, เก็บภาพส่วนตัวและข้อมูลใน `image_uploads`
-- API `POST /api/v1/product-search/by-image` ตรวจเจ้าของภาพและคืนสินค้าที่ค้นได้จาก catalog
-- API `POST /api/v1/admin/image-index` สร้าง/ปรับปรุง image index; ปิดเป็นค่าเริ่มต้น ยังไม่มี admin authentication
-- API `GET /api/v1/health` ตรวจสถานะพื้นฐาน
-- Vision pipeline สำหรับอ่านภาพ/ข้อความ ระบุความต้องการ ค้นสินค้า แนะนำ เปรียบเทียบ และตอบจากข้อมูล catalog บางเส้นทางคืนคำตอบโดยไม่เรียก VLM เพื่อลดเวลา
-- Catalog CSV 50 รายการพร้อมภาพใน `backend/datasets/catalog/`; SQL seed ใน `database/seed/001_catalog_products.sql` และ script สร้าง seed
-- Tests ของ catalog, prompts, pipeline, storage, API และ database integrations
+## Database / Runtime
 
-## โมเดลและการตั้งค่าที่โค้ดใช้
+Podmanพร้อมและPostgreSQL16+pgvectorรันผ่านdocker/compose.yaml SQLinit13ตาราง ฐานlocalapplymigration004แล้วพร้อมbackup .local/backups สร้างbackend/.envที่ignoredพร้อมsecretสุ่ม ไม่สร้างบัญชี/passwordเริ่มต้น
 
-| ส่วน | ค่าเริ่มต้นในโค้ด | สถานะ |
-|---|---|---|
-| Vision | `qwen3-vl:latest` ผ่าน Ollama | เปลี่ยนจากแผน Qwen2.5-VL เดิม |
-| Image/caption embedding | `Qwen/Qwen3-VL-Embedding-2B`, 2048 มิติ ผ่าน Transformers/PyTorch | แยกจาก BGE-M3 text embedding |
-| Retrieval | `IMAGE_RETRIEVER=mock` | เป็น metadata-based stand-in; ต้องเปลี่ยนเป็น `pgvector` หลัง indexing เพื่อทดสอบความแม่นยำจริง |
-| Configuration | `backend/.env` | ดูค่าตัวอย่างใน `backend/.env.example`; ไม่ควร commit ค่าจริง |
+ฐานใหม่ใช้init ฐานเดิมดูmigration001–004และbackupก่อน ไม่reruninitบนvolumeเดิม Authtablesใช้rawSQLตามDDL ImageembeddingmodelยังSQLAlchemy
 
-## จุดเชื่อมฐานข้อมูล
+## AI
 
-SQL init เดิมสร้าง `products`, `product_images`, `product_embeddings` (1024 มิติ) และ `image_uploads` งาน AI เพิ่ม SQLAlchemy model `product_image_embeddings` (2048 มิติ) ซึ่งยังไม่อยู่ใน `database/ddl/001_init.sql`
+ImageRAGของทีมคงเดิม:Qwen3-VLผ่านOllamaและQwen3-VL-Embedding-2B/vector2048 ค่าเริ่มต้นretrievalmock ต้องindexและตั้งpgvectorก่อนค้นจริง TextBGE-M3/vector1024แยกspace ยังไม่ครบtextchatRAG
 
-ฟังก์ชัน `app.db.database.init_db()` สามารถสร้างตารางจาก models ได้ แต่ไม่ได้ถูกเรียกอัตโนมัติเมื่อเริ่ม FastAPI การเริ่มฐานข้อมูลผ่าน Compose เพียงอย่างเดียวจึงยังไม่สร้าง image embedding table ควรเพิ่ม migration สำหรับตารางใหม่ก่อนเปิด pgvector retrieval
+Authintegrationtestsใช้fakeVisionpipeline ไม่ได้ยืนยันOllama/embeddingจริงหรือprecisionของexactlabel
 
-Image API อ่านชื่อ ราคาและ availability จาก `products`; image index เก็บ metadata จาก CSV ด้วย ต้องวางกระบวนการ sync ทั้งสองแหล่งให้สอดคล้องกัน ราคาและสต็อกใน catalog ชุดนี้ควรถือเป็นข้อมูลทดลองจนกว่าทีมจะยืนยันแหล่งจริง
+Image search (`feature/vision`): `exact` เฉพาะเมื่อรหัสรุ่นที่อ่านได้จากรูปตรงกับสินค้าเพียงตัวเดียว (คะแนนอย่างเดียวไม่นับ; fast path ได้มากสุด `similar`); ไม่พบสินค้า → `suggestions` แบบ "หมายถึงสิ่งนี้ไหม" (`IMAGE_TAU_SUGGEST`); `POST /images/{image_id}/analysis` และ `/ocr` เก็บผลใน `image_uploads` และรองรับ User/Guest (รูปของคนอื่นตอบ 404) ข้อจำกัด: OCR รูปที่มีข้อความเยอะใช้ไม่ได้กับ `qwen3-vl:latest` (context เต็มก่อนตอบ) และ Guest row ถูกล็อกตลอดการเรียก vision model ดู [IMAGE_RAG_DESIGN.md](IMAGE_RAG_DESIGN.md)
 
-## สิ่งที่ยังไม่เสร็จ
+## งานถัดไป
 
-- JWT login/refresh/logout ยังไม่มี; `DEV_AUTH_EMAIL` ใช้จำลองผู้ใช้สำหรับ local development เท่านั้น เมื่อเว้นว่าง protected endpoints จะตอบ 401
-- Admin index ไม่มีการตรวจ role; คง `VISION_ADMIN_ENABLED=false` จนมี admin auth
-- ยังไม่มี frontend app ที่ทำงาน, chat session/history APIs, text-only product search API และ conversation summary ที่เชื่อมใช้งาน
-- `POST /images/{image_id}/analysis` และ `/ocr` มีแล้ว (เก็บผลใน `image_uploads`); OCR กับรูปที่มีข้อความเยอะยังใช้ไม่ได้กับ `qwen3-vl:latest` เพราะ context เต็มก่อนตอบ
-- ค่า similarity threshold ใช้แยก `exact`/`similar` แต่ยังไม่ใช่หลักฐานยืนยัน SKU ต้องประเมินกับชุดภาพทดสอบก่อนใช้จริง
-- Text embeddings BGE-M3 และ text RAG เดิมยังเป็นแผน; ไม่ควรสรุปว่าระบบเหล่านี้ทำงานครบแล้ว
+FrontendAuthbootstrap/single-flightrefresh,Chatbusinesslogic,ProductAPI,ImageDetailDelete,Readinessimplementation,accountregister/reset,emailverification และproductionsharedlimiter/cleanup scheduler ยังไม่ได้ทำ
 
-## การตรวจครั้งนี้
+ดู [API_SPEC](../api/API_SPEC.md), [Auth setup](../api/auth/README.md), [Token flow](TOKEN_AUTH_FLOW.md), [Database Schema](../../database/DATABASE_SCHEMA.md)
 
-- Tests ที่ไม่ต้องใช้ API/ฐานข้อมูลจริง: **71 passed, 1 skipped**
-- ทั้งชุดหยุดระหว่าง collection เพราะ Python ของเครื่องยังไม่มี `fastapi`; ยังไม่ได้ติดตั้ง dependencies เพิ่ม
-- ยังไม่ได้ทดสอบ Ollama, embedding model จริง, PostgreSQL integration หรือความแม่นยำของการค้นภาพจริง
+## ผลตรวจหลัง implementation
 
-## ลำดับงานต่อที่แนะนำ
+2026-10-03: regression111passed;22skippedประกอบด้วยPostgreSQLtests18ที่รันแยกและmodel-dependent4 PostgreSQLintegrationรันแยกผ่าน18testsบนPodman dependencycheckผ่าน Localhealth200,profileไม่มีtoken401 ไม่มีการรันโมเดลAIจริงในAuthtests
 
-1. เพิ่ม migration `product_image_embeddings` ให้ตรงกับ model ของทีม
-2. เตรียม backend environment, database seed และ model/index แล้วทดสอบ image flow จริง
-3. ทำ JWT/admin authorization ก่อนเปิดใช้นอก local development
-4. เชื่อม frontend แนบรูป → upload API → search API และแสดงสินค้าจาก response
-5. ทดสอบภาพที่ตรงสินค้า ภาพคล้าย ภาพไม่ใช่เครื่องเขียน และภาพที่ไม่มีใน catalog เพื่อปรับ threshold
+## ประเด็นจากรีวิวที่ยังเปิดอยู่
 
-เอกสารร่างก่อนหน้าให้ใช้เทียบกับสถานะนี้ เพราะ model และวิธี image retrieval เปลี่ยนจากร่างแรกแล้ว ดูแนวคิดรายละเอียดของทีมใน [`IMAGE_RAG_DESIGN.md`](IMAGE_RAG_DESIGN.md)
+ดู [Auth review](../api/auth/AUTH_REVIEW.md): custom app configuration ยังอาจไม่ถูกใช้โดย global limiter และการเขียนไฟล์ภาพล้มเหลวระหว่างทางอาจเหลือไฟล์บางส่วน โค้ดยังไม่ได้แก้สองประเด็นนี้ ผลทดสอบเดิมไม่ครอบคลุมการยืนยันว่าแก้แล้ว
 
-## API scaffold update (2026-10-03)
 
-เพิ่มโครง routes 7 หมวด รวม 25 operations บน 20 paths: ทำงานจริง 6 (รวม image analysis/OCR จาก `feature/vision`) และ scaffold 19 ตอบ 501 สำหรับ valid requests ดู [API_SPEC.md](../api/API_SPEC.md) และ [BACKEND_STRUCTURE.md](BACKEND_STRUCTURE.md) เป็นสถานะล่าสุด โครง Auth/Guest/Chat ยังไม่มี business logic; backend tests 113 passed, 4 skipped
+## UUIDv7 (2026-10-03)
+
+ID ใหม่ที่เป็น UUID ใช้ UUIDv7: database defaults เรียก `public.ink_buddy_uuid_v7()` และ Python ใช้ `app.core.identifiers.uuid7()` ชนิด column/API ยังคง UUID เพื่อรองรับ ID เดิม ไม่มีการเปลี่ยน primary/foreign keys ที่มีอยู่ ฐานเดิมต้อง apply `database/migrations/004_uuid_v7.sql` หลัง 003; ฐานใหม่ใช้ init ปัจจุบัน migrations 001–003 เก็บเป็นประวัติเดิม
+
+UUIDv7 มี Unix timestamp ระดับ millisecond และ random bits ตาม [RFC 9562](https://www.rfc-editor.org/rfc/rfc9562.html#section-5.7) ไม่รับประกันลำดับภายใน millisecond หรือเมื่อ clock ย้อนกลับ ไม่ใช้ ID เป็น credential และยังตรวจ ownership ตามเดิม PostgreSQL 16 ใช้ compatibility function เพราะ built-in generator เป็น UUIDv4; ไม่มีการเปลี่ยนคอลัมน์ integer เช่น product_image_embeddings.id
+
+ผล UUIDv7 verification: regression 113 passed / 23 skipped; PostgreSQL integration 19 passed ฐาน local apply 004 แล้วพร้อม backup ก่อนเปลี่ยน

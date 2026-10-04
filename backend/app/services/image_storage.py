@@ -3,14 +3,16 @@
 Images are re-encoded before saving: EXIF orientation is applied and all
 metadata (GPS location, camera serials) is dropped.
 """
+
 from __future__ import annotations
 
 import io
-import uuid
 from dataclasses import dataclass
 from pathlib import Path
 
 from PIL import Image, ImageOps
+
+from app.core.identifiers import uuid7
 
 FORMATS = {
     "JPEG": ("image/jpeg", "jpg", {"quality": 92}),
@@ -39,7 +41,7 @@ class ImageStorage:
         clean.save(buf, fmt, **options)  # no exif= → metadata is not written
         data = buf.getvalue()
 
-        key = f"images/{uuid.uuid4().hex}.{ext}"
+        key = f"images/{uuid7().hex}.{ext}"
         path = self._path(key)
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(data)

@@ -3,7 +3,7 @@
 API สำหรับแนบรูปเครื่องเขียนและค้นสินค้าใน catalog จากรูป ตาม [`../../architecture/INK_BUDDY_DESIGN_DRAFT.md`](../../architecture/INK_BUDDY_DESIGN_DRAFT.md) §3 · เอกสารหลักร่วมของทีมคือ [`../API_SPEC.md`](../API_SPEC.md); ไฟล์นี้ลงรายละเอียดพฤติกรรมของ image search
 
 > สถานะ: implement แล้วใน `backend/app/api/v1/` (branch `feature/vision`) · ข้อมูลสินค้าและคะแนนในตัวอย่างมาจากการเรียกจริงกับ catalog seed; ค่า `timings_s` เป็นค่าประมาณ
-> ยังไม่มี: JWT จริง, rate limit, การแนบรูปในแชต (`/chat-sessions/{id}/messages`)
+> ยังไม่มี: rate limit เฉพาะงาน inference, การแนบรูปในแชต (`/chat-sessions/{id}/messages`)
 
 ## ภาพรวม
 
@@ -22,16 +22,18 @@ API สำหรับแนบรูปเครื่องเขียนแ�
 |---|---|
 | Base path | `/api/v1` |
 | รูปแบบข้อมูล | JSON `snake_case`; ID เป็น UUID |
-| Authentication | `Authorization: Bearer <access_token>` ทุก endpoint ยกเว้น `/health` |
+| Authentication | policy `guest_or_user` ทุก endpoint ในเอกสารนี้ (ยกเว้น `/health` และ `admin`) — User ส่ง `Authorization: Bearer <access_token>`, Guest ใช้ cookie `ink_buddy_guest` |
 | Error | `{"error": {"code": "...", "message": "...", "details": {}}}` ทุก status ที่ไม่ใช่ 2xx |
 
-**Auth ชั่วคราว (dev เท่านั้น):** ระหว่างที่ยังไม่มี JWT ถ้า backend ตั้ง `DEV_AUTH_EMAIL` ไว้ ทุก request จะทำงานในนามผู้ใช้นั้นโดยไม่ต้องส่ง token ถ้าไม่ได้ตั้ง ทุก endpoint ตอบ `401 UNAUTHORIZED`
+**Auth:** ใช้ระบบของทีม ดูรายละเอียด token, cookie, Origin และอายุ session ใน [`../API_SPEC.md`](../API_SPEC.md) และ [`../../architecture/TOKEN_AUTH_FLOW.md`](../../architecture/TOKEN_AUTH_FLOW.md) — Guest ที่ส่งคำขอแบบ POST ต้องมี Origin header ที่อนุญาต และรูปของ Guest กับ User แยกเจ้าของกัน (รูปของคนอื่นตอบ 404)
 
 ### Error codes
 
 | Status | `code` | เกิดเมื่อ |
 |---|---|---|
-| 401 | `UNAUTHORIZED` | ไม่มีการยืนยันตัวตน |
+| 401 | `UNAUTHORIZED` | ไม่มีการยืนยันตัวตน, token ไม่ถูกต้อง หรือ Guest session หมดอายุ/ถูก claim แล้ว |
+| 403 | `ORIGIN_NOT_ALLOWED` | Guest ส่ง POST โดยไม่มี Origin ที่อนุญาต |
+| 403 | `GUEST_IMAGE_QUOTA_EXCEEDED` | Guest อัปโหลดเกิน 3 รูปต่อ session (`POST /images`; `/analysis`, `/ocr` และการค้นไม่ใช้โควตา) |
 | 404 | `NOT_FOUND` | path ไม่มีอยู่ |
 | 404 | `IMAGE_NOT_FOUND` | รูปไม่มีอยู่ ถูกลบ หรือเป็นของผู้ใช้อื่น (ไม่บอกว่าเป็นกรณีไหน) |
 | 413 | `IMAGE_TOO_LARGE` | ไฟล์เกิน `IMAGE_MAX_BYTES` (5 MB) หรือเกิน `IMAGE_MAX_PIXELS` (40 ล้าน pixel) |
