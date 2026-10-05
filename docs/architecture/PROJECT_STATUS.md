@@ -37,3 +37,7 @@ Browser tests ใช้ API mock; DB transaction tests ใช้ PostgreSQL จ�
 ## Frontend container — 2026-10-04
 
 เพิ่ม docker/frontend.Containerfile แบบ multi-stage, Next standalone, Node 24.19.0, non-root runtime และ healthcheck พร้อม service frontend ใน Podman Compose Bind loopback port 3000; backend ยังรันบน host API URL ฝังตอน build ดู docker/README.md
+
+## Password policy — 2026-10-05
+
+Register/Reset/local account script: 12–24 ตัว, a–z/A–Z/0–9/ASCII punctuation, ห้าม whitespace ตรวจทั้ง UI และ Backend; Login บัญชีเดิมยังรองรับ ไม่ต้อง migration ตรวจ policy 15 เคส, PG 27, frontend 18, browser 9 ผ่าน

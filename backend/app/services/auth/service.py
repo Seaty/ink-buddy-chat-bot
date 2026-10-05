@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.core.config import Settings
 from app.core.errors import ApiError
+from app.core.password_policy import validate_new_password
 from app.core.security import (
     Principal,
     access_token,
@@ -204,6 +205,7 @@ class AuthService:
         )
 
     def register(self, email, password, display_name):
+        validate_new_password(password)
         hashed = hash_password(password)
         try:
             role = self.repo.one("SELECT id FROM roles WHERE name='user'")
@@ -267,6 +269,7 @@ class AuthService:
         )
 
     def reset_password(self, raw, password):
+        validate_new_password(password)
         hashed_token = token_hash(raw)
         found = self.repo.one(
             "SELECT user_id FROM password_reset_tokens WHERE token_hash=:hash",

@@ -63,3 +63,7 @@ Browser tests ใช้ Microsoft Edge ที่ติดตั้งในเ�
 ## Podman container
 
 ใช้ `podman compose up -d --build frontend` จาก docker/ แล้วเปิด http://localhost:3000 เป็น production standalone ไม่มี hot reload Backend ยังรันบนเครื่อง ดู [การตั้งค่า Container/API URL](../docker/README.md)
+
+## Password policy — 2026-10-05
+
+การตั้งรหัสผ่านใหม่ผ่าน Register/Reset/local script ต้องยาว 12–24 ตัวอักษร มี a–z, A–Z, 0–9 และอย่างน้อยหนึ่ง ASCII punctuation (เช่น !@#_-); ห้าม Unicode whitespace ทุกชนิด ไม่มีการ trim Password ภาษาอื่นยังใช้ร่วมได้แต่ไม่นับแทนกลุ่มภาษาอังกฤษหรืออักขระพิเศษ Frontend ตรวจและยืนยันสองช่อง Backend ตรวจซ้ำและตอบ 422 เมื่อไม่ผ่าน Login ยังคงรับ 1–1024 ตัวเพื่อรองรับบัญชีเดิม ไม่มีการแก้ password hash เดิมโดย migration

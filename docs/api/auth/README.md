@@ -15,7 +15,7 @@
 .\.venv\Scripts\python.exe -m uvicorn app.main:app --reload
 ```
 
-สคริปต์ถาม password แบบซ่อน รับ12–1024charsและยืนยันสองครั้ง ไม่ใส่ password ใน command arguments ไม่มีบัญชี/passwordเริ่มต้น และไม่เขียนทับบัญชีเดิม Register API ใช้งานแล้ว; สคริปต์ local ใช้สร้าง Admin ได้
+สคริปต์ถาม password แบบซ่อน รับ12–24charsและยืนยันสองครั้ง ไม่ใส่ password ใน command arguments ไม่มีบัญชี/passwordเริ่มต้น และไม่เขียนทับบัญชีเดิม Register API ใช้งานแล้ว; สคริปต์ local ใช้สร้าง Admin ได้
 
 ## นโยบาย token
 
@@ -113,7 +113,7 @@ Frontend setup ปัจจุบันดู [Frontend README](../../../fronten
 
 ## Register / Reset Password — 2026-10-04
 
-- POST /api/v1/auth/register: สร้างบัญชี user ที่ active; password 12–1024 ตัวอักษร hash Argon2id; สมัครแล้ว Login ได้ทันที ไม่มี email verification หรือ auto Login/claim Guest
+- POST /api/v1/auth/register: สร้างบัญชี user ที่ active; password 12–24 ตัวอักษร hash Argon2id; สมัครแล้ว Login ได้ทันที ไม่มี email verification หรือ auto Login/claim Guest
 - POST /api/v1/auth/forgot-password: ส่งคำตอบทั่วไป 202 ทั้งบัญชีที่มี/ไม่มี/inactive/cooldown; token สุ่ม เก็บเฉพาะ SHA-256 hash อายุ 900 วินาที ขอใหม่ revoke token เดิม cooldown 60 วินาทีต่อบัญชี
 - POST /api/v1/auth/reset-password: ใช้ token ครั้งเดียว transaction ล็อก user/token/auth sessions; เปลี่ยน hash และ revoke Login sessions/refresh tokens ทั้งหมด พร้อมแจ้งอีเมลและล้าง refresh cookie ไม่มี auto Login
 - Public mutations ทั้งสามต้องส่ง Origin ที่อยู่ใน CORS_ORIGINS; limit Register 5/hour/IP, Forgot/Reset 10/hour/IP
@@ -150,3 +150,7 @@ SMTP_USERNAME/SMTP_PASSWORD ไม่ต้องตั้งสำหรับ 
 2026-10-04: backend regression 109 passed; PostgreSQL integration 27 passed บน Podman; frontend unit/component 11 passed; browser 9 passed ผ่าน API mocks แยกจาก PG; typecheck/build ผ่าน; SMTP transport ส่งเข้า Mailpit จริงผ่าน Main DB apply migration 005 หลัง backup ไม่มีการสร้างบัญชีทดลองในฐานหลัก
 
 อ้างอิงแนวทาง [OWASP Forgot Password](https://cheatsheetseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html) และ [Mailpit Docker](https://mailpit.axllent.org/docs/install/docker/)
+
+## Password policy — 2026-10-05
+
+การตั้งรหัสผ่านใหม่ผ่าน Register/Reset/local script ต้องยาว 12–24 ตัวอักษร มี a–z, A–Z, 0–9 และอย่างน้อยหนึ่ง ASCII punctuation (เช่น !@#_-); ห้าม Unicode whitespace ทุกชนิด ไม่มีการ trim Password ภาษาอื่นยังใช้ร่วมได้แต่ไม่นับแทนกลุ่มภาษาอังกฤษหรืออักขระพิเศษ Frontend ตรวจและยืนยันสองช่อง Backend ตรวจซ้ำและตอบ 422 เมื่อไม่ผ่าน Login ยังคงรับ 1–1024 ตัวเพื่อรองรับบัญชีเดิม ไม่มีการแก้ password hash เดิมโดย migration

@@ -2962,9 +2962,10 @@
           },
           "password": {
             "type": "string",
-            "maxLength": 1024,
+            "maxLength": 24,
             "minLength": 12,
-            "title": "Password"
+            "title": "Password",
+            "description": "Requires a-z, A-Z, 0-9 and ASCII punctuation; no whitespace"
           },
           "display_name": {
             "anyOf": [
@@ -3013,9 +3014,10 @@
           },
           "password": {
             "type": "string",
-            "maxLength": 1024,
+            "maxLength": 24,
             "minLength": 12,
-            "title": "Password"
+            "title": "Password",
+            "description": "Requires a-z, A-Z, 0-9 and ASCII punctuation; no whitespace"
           }
         },
         "type": "object",

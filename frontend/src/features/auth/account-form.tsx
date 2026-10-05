@@ -38,6 +38,10 @@ export function AccountForm({
       setError("รหัสผ่านทั้งสองช่องไม่ตรงกัน");
       return;
     }
+    if (mode !== "forgot" && (password.length < 12 || password.length > 24 || /[\s\u0085\u001c-\u001f]/u.test(password) || !/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/[0-9]/.test(password) || !/[!-/:-@[-`{-~]/.test(password))) {
+      setError("รหัสผ่านต้องยาว 12–24 ตัว มี a–z, A–Z, 0–9 และอักขระพิเศษ เช่น !@# โดยไม่มีช่องว่าง");
+      return;
+    }
     setBusy(true);
     try {
       if (mode === "register")
@@ -112,7 +116,7 @@ export function AccountForm({
                 {mode !== "forgot" && (
                   <>
                     <p className="muted text-sm">
-                      ใช้รหัสผ่านอย่างน้อย 12 ตัวอักษร รองรับวลีและช่องว่าง
+                      รหัสผ่าน 12–24 ตัว ต้องมี a–z, A–Z, 0–9 และอักขระพิเศษ เช่น !@# ไม่มีช่องว่าง
                     </p>
                     <label>
                       {mode === "reset" ? "รหัสผ่านใหม่" : "รหัสผ่าน"}
@@ -121,7 +125,7 @@ export function AccountForm({
                         type="password"
                         autoComplete="new-password"
                         minLength={12}
-                        maxLength={1024}
+                        maxLength={24}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                       />
@@ -133,7 +137,7 @@ export function AccountForm({
                         type="password"
                         autoComplete="new-password"
                         minLength={12}
-                        maxLength={1024}
+                        maxLength={24}
                         value={confirm}
                         onChange={(e) => setConfirm(e.target.value)}
                       />

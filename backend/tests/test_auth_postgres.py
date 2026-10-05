@@ -1074,7 +1074,7 @@ def test_register_login_and_reserved_role(setup):
     with TestClient(setup.app) as client:
         data = {
             "email": "new@example.com",
-            "password": "New account password!",
+            "password": "NewAccount123!",
             "display_name": "  New User  ",
         }
         assert (
@@ -1160,7 +1160,7 @@ def test_password_reset_single_use_revokes_sessions_and_private_response(
             headers=ORIGIN,
         )
         assert len(sent) == 1
-        payload = {"token": raw, "password": "A replacement password!"}
+        payload = {"token": raw, "password": "Replacement123!"}
         assert (
             client.post(
                 "/api/v1/auth/reset-password", json=payload, headers=ORIGIN
@@ -1222,7 +1222,7 @@ def test_password_reset_expiry_replacement_and_concurrency(setup, monkeypatch):
         assert (
             client.post(
                 "/api/v1/auth/reset-password",
-                json={"token": raw, "password": "Updated password 123!"},
+                json={"token": raw, "password": "UpdatedPassword123!"},
                 headers=ORIGIN,
             ).status_code
             == 400
@@ -1236,7 +1236,7 @@ def test_password_reset_expiry_replacement_and_concurrency(setup, monkeypatch):
         assert (
             client.post(
                 "/api/v1/auth/reset-password",
-                json={"token": raw, "password": "Updated password 123!"},
+                json={"token": raw, "password": "UpdatedPassword123!"},
                 headers=ORIGIN,
             ).status_code
             == 400
@@ -1250,7 +1250,7 @@ def test_password_reset_expiry_replacement_and_concurrency(setup, monkeypatch):
                 barrier.wait(timeout=5)
                 try:
                     AuthService(db, setup.settings).reset_password(
-                        raw_new, "Concurrent reset password!"
+                        raw_new, "Concurrent123!"
                     )
                     return 200
                 except ApiError as e:

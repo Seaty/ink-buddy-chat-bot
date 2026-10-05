@@ -56,7 +56,7 @@
 ## 4. กฎธุรกิจสำคัญ
 
 - Login: email validation, password 1–1024 chars; missing user/wrong password/inactive ใช้ 401 error เดียวกัน บัญชีใหม่ใช้ Argon2id; bcrypt เดิม upgrade หลัง Login สำเร็จ
-- สร้างบัญชีผ่าน `python -m scripts.create_user --email ... --role user|admin` รับ password แบบซ่อน 12–1024 chars ไม่แก้บัญชีเดิม ยังไม่มี Register API
+- สร้างบัญชีผ่าน `python -m scripts.create_user --email ... --role user|admin` รับ password แบบซ่อน 12–24 chars ไม่แก้บัญชีเดิม Register API ใช้งานแล้ว
 - Create Guest ตอบ 201 สำหรับ session ใหม่ และ 200 สำหรับ session เดิม ไม่คืน token ดิบใน JSON ให้ browser เก็บ cookie
 - Guest current ส่ง id/expiry/limit/used/remaining ไม่ใช่โควตาฝั่ง client
 - Upload: JPEG/PNG/WEBP ตรวจเนื้อหาจริง สูงสุด 5 MiB / 40 ล้าน pixels / แต่ละด้านอย่างน้อย 32 pixels ตาม config เก็บ private re-encoded image และลบ metadata
@@ -747,7 +747,7 @@ POST
 ```json
 {
   "email": "new@example.com",
-  "password": "A long example password!",
+  "password": "ExamplePass123!",
   "display_name": "ผู้ใช้ใหม่"
 }
 ```
@@ -762,7 +762,7 @@ HTTP 201; Cache-Control: no-store
 
 ## Validation Rules
 
-email ถูก normalize เป็น lowercase; password 12–1024 ตัวอักษร; display_name optional trim 1–120; extra fields เช่น role ถูกปฏิเสธ
+email ถูก normalize เป็น lowercase; password 12–24 ตัวอักษร; display_name optional trim 1–120; extra fields เช่น role ถูกปฏิเสธ
 
 ## Business Rules
 
@@ -779,7 +779,7 @@ POST /api/v1/auth/register HTTP/1.1
 Origin: http://localhost:3000
 Content-Type: application/json
 
-{"email": "new@example.com", "password": "A long example password!", "display_name": "ผู้ใช้ใหม่"}
+{"email": "new@example.com", "password": "ExamplePass123!", "display_name": "ผู้ใช้ใหม่"}
 ```
 
 ## Example Response
@@ -897,7 +897,7 @@ POST
 ```json
 {
   "token": "<opaque token from email>",
-  "password": "A replacement example password!"
+  "password": "Replacement123!"
 }
 ```
 
@@ -911,7 +911,7 @@ HTTP 200; Cache-Control: no-store
 
 ## Validation Rules
 
-token 43–128 ตัวอักษร; password 12–1024; extra fields ถูกปฏิเสธ
+token 43–128 ตัวอักษร; password 12–24; extra fields ถูกปฏิเสธ
 
 ## Business Rules
 
@@ -928,7 +928,7 @@ POST /api/v1/auth/reset-password HTTP/1.1
 Origin: http://localhost:3000
 Content-Type: application/json
 
-{"token": "<opaque token from email>", "password": "A replacement example password!"}
+{"token": "<opaque token from email>", "password": "Replacement123!"}
 ```
 
 ## Example Response
@@ -936,3 +936,7 @@ Content-Type: application/json
 ```json
 {"message": "Password changed. Please log in again."}
 ```
+
+## Password policy — 2026-10-05
+
+การตั้งรหัสผ่านใหม่ผ่าน Register/Reset/local script ต้องยาว 12–24 ตัวอักษร มี a–z, A–Z, 0–9 และอย่างน้อยหนึ่ง ASCII punctuation (เช่น !@#_-); ห้าม Unicode whitespace ทุกชนิด ไม่มีการ trim Password ภาษาอื่นยังใช้ร่วมได้แต่ไม่นับแทนกลุ่มภาษาอังกฤษหรืออักขระพิเศษ Frontend ตรวจและยืนยันสองช่อง Backend ตรวจซ้ำและตอบ 422 เมื่อไม่ผ่าน Login ยังคงรับ 1–1024 ตัวเพื่อรองรับบัญชีเดิม ไม่มีการแก้ password hash เดิมโดย migration

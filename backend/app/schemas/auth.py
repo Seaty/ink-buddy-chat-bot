@@ -6,6 +6,8 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
+from app.core.password_policy import validate_new_password
+
 
 class LoginRequest(BaseModel):
     email: EmailStr = Field(max_length=320)
@@ -36,7 +38,13 @@ class GuestClaimResponse(BaseModel):
 class RegisterRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     email: EmailStr = Field(max_length=320)
-    password: str = Field(min_length=12, max_length=1024)
+    password: str = Field(
+        min_length=12,
+        max_length=24,
+        description="Requires a-z, A-Z, 0-9 and ASCII punctuation; no whitespace",
+    )
+
+    _password_policy = field_validator("password")(validate_new_password)
     display_name: str | None = Field(default=None, min_length=1, max_length=120)
 
     @field_validator("display_name", mode="before")
@@ -51,7 +59,13 @@ class ForgotPasswordRequest(BaseModel):
 
 class ResetPasswordRequest(BaseModel):
     token: str = Field(min_length=43, max_length=128)
-    password: str = Field(min_length=12, max_length=1024)
+    password: str = Field(
+        min_length=12,
+        max_length=24,
+        description="Requires a-z, A-Z, 0-9 and ASCII punctuation; no whitespace",
+    )
+
+    _password_policy = field_validator("password")(validate_new_password)
 
 
 class AuthMessageResponse(BaseModel):

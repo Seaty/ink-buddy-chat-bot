@@ -209,8 +209,8 @@ test("register and password recovery screens", async ({ page }) => {
   await fixture(page);
   await page.goto("/register");
   await page.getByLabel("อีเมล", { exact: true }).fill("new@example.com");
-  await page.getByLabel("รหัสผ่าน", { exact: true }).fill("A valid password!");
-  await page.getByLabel("ยืนยันรหัสผ่าน").fill("A valid password!");
+  await page.getByLabel("รหัสผ่าน", { exact: true }).fill("ValidPassword123!");
+  await page.getByLabel("ยืนยันรหัสผ่าน").fill("ValidPassword123!");
   await page.getByRole("button", { name: "สมัครสมาชิก" }).click();
   await expect(page.getByRole("status")).toContainText("สมัครสำเร็จ");
   await page.getByRole("link", { name: "ไปหน้าเข้าสู่ระบบ" }).click();
@@ -223,8 +223,8 @@ test("register and password recovery screens", async ({ page }) => {
   await expect(page).toHaveURL(/\/reset-password$/);
   await page
     .getByLabel("รหัสผ่านใหม่", { exact: true })
-    .fill("Replacement password!");
-  await page.getByLabel("ยืนยันรหัสผ่าน").fill("Replacement password!");
+    .fill("Replacement123!");
+  await page.getByLabel("ยืนยันรหัสผ่าน").fill("Replacement123!");
   await page.getByRole("button", { name: "บันทึกรหัสผ่านใหม่" }).click();
   await expect(page.getByRole("status")).toContainText("เปลี่ยนรหัสผ่านแล้ว");
 });
