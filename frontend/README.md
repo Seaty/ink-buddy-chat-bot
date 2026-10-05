@@ -50,7 +50,7 @@ pnpm test:e2e
 
 Browser tests ใช้ Microsoft Edge ที่ติดตั้งในเครื่อง หรือกำหนด PLAYWRIGHT_CHANNEL=chrome หากมี Chrome (หากใช้ chromium ต้องติดตั้ง browser ของ Playwright ก่อน) ทดสอบ API mocks ไม่ใช้ฐานจริง; PostgreSQL integration รันจาก backend ด้วย `python -m scripts.test_auth_postgres` ใน .venv
 
-ผล 2026-10-04: unit/component 11 passed, browser 9 passed, TypeScript และ production build ผ่าน ส่วน backend PostgreSQL 27 passed แยก ชุด Auth ใช้ fake Vision ไม่ยืนยัน AI จริง
+ผล 2026-10-05: unit/component 18 passed, browser 9 passed, TypeScript และ production build ผ่าน ส่วน backend PostgreSQL 27 passed แยก ชุด Auth ใช้ fake Vision ไม่ยืนยัน AI จริง
 
 ## ขอบเขตที่ยังไม่ทำ
 

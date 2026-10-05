@@ -1,6 +1,6 @@
 # Ink Buddy API Specification
 
-อัปเดต 2026-10-04 · อ้างอิง code และ openapi.current.json หลัง implementation Chat Session และ Register/Reset Password
+อัปเดต 2026-10-05 · อ้างอิง code และ openapi.current.json หลัง implementation Chat Session และ Register/Reset Password
 
 ## 1. สถานะ
 
