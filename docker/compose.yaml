@@ -18,5 +18,24 @@ services:
       start_period: 30s
     stop_grace_period: 30s
 
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: ../docker/frontend.Containerfile
+      args:
+        NEXT_PUBLIC_API_BASE_URL: ${FRONTEND_API_BASE_URL:-http://localhost:8000/api/v1}
+    ports:
+      - "127.0.0.1:${FRONTEND_PORT:-3000}:3000"
+    init: true
+    stop_grace_period: 15s
+
+  mailpit:
+    image: docker.io/axllent/mailpit:v1.27.8
+    ports:
+      - "127.0.0.1:1025:1025"
+      - "127.0.0.1:8025:8025"
+    environment:
+      MP_MAX_MESSAGES: 100
+
 volumes:
   postgres_data:

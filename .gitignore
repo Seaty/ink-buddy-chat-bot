@@ -21,3 +21,8 @@ backend/uploads/*
 
 # Local database backups and operational artifacts
 .local/
+
+# Frontend verification artifacts
+*.tsbuildinfo
+frontend/test-results/
+frontend/playwright-report/

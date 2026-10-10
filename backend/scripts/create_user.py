@@ -3,6 +3,7 @@
 import argparse
 from getpass import getpass
 
+from app.core.password_policy import validate_new_password
 from app.core.security import hash_password
 from app.db.database import get_sessionmaker
 from email_validator import validate_email
@@ -18,13 +19,13 @@ def main():
     parser.add_argument("--display-name")
     args = parser.parse_args()
     email = validate_email(args.email, check_deliverability=False).normalized
-    password = getpass("Password (minimum 12 characters): ")
-    if (
-        len(password) < 12
-        or len(password) > 1024
-        or password != getpass("Confirm password: ")
-    ):
-        parser.error("Passwords must match and contain 12–1024 characters")
+    password = getpass("Password (12-24 chars, a-z/A-Z/0-9/special, no whitespace): ")
+    try:
+        validate_new_password(password)
+    except ValueError as error:
+        parser.error(str(error))
+    if password != getpass("Confirm password: "):
+        parser.error("Passwords must match")
     with get_sessionmaker()() as db:
         role = db.execute(
             text("SELECT id FROM roles WHERE name=:name"), {"name": args.role}

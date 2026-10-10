@@ -54,7 +54,7 @@ backend/app/
 
 ## สถานะและข้อจำกัด
 
-- 11 endpoints implement แล้ว; 12 endpoints ยังตอบ 501หลังตรวจสิทธิ์ ไม่คืนข้อมูลปลอม scaffold handler ยังไม่ทำ business/AI logic แต่ authorization guard อาจอ่าน DB
+- 17 endpoints implement แล้ว; 7 endpoints ยังตอบ 501หลังตรวจสิทธิ์ ไม่คืนข้อมูลปลอม scaffold handler ยังไม่ทำ business/AI logic แต่ authorization guard อาจอ่าน DB
 - Swagger ลง success schema เป็น proposed contract พร้อม 501 และ x-implementation-status=scaffold
 - Auth/Guest lifecycle,quota/claimและmigration003ทำแล้ว ดูTOKEN_AUTH_FLOWกับauthREADME
 - API message ใช้ image_id เดียวให้ตรง DDL; 3 รูปต่อ Guest session ไม่ใช่ 3 รูปต่อข้อความ
@@ -68,7 +68,7 @@ backend/app/
 Scripts ใน backend/scripts: create_user,cleanup_guests,test_auth_postgres; requirements เพิ่มargon2-cffi/email-validator ใช้bcryptโดยตรงเพื่ออ่านhashเดิม; เลิกdev bypassแล้ว
 
 
-หลักการแยก SQL จาก routes เป็นแนวทางต่อยอด: ปัจจุบัน Profile GET ยังอ่าน DB ใน user/routes.py โดยตรง ส่วน user/session/product module services ยังเป็น placeholder ดู [Auth review](../api/auth/AUTH_REVIEW.md) สำหรับข้อจำกัดที่พบ
+หลักการแยก SQL จาก routes เป็นแนวทางต่อยอด: ปัจจุบัน Profile GET ยังอ่าน DB ใน user/routes.py โดยตรง ส่วน user/product module services ยังเป็น placeholder; session service/repository implement แล้ว ดู [Auth review](../api/auth/AUTH_REVIEW.md) สำหรับข้อจำกัดที่พบ
 
 
 ## UUIDv7 (2026-10-03)
@@ -76,3 +76,6 @@ Scripts ใน backend/scripts: create_user,cleanup_guests,test_auth_postgres; r
 ID ใหม่ที่เป็น UUID ใช้ UUIDv7: database defaults เรียก `public.ink_buddy_uuid_v7()` และ Python ใช้ `app.core.identifiers.uuid7()` ชนิด column/API ยังคง UUID เพื่อรองรับ ID เดิม ไม่มีการเปลี่ยน primary/foreign keys ที่มีอยู่ ฐานเดิมต้อง apply `database/migrations/004_uuid_v7.sql` หลัง 003; ฐานใหม่ใช้ init ปัจจุบัน migrations 001–003 เก็บเป็นประวัติเดิม
 
 UUIDv7 มี Unix timestamp ระดับ millisecond และ random bits ตาม [RFC 9562](https://www.rfc-editor.org/rfc/rfc9562.html#section-5.7) ไม่รับประกันลำดับภายใน millisecond หรือเมื่อ clock ย้อนกลับ ไม่ใช้ ID เป็น credential และยังตรวจ ownership ตามเดิม PostgreSQL 16 ใช้ compatibility function เพราะ built-in generator เป็น UUIDv4; ไม่มีการเปลี่ยนคอลัมน์ integer เช่น product_image_embeddings.id
+
+
+อัปเดต Chat Session 2026-10-04: CRUD/rename/history ใช้งานแล้ว ส่วน send message ยัง501; Frontend มี Auth/Session UI และ prompt draft 3 รายการ ดู [Frontend setup](../../frontend/README.md)

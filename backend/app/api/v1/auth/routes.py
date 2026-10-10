@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, Request, Response
+from fastapi import APIRouter, BackgroundTasks, Depends, Request, Response
+from slowapi.util import get_remote_address
 from sqlalchemy.orm import Session
 
 from app.api.deps import GUEST_COOKIE, REFRESH_COOKIE, get_principal
@@ -11,11 +12,16 @@ from app.core.rate_limit import limiter
 from app.core.security import Principal, utcnow
 from app.db.database import get_db
 from app.schemas.auth import (
+    AuthMessageResponse,
+    ForgotPasswordRequest,
     GuestClaimResponse,
     GuestSessionResponse,
     LoginRequest,
+    RegisterRequest,
+    ResetPasswordRequest,
     TokenResponse,
 )
+from app.services.auth.mail import Mailer
 from app.services.auth.service import AuthService
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -144,3 +150,71 @@ def claim_guest_session(
     result = AuthService(db, settings).claim(principal, request.cookies[GUEST_COOKIE])
     clear_cookie(response, settings, GUEST_COOKIE)
     return result
+
+
+@router.post(
+    "/register",
+    status_code=201,
+    response_model=AuthMessageResponse,
+    responses={**ERRORS, 409: {"model": ErrorResponse}},
+)
+@limiter.limit("5/hour", key_func=get_remote_address)
+@access_policy("public")
+def register(
+    body: RegisterRequest,
+    request: Request,
+    response: Response,
+    db: Session = Depends(get_db),
+    settings: Settings = Depends(get_settings),
+):
+    AuthService(db, settings).register(
+        str(body.email), body.password, body.display_name
+    )
+    response.headers["Cache-Control"] = "no-store"
+    return AuthMessageResponse(message="Account created. Please log in.")
+
+
+@router.post(
+    "/forgot-password",
+    status_code=202,
+    response_model=AuthMessageResponse,
+    responses=ERRORS,
+)
+@limiter.limit("10/hour", key_func=get_remote_address)
+@access_policy("public")
+def forgot_password(
+    body: ForgotPasswordRequest,
+    request: Request,
+    response: Response,
+    background: BackgroundTasks,
+    db: Session = Depends(get_db),
+    settings: Settings = Depends(get_settings),
+):
+    message = AuthService(db, settings).forgot_password(str(body.email))
+    if message:
+        background.add_task(Mailer(settings).send, message)
+    response.headers["Cache-Control"] = "no-store"
+    return AuthMessageResponse(
+        message="If the account is eligible, a reset link will be sent."
+    )
+
+
+@router.post(
+    "/reset-password",
+    response_model=AuthMessageResponse,
+    responses={**ERRORS, 400: {"model": ErrorResponse}},
+)
+@limiter.limit("10/hour", key_func=get_remote_address)
+@access_policy("public")
+def reset_password(
+    body: ResetPasswordRequest,
+    request: Request,
+    response: Response,
+    background: BackgroundTasks,
+    db: Session = Depends(get_db),
+    settings: Settings = Depends(get_settings),
+):
+    message = AuthService(db, settings).reset_password(body.token, body.password)
+    background.add_task(Mailer(settings).send, message)
+    clear_cookie(response, settings, REFRESH_COOKIE)
+    return AuthMessageResponse(message="Password changed. Please log in again.")

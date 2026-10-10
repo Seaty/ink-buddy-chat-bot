@@ -2,7 +2,13 @@
 
 วันที่ตรวจ: 2026-10-03
 
-## สรุป
+## สถานะล่าสุด — 2026-10-05
+
+ปัจจุบัน 14 ตาราง, 27 operations / 21 paths, 21 implemented / 6 scaffold เพิ่ม Register/Reset, Mailpit/SMTP, Chat UI และ Frontend Podman container แล้ว Password policy ใหม่ 12–24 ตัว ต้องมี a–z/A–Z/0–9/ASCII punctuation และไม่มี whitespace เอกสารหลัก/OpenAPI/schema/config guides อัปเดตแล้ว
+
+ผลตรวจล่าสุดหลัง password policy: policy 15, PostgreSQL 27, frontend 18, browser 9 ผ่าน พร้อม container build ผลด้านล่างเป็นประวัติตามวันที่ ไม่ใช่สถานะล่าสุด
+
+## สรุปการตรวจ 2026-10-03
 
 ตรวจ Markdown ทุกไฟล์ใน repository รวม local skill/instructions โดยไม่รวม dependencies, Git และไฟล์ local ที่ ignored ปรับ README, folder guide, module indexes, Auth review และจุดที่ยังระบุสถานะเก่า ตรวจ OpenAPI snapshot และ DDL ประกอบ ไม่เปลี่ยน implementation ในงานนี้
 
@@ -59,3 +65,12 @@
 UUID ที่สร้างใหม่ใช้ v7 ทั้ง database defaults, Python storage keys และ scripts ฐาน local สำรองแล้วและ apply migration 004 เรียบร้อย ID เดิมและ FK ไม่เปลี่ยน API ยังรับ UUID เดิมได้ ดู [RFC 9562](https://www.rfc-editor.org/rfc/rfc9562.html#section-5.7) สำหรับรูปแบบ
 
 ผลทดสอบหลังเปลี่ยน: regression 113 passed / 23 skipped; PostgreSQL integration 19 passed แยกผ่าน Podman (รวม migration repeat-safe, defaults ทั้ง 12 UUID tables, timestamp/version และ uniqueness) ค่า integer ID คงชนิดเดิม
+
+
+## หลังเพิ่ม Chat Session — 2026-10-04
+
+สถานะ ณ วันนั้น 24 operations / 18 paths: 17 implemented / 7 scaffold Frontend Auth/Session/prompt draft ทำแล้ว API Spec/OpenAPI/Project Status/Frontend README/Session module guides อัปเดตตามโค้ด แผนเก่ายังคงติด banner ประวัติไว้ ไม่ใช่ contractปัจจุบัน
+
+## Chat message response — 2026-10-05
+
+อัปเดต API_SPEC/OpenAPI/schema/README/frontend/status/module guides พร้อม adapter contract ตาม implementation text send/catalog template atomic history Migration006เพิ่มnullable UUID request IDและindex ไม่เพิ่มตาราง ยังไม่มี LLM text response/streaming/image message UI

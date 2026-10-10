@@ -4,7 +4,7 @@
 - [openapi.current.json](openapi.current.json) — snapshot จาก FastAPI; generate ใหม่เมื่อเปลี่ยน schemas/routes
 - [Backend structure](../architecture/BACKEND_STRUCTURE.md) — ตำแหน่งโค้ดและกติกาการแบ่ง module
 
-25 operations: 13 implemented และ 12 scaffold ที่ตรวจสิทธิ์ก่อนตอบ 501 Auth/Guest token, whitelist, quota 3 รูป และ claim ใช้งานแล้ว ดู [คู่มือ Auth](auth/README.md) สำหรับ setup/testing
+27 operations: 21 implemented และ 6 scaffold ที่ตรวจสิทธิ์ก่อนตอบ501 Auth/Guest token, whitelist, quota3รูป และ claim ใช้งานแล้ว ดู [คู่มือ Auth](auth/README.md) สำหรับ setup/testing
 
 ## Modules
 
@@ -17,3 +17,6 @@
 | [product](product/README.md) | Product metadata และ image search |
 | [admin](admin/README.md) | Catalog indexing และสิทธิ์ admin |
 | [system](system/README.md) | Health/readiness |
+
+
+อัปเดต Chat Session 2026-10-04: CRUD/rename/history ใช้งานแล้ว ส่งข้อความและตอบจาก catalog template ใช้งานแล้ว; Frontend มี Auth/Session UI และ prompt draft 3 รายการ ดู [Frontend setup](../../frontend/README.md)

@@ -65,6 +65,7 @@ class Principal:
     id: UUID
     role: str | None = None
     session_id: UUID | None = None
+    access_expires_at: datetime | None = None
 
 
 def access_token(
