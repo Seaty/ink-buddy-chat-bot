@@ -16,19 +16,19 @@
 |---|---|
 | `POST /api/v1/images`, `POST /api/v1/product-search/by-image` | ✅ ใช้งานได้ |
 | Fast path (image embedding) | ✅ 0.3–1 วินาที |
-| Full path (vision model) | ⚠️ ทำงานได้แต่ช้ามาก (`qwen3-vl:latest` > 2 นาทีต่อ call) |
+| Full path (vision model) | ✅ `qwen/qwen3-vl-8b-instruct` ผ่าน OpenRouter 1–12 วินาทีต่อ call (เดิม `qwen3-vl:latest` ในเครื่อง 3–6 นาที) §1.8 |
 | exact เฉพาะเมื่อยืนยันรุ่นได้ | ✅ (§1.5) |
 | Seed `products` / `product_images` จาก CSV | ✅ `database/seed/` |
 | ตาราง vector ของส่วนรูป | ⚠️ ชั่วคราว: สร้างด้วย `create_all` และผูกด้วย SKU (§2.5) |
 | Auth | ✅ ใช้ระบบของทีม: policy `guest_or_user`, User (JWT) หรือ Guest (cookie, 3 รูปต่อ session); รูปของคนอื่นตอบ 404 |
 | รูป + ข้อความในแชต | ⏳ รอ endpoint แชตของทีม text (§1.6) |
-| `/images/{id}/analysis`, `/images/{id}/ocr` | ✅ เก็บผลไว้ใน `image_uploads` (เรียกซ้ำไม่เรียกโมเดลอีก) · ⚠️ OCR กับรูปที่มีข้อความเยอะใช้ไม่ได้กับ `qwen3-vl:latest` (§5) |
+| `/images/{id}/analysis`, `/images/{id}/ocr` | ✅ เก็บผลไว้ใน `image_uploads` (เรียกซ้ำไม่เรียกโมเดลอีก) · OCR รูปข้อความเยอะใช้ได้แล้วกับรุ่น instruct (§4.1) |
 | Rate limit | ⏳ ยังไม่ทำ |
 
 **ต้องให้ทีมตัดสิน**
 
 1. **วิธีค้นจากรูป** — Draft v2 วาง MVP เป็น "vision model อธิบายรูป → ค้น catalog ด้วยข้อความ (BGE-M3)" แต่ส่วนนี้ใช้ image embedding เพิ่ม (Qwen3-VL-Embedding-2B) เพราะวัดได้ว่าเร็วกว่ามาก (§4) ถ้าตกลงใช้ ต้องเพิ่มโมเดลตัวที่สองและ migration ของตาราง (§2.5) ข้อเสนอคือใช้ทั้งสองแบบ: image embedding เป็น fast path, vision model → `product_embeddings` ของทีม text เป็น full path
-2. **Vision model** — ทุกเอกสารเขียน `Qwen2.5-VL:7b` แต่ระบบใช้ `qwen3-vl:latest` ซึ่งเป็นรุ่น thinking และช้ามาก ควรเลือกรุ่น instruct รุ่นเดียวทั้งทีม
+2. **Vision model** — ทุกเอกสารเขียน `Qwen2.5-VL:7b`; ส่วนรูปเปลี่ยนเป็น `qwen/qwen3-vl-8b-instruct` บน OpenRouter แล้ว (§1.8) — ต้องยอมรับว่ารูปลูกค้าออกนอกระบบ และควรใช้รุ่นเดียวกันทั้งทีม
 3. **Dataset** — รูปเป็น © B2S/OfficeMate educational use only จะเก็บใน git และย้ายไป `datasets/` ที่ root ตาม `docs/README.md` หรือไม่
 4. **ข้อมูลสต็อก** — catalog ไม่มี จึงเป็น `NULL` และบอทตอบว่าไม่มีข้อมูล (ไม่แต่งตาม `AGENTS.md`)
 
@@ -75,7 +75,7 @@ backend/app/
 │   ├── vision_service.py                upload_image · analyze_image · ocr_image · search_by_image · index_catalog
 │   └── image_storage.py                 private storage, ลบ metadata, กัน path traversal
 └── ai/
-    ├── llm/        ollama_client.py · qwen_vision.py
+    ├── llm/        openrouter_client.py · ollama_client.py · errors.py · qwen_vision.py
     ├── embeddings/ embedding_service.py · qwen3_vl_embedding.py
     ├── rag/        indexing_service.py (โหลด/ตรวจ CSV) · chunker.py · retriever.py
     ├── vision/     image_analyzer.py · vision_pipeline.py · ocr_service.py
@@ -124,7 +124,7 @@ Spec แนบรูปในแชตผ่าน `POST /chat-sessions/{id}/mes
 - แชตเรียก `VisionService` → `VisionPipeline.run(image, message)` ซึ่งรองรับ intent ครบแล้ว (หาของคล้าย, แนะนำ, เปรียบเทียบ, ราคา/สต็อก, ทั่วไป)
 - บันทึกสินค้าที่พบใน `chat_messages.product_refs` เป็น `products.id` พร้อม snapshot
 - คำถามราคา/สต็อกตอบจากข้อมูลใน `products` ด้วยโค้ด (`price_stock_answer`) ไม่ให้ LLM สร้างตัวเลข
-- ไฟล์ที่ใช้ร่วมกัน (`core/config.py`, `main.py`, `api/v1/router.py`, `api/deps.py`, `ai/llm/ollama_client.py`) เพิ่มส่วนของตัวเองได้ แต่ไม่แก้ส่วนของอีกฝ่าย
+- ไฟล์ที่ใช้ร่วมกัน (`core/config.py`, `main.py`, `api/v1/router.py`, `api/deps.py`, `ai/llm/ollama_client.py`, `ai/llm/openrouter_client.py`) เพิ่มส่วนของตัวเองได้ แต่ไม่แก้ส่วนของอีกฝ่าย
 
 ## 1.7 Config
 
@@ -132,8 +132,13 @@ Spec แนบรูปในแชตผ่าน `POST /chat-sessions/{id}/mes
 
 | Key | ค่าเริ่มต้น | หมายเหตุ |
 |---|---|---|
-| `VISION_MODEL` | `qwen3-vl:latest` | ควรเปลี่ยนเป็นรุ่น instruct |
-| `VISION_NUM_PREDICT` / `VISION_NUM_CTX` | `6144` / ว่าง (= 4096 ของ Ollama) | context ใหญ่ขึ้นใช้ VRAM มากขึ้น |
+| `VISION_PROVIDER` | `openrouter` | `openrouter` = โมเดลบน cloud (ไม่ต้องใช้ GPU, **รูปออกนอกระบบ** §1.8) · `ollama` = รันในเครื่อง |
+| `VISION_MODEL` | `qwen/qwen3-vl-8b-instruct` | id ของ OpenRouter; ถ้า `VISION_PROVIDER=ollama` ใช้ tag ของ Ollama เช่น `qwen3-vl:latest` |
+| `OPENROUTER_API_KEY` | ว่าง | secret — ใส่ใน `backend/.env` เท่านั้น และตั้ง credit limit ของ key; ว่าง = vision ตอบ 503 |
+| `OPENROUTER_FALLBACK_MODELS` | `["qwen/qwen3-vl-30b-a3b-instruct"]` | ลองตามลำดับเมื่อ `VISION_MODEL` ใช้ไม่ได้ (`qwen3-vl-8b-instruct` มีผู้ให้บริการรายเดียว) |
+| `OPENROUTER_TIMEOUT_S` | `60` | |
+| `VISION_NUM_PREDICT` | `1024` | จำนวน token ตอบสูงสุด กันโมเดลวนซ้ำ (เคยวนจนครบ 6144 ใช้ 164 วินาที); `qwen3-vl:latest` ของ Ollama ต้องใช้ `6144` เพราะคิดก่อนตอบ |
+| `VISION_NUM_CTX` | ว่าง (= 4096 ของ Ollama) | ใช้กับ Ollama เท่านั้น; context ใหญ่ขึ้นใช้ VRAM มากขึ้น |
 | `IMAGE_EMBED_MODEL` / `IMAGE_EMBED_DEVICE` | `Qwen/Qwen3-VL-Embedding-2B` / ว่าง (= cuda ถ้ามี) | `cpu`, `cuda`, `gpu` |
 | `IMAGE_RETRIEVER` | `mock` | `pgvector` หลัง index แล้ว |
 | `IMAGE_TAU_SIMILAR` | `0.55` | เกณฑ์ similar/none |
@@ -146,6 +151,18 @@ Spec แนบรูปในแชตผ่าน `POST /chat-sessions/{id}/mes
 | `VISION_ADMIN_ENABLED` | `false` | เปิด `POST /admin/image-index` |
 
 แก้ `.env` แล้วต้อง restart server (`--reload` ไม่ดูไฟล์นี้)
+
+## 1.8 Vision model บน OpenRouter และความเป็นส่วนตัว
+
+เดิมใช้ `qwen3-vl:latest` ผ่าน Ollama บนเครื่อง (GPU 6 GB, 2–5 นาทีต่อ call) ตอนนี้ค่าเริ่มต้นคือ `qwen/qwen3-vl-8b-instruct` ผ่าน
+[OpenRouter](https://openrouter.ai) — `OpenRouterClient` รับ/คืนข้อมูลรูปแบบเดียวกับ `OllamaClient` จึงไม่ต้องแก้ pipeline และสลับกลับได้ด้วย `VISION_PROVIDER=ollama`
+
+- **รูปของลูกค้าถูกส่งออกนอกระบบ** ไปยัง OpenRouter และผู้ให้บริการโมเดล (เฉพาะ full path, `/analysis` และ `/ocr`; fast path ใช้ embedding ในเครื่อง ไม่ส่งรูปออก)
+- ทุก request ส่ง `provider.data_collection = "deny"` → OpenRouter เลือกเฉพาะผู้ให้บริการที่ไม่เก็บ/ไม่นำข้อมูลไป train และ `require_parameters = true` → ไม่ส่งไปผู้ให้บริการที่ไม่รองรับ JSON schema
+- รูปถูกลดขนาดเหลือด้านยาว 1024 px เป็น JPEG ไม่มี EXIF (`encode_image`) ก่อนส่ง
+- ถ้าทีม/อาจารย์ไม่ยอมให้รูปออกนอกระบบ ให้ตั้ง `VISION_PROVIDER=ollama`
+- Error ของ OpenRouter (key ผิด 401, เครดิตหมด 402, rate limit 429, ผู้ให้บริการล่ม) → `503 VISION_UNAVAILABLE`; retry 429/5xx หนึ่งครั้ง ข้อความ error ไม่มี API key
+- `qwen3-vl-8b-instruct` มีผู้ให้บริการรายเดียว (Parasail) ซึ่งล่ม/ถูก rate limit ระหว่างทดสอบ จึงตั้ง `OPENROUTER_FALLBACK_MODELS` เป็น `qwen3-vl-30b-a3b-instruct` (ตระกูลเดียวกัน, ผู้ให้บริการ 3 ราย) ให้ OpenRouter สลับเอง
 
 ---
 
@@ -266,7 +283,31 @@ Get-Content database\seed\001_catalog_products.sql | docker exec -i docker-postg
 | Fast path ผ่าน API | 0.3–1 วินาที |
 | Embed 1 รูป GPU / CPU | 0.52 / 11.2 วินาที |
 | Index catalog (100 chunk, GPU) | 14–26 วินาที |
-| `qwen3-vl:latest` ต่อ call | 115–160 วินาที (คิดก่อนตอบ 3,700–5,200 ตัวอักษร) |
+| `qwen3-vl:latest` ต่อ call (Ollama, เดิม) | 115–380 วินาที (คิดก่อนตอบ 3,700–9,000 ตัวอักษร) |
+| `qwen/qwen3-vl-8b-instruct` ต่อ call (OpenRouter) | 1–12 วินาที (ไม่มี thinking) — ดู §4.1 |
+
+## 4.1 เทียบ vision model: `qwen3-vl:latest` (Ollama) กับ `qwen3-vl-8b-instruct` (OpenRouter) — 10 ต.ค. 2569
+
+ชุดรูปเดิม 8 รูป: รูป catalog + รูปที่ดัดแปลงให้เหมือนถ่ายจริง (crop, หมุน, เบลอ) + รูปที่ไม่ใช่เครื่องเขียน 2 รูป
+OpenRouter รันครบ 8 รูป · local รันได้ 3 รูปแล้วถูกหยุดเพราะหน่วยความจำเครื่องไม่พอ — ตารางเทียบเฉพาะ 3 รูปที่มีผลทั้งคู่
+
+| รูป | งาน | `qwen3-vl:latest` (local) | `qwen3-vl-8b-instruct` (OpenRouter) |
+|---|---|---|---|
+| Pentel Energel (catalog) | analysis | 382 วิ · `pencil_case`, ไม่มียี่ห้อ | 4.0 วิ · `pencil_case`, ไม่มียี่ห้อ |
+| | OCR | 23 วิ · `[]` | 4.3 วิ · `[]` |
+| Pentel Energel (ถ่ายจำลอง) | analysis | 235 วิ · `pencil_case` | 8.9 วิ · `pencil_case` |
+| | OCR | 50 วิ · `[]` | 4.2 วิ · `[]` |
+| แพ็คเทป Scotch 500 (catalog) | analysis | 185 วิ · `other`, ไม่มียี่ห้อ | 7.7 วิ · `clear_tape`, Scotch / Transparent Tape 500 |
+| | OCR | **ล้มเหลว** 319 วิ (`done_reason=length`, คิด 9,016 ตัวอักษร) | 4.8 วิ · Scotch®, Transparent, Tape 500, 3M, … |
+
+ผลอื่นของ OpenRouter (ไม่มีผล local เทียบ): Scotch ถ่ายจำลอง อ่านยี่ห้อ/รุ่นได้ (12 วิ) · Faber-Castell whiteboard marker อ่าน FABER-CASTELL, Refillable Whiteboard ได้ (4.7 วิ) · รูปสีพื้นและรูป noise ตอบ `is_stationery=false` ถูก (1.5–2 วิ) · Uni UMN-S-38 ตัวอักษรบนคลิปเล็กเกินอ่าน (`[]`)
+
+สรุป:
+- **เวลา**: เร็วขึ้น ~30–90 เท่า (ต่อ call 1–12 วินาที เทียบ 23–382 วินาที) และไม่ต้องใช้ GPU
+- **OCR รูปข้อความเยอะ**: ข้อจำกัดเดิมหายไป (Scotch อ่านได้ครบใน 5 วินาที เดิมล้มเหลว)
+- **Pentel**: ทั้งสองโมเดลตอบเหมือนกัน — OCR `[]` ถูกต้อง (บนรูปไม่มีตัวอักษร) แต่ทายประเภทผิดเป็น `pencil_case` และ `colors` ว่างทุกรูปทั้งสองโมเดล → เป็นปัญหาของ prompt/schema ไม่ใช่ของ provider (ต้องแก้แยก)
+- **ข้อควรระวัง**: ครั้งหนึ่ง fallback `qwen3-vl-30b-a3b-instruct` ตอบวนจนครบ 6,144 token (164 วินาที) แล้ว retry ได้ — จึงลด `VISION_NUM_PREDICT` เป็น 1024
+- **ยังไม่ได้วัด**: `exact`/`similar` ผ่าน retriever จริง (phase 2) และ 5 รูปที่เหลือของ local
 
 **ต้องทำต่อ:** ชุดทดสอบรูปถ่ายจริง ≥ 20 รูป + รูปของที่ไม่มีในร้าน ≥ 15 รูป พร้อม label SKU เพื่อวัด Recall@1/3, ความแม่นของ exact และอัตรา "บอกว่ามี ทั้งที่ไม่มี" แล้วจูน `IMAGE_TAU_SIMILAR` และน้ำหนัก
 
@@ -277,11 +318,13 @@ Get-Content database\seed\001_catalog_products.sql | docker exec -i docker-postg
 | ปัญหา | วิธีแก้ |
 |---|---|
 | Ollama embed รูปด้วย Qwen3-VL-Embedding ไม่ได้ | โหลดผ่าน Hugging Face |
-| `qwen3-vl:latest` ไม่สน `think: false` และช้ามาก | fast path; ตั้ง `num_predict` สูงพอไม่ให้ JSON ถูกตัด; ควรเปลี่ยนเป็นรุ่น instruct |
+| `qwen3-vl:latest` ไม่สน `think: false` และช้ามาก | ✅ แก้แล้ว: เปลี่ยนเป็น `qwen3-vl-8b-instruct` บน OpenRouter (§1.8) |
 | `localhost` บน Windows ลอง IPv6 ก่อน (รอ 5 วินาทีทุก connection) | ใช้ `127.0.0.1` |
 | `curl` ใน Git Bash ส่งภาษาไทยเพี้ยน | ทดสอบด้วย Postman / Swagger |
 | `from __future__ import annotations` ทำให้ transformers 5 โหลดโมเดลไม่ได้ | ตั้ง `config_class` ตรงๆ |
 | DB test เขียนลงตารางจริงเมื่อใช้แค่ `search_path` | `schema_translate_map` และ transaction ที่ rollback |
 | Container ฐานข้อมูลหยุดหลังเครื่อง sleep แล้ว test ค้าง | `docker compose -f docker/compose.yaml up -d` ก่อนทดสอบ |
 | Guest: `search` / `analysis` / `ocr` ล็อกแถว `guest_sessions` (FOR UPDATE) ไว้ตลอดการเรียก vision model เพื่อให้ทำงานต่อคิวกับ claim — ถ้าเข้า full path คำขออื่นของ Guest คนเดียวกัน (เช่นอัปโหลด) ต้องรอหลายนาที | ยังไม่แก้: ต้องตกลงกับทีม auth ว่าจะปล่อย lock ก่อนเรียกโมเดลได้หรือไม่ |
-| OCR รูปที่มีข้อความเยอะ (เช่น แพ็คเทป Scotch) ได้คำตอบว่าง: `qwen3-vl:latest` คิดยาวจน context 4096 เต็มก่อนตอบ (296 วินาที, `done_reason=length`) · ตั้ง `num_ctx` 16384 แล้วโมเดลโตเป็น 8.1 GB รันบน CPU 57% เกิน 30 นาทีไม่ได้คำตอบ · รูปที่ไม่มีข้อความตอบถูก (`[]`, 10 วินาที) | ยังไม่แก้: เปลี่ยนเป็น VLM รุ่น instruct หรือใช้ EasyOCR / Tesseract ผ่าน `OcrService` (ออกแบบให้เปลี่ยน engine ได้) |
+| OCR รูปที่มีข้อความเยอะ (เช่น แพ็คเทป Scotch) ได้คำตอบว่าง: `qwen3-vl:latest` คิดยาวจน context 4096 เต็มก่อนตอบ (296 วินาที, `done_reason=length`) · ตั้ง `num_ctx` 16384 แล้วโมเดลโตเป็น 8.1 GB รันบน CPU 57% เกิน 30 นาทีไม่ได้คำตอบ · รูปที่ไม่มีข้อความตอบถูก (`[]`, 10 วินาที) | ✅ แก้แล้วด้วยรุ่น instruct บน OpenRouter: อ่านแพ็ค Scotch ได้ครบใน 4.8 วินาที (§4.1); ยังเกิดถ้าตั้ง `VISION_PROVIDER=ollama` กับ `qwen3-vl:latest` |
+| `qwen3-vl-8b-instruct` มีผู้ให้บริการรายเดียว (Parasail) — ล่ม/429 ระหว่างทดสอบ (uptime 0%) | `OPENROUTER_FALLBACK_MODELS` = `qwen3-vl-30b-a3b-instruct` |
+| `qwen3-vl-30b-a3b-instruct` ตอบวนซ้ำจนครบ `num_predict` 6,144 (164 วินาที) | `VISION_NUM_PREDICT=1024`; ผล JSON ผิดจะ retry อีกครั้ง |

@@ -9,12 +9,14 @@ from typing import Any
 
 import httpx
 
+from app.ai.llm.errors import LLMError
+
 DEFAULT_BASE_URL = "http://localhost:11434"
 # qwen3-vl:latest thinks before answering (~2 min per image call on an RTX 3050).
 DEFAULT_TIMEOUT_S = 300.0
 
 
-class OllamaError(RuntimeError):
+class OllamaError(LLMError):
     pass
 
 

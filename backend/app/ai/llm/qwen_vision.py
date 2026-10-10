@@ -1,9 +1,11 @@
-"""Qwen3-VL wrapper (via Ollama): image analysis, OCR, catalog captions, answers.
+"""Qwen3-VL wrapper: image analysis, OCR, catalog captions, answers.
 
-Note: ``qwen3-vl:latest`` is a thinking model and ignores ``think=false`` — it
-writes a long reasoning trace (``thinking``) before the answer. ``num_predict``
-must leave room for that, or the JSON gets cut off. An instruct tag avoids
-both the trace and the latency; set VISION_MODEL in .env to switch.
+The client is OpenRouter (hosted ``qwen/qwen3-vl-8b-instruct``, the default) or
+Ollama (local); both take the same Ollama-style messages and return the same
+response shape. Note: Ollama's ``qwen3-vl:latest`` is a thinking model and
+ignores ``think=false`` — it writes a long reasoning trace before the answer,
+so ``num_predict`` must leave room for it. Instruct models avoid both the
+trace and the latency.
 """
 from __future__ import annotations
 
@@ -17,6 +19,7 @@ from PIL import Image, ImageOps
 from pydantic import ValidationError
 
 from app.ai.llm.ollama_client import OllamaClient
+from app.ai.llm.openrouter_client import OpenRouterClient
 from app.ai.prompts.vision_prompt import (
     CAPTION_PROMPT,
     IMAGE_ANALYSIS_PROMPT,
@@ -38,7 +41,7 @@ class VisionModelError(RuntimeError):
 
 
 def encode_image(img: Image.Image, max_side: int = VLM_MAX_SIDE) -> str:
-    """JPEG base64 for Ollama. Keeps aspect ratio (no padding) so the model's
+    """JPEG base64 for the model. Keeps aspect ratio (no padding) so the model's
     0-1000 bbox maps straight back onto the original image."""
     img = ImageOps.exif_transpose(img)
     if img.mode != "RGB":
@@ -68,7 +71,7 @@ def _extract_json(text: str) -> str:
 class QwenVision:
     def __init__(
         self,
-        client: OllamaClient | None = None,
+        client: OllamaClient | OpenRouterClient | None = None,
         model: str | None = None,
         num_predict: int = 6144,
         keep_alive: str = "30m",

@@ -12,7 +12,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
-from pydantic import field_validator
+from pydantic import SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BACKEND_DIR = Path(__file__).resolve().parents[2]
@@ -66,9 +66,21 @@ class Settings(BaseSettings):
     ollama_base_url: str = "http://localhost:11434"
     ollama_timeout_s: float = 300.0
 
+    # OpenRouter (hosted models). Customer photos leave the machine on this path:
+    # requests only go to providers that do not store or train on them (data_collection=deny).
+    openrouter_api_key: SecretStr | None = None
+    openrouter_base_url: str = "https://openrouter.ai/api/v1"
+    openrouter_timeout_s: float = 60.0
+    # Tried in order when VISION_MODEL fails upstream (qwen3-vl-8b-instruct has a single provider)
+    openrouter_fallback_models: list[str] = ["qwen/qwen3-vl-30b-a3b-instruct"]
+
     # --- Vision / Image RAG (docs/architecture/IMAGE_RAG_DESIGN.md §1.7) ---
-    vision_model: str = "qwen3-vl:latest"
-    vision_num_predict: int = 6144  # room for qwen3-vl's thinking trace
+    # openrouter: hosted, ~5-15 s per call, no GPU needed. ollama: local (VISION_MODEL=qwen3-vl:latest).
+    vision_provider: Literal["openrouter", "ollama"] = "openrouter"
+    vision_model: str = "qwen/qwen3-vl-8b-instruct"  # an OpenRouter id, or an Ollama tag with VISION_PROVIDER=ollama
+    # Max output tokens. Answers are ~10-300 tokens; the cap stops a looping model early (a 6144 run took 164 s).
+    # Ollama's thinking qwen3-vl:latest needs 6144 for its reasoning trace.
+    vision_num_predict: int = 1024
     # Context window for the vision model; None = Ollama default (4096 here). Larger needs more VRAM:
     # qwen3-vl:latest at 16384 grew from 6.2 to 8.1 GB and ran 57% on CPU on a 6 GB GPU.
     vision_num_ctx: int | None = None
@@ -104,7 +116,7 @@ class Settings(BaseSettings):
         # "datasets/catalog" in .env must not depend on the working directory
         return v if v.is_absolute() else BACKEND_DIR / v
 
-    @field_validator("image_embed_device", "vision_num_ctx", mode="before")
+    @field_validator("image_embed_device", "vision_num_ctx", "openrouter_api_key", mode="before")
     @classmethod
     def _empty_device_is_auto(cls, v):
         return v or None

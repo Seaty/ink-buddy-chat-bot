@@ -41,7 +41,7 @@ API สำหรับแนบรูปเครื่องเขียนแ�
 | 422 | `VALIDATION_ERROR` | request ผิดรูปแบบ; `details.errors[]` บอก field ที่ผิด |
 | 422 | `EMPTY_FILE` / `IMAGE_TOO_SMALL` | ไฟล์ว่าง / ด้านสั้นของรูปน้อยกว่า 32 px |
 | 422 | `IMAGE_NOT_READY` | รูปยังไม่อยู่ในสถานะ `ready` |
-| 503 | `VISION_UNAVAILABLE` | vision model ไม่ตอบหรือเกินเวลา `OLLAMA_TIMEOUT_S` |
+| 503 | `VISION_UNAVAILABLE` | vision model ไม่ตอบ: เกินเวลา `OPENROUTER_TIMEOUT_S` (60 วิ), OpenRouter ล่ม/rate limit, เครดิตหมด หรือ key ผิด |
 | 500 | `INTERNAL_ERROR` | ข้อผิดพลาดภายใน (ไม่เปิดเผยรายละเอียด) |
 
 ตัวอย่าง:
@@ -67,6 +67,8 @@ API สำหรับแนบรูปเครื่องเขียนแ�
 | Errors | 401, 413, 415, 422 |
 
 ระบบบันทึกรูปใน private storage (ไม่มี URL สาธารณะ) โดย re-encode และลบ metadata ทั้งหมด เช่น ตำแหน่ง GPS และข้อมูลกล้อง การแนบรูปยังไม่ได้ระบุว่าเป็นสินค้าอะไร
+
+> **รูปออกนอกระบบ:** `/analysis`, `/ocr` และการค้นแบบ `full` ส่งสำเนารูป (ย่อเหลือด้านยาว 1024 px, JPEG ไม่มี metadata) ไปให้ vision model บน OpenRouter ประมวลผล โดยกำหนดให้ใช้เฉพาะผู้ให้บริการที่ไม่เก็บหรือนำข้อมูลไป train · การค้นแบบ `fast` ไม่ส่งรูปออก · ฝั่ง frontend ควรแจ้งผู้ใช้ก่อนแนบรูป รายละเอียดใน [`IMAGE_RAG_DESIGN.md` §1.8](../../architecture/IMAGE_RAG_DESIGN.md)
 
 **Response**
 
@@ -127,7 +129,7 @@ curl -X POST http://127.0.0.1:8001/api/v1/images -F "file=@scissors.jpg"
 
 ตัวอย่าง response ของ `/analysis` และ `/ocr` เป็นรูปแบบข้อมูล ไม่ใช่ผลจริงจากรูปใดรูปหนึ่ง
 
-> ⚠️ ข้อจำกัดปัจจุบัน: กับ `qwen3-vl:latest` บน GPU 6 GB, `/ocr` ของรูปที่มีข้อความเยอะจะตอบ `503 VISION_UNAVAILABLE` เพราะโมเดลคิดจนเต็ม context ก่อนตอบ ส่วนรูปที่ไม่มีข้อความตอบ `text: ""` ได้ถูกต้อง จะใช้งานได้จริงเมื่อเปลี่ยนเป็น VLM รุ่น instruct หรือ OCR engine อื่น
+> OCR รูปที่มีข้อความเยอะใช้ได้แล้ว (เช่น แพ็คเทป Scotch อ่านได้ครบใน ~5 วินาที) ด้วย `qwen/qwen3-vl-8b-instruct` บน OpenRouter รูปที่ไม่มีข้อความตอบ `text: ""` ข้อความเล็กหรือเบลอมากอาจอ่านไม่ได้ ถ้า backend ตั้ง `VISION_PROVIDER=ollama` กับ `qwen3-vl:latest` ข้อจำกัดเดิมกลับมา (รูปข้อความเยอะตอบ 503)
 
 ---
 
@@ -244,9 +246,9 @@ curl -X POST http://127.0.0.1:8001/api/v1/images -F "file=@scissors.jpg"
 | กรณี | `path` | เวลาโดยประมาณ (RTX 3050 6 GB) |
 |---|---|---|
 | พบสินค้าใกล้เคียง | `fast` | 0.3–1 วินาที (request แรกหลังเปิด server ~10 วินาที เพื่อโหลดโมเดล) |
-| ไม่พบสินค้าใกล้พอ → ใช้ vision model | `full` | **หลายนาที** กับ `qwen3-vl:latest` |
+| ไม่พบสินค้าใกล้พอ → ใช้ vision model | `full` | ~5–15 วินาที (OpenRouter; เดิมหลายนาทีกับ `qwen3-vl:latest`) |
 
-ฝั่ง client ควรตั้ง timeout ให้ยาวพอสำหรับ `full` (backend ตั้ง `OLLAMA_TIMEOUT_S`) และแสดงสถานะกำลังวิเคราะห์
+ฝั่ง client ควรตั้ง timeout ให้ยาวพอสำหรับ `full` (backend รอ vision model ได้นานสุด `OPENROUTER_TIMEOUT_S` = 60 วินาทีต่อ call) และแสดงสถานะกำลังวิเคราะห์
 
 ---
 
