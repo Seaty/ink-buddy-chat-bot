@@ -191,6 +191,8 @@ CREATE TABLE chat_messages (
     role varchar(20) NOT NULL,
     content text NOT NULL DEFAULT '',
     product_refs jsonb,
+    client_request_id uuid,
+    CONSTRAINT chat_messages_request_user_check CHECK (client_request_id IS NULL OR role='user'),
     image_id uuid REFERENCES image_uploads(id) ON DELETE RESTRICT,
     model_name varchar(100),
     created_at timestamptz NOT NULL DEFAULT now(),
@@ -200,6 +202,8 @@ CREATE TABLE chat_messages (
     CONSTRAINT chat_messages_product_refs_array_check CHECK (product_refs IS NULL OR jsonb_typeof(product_refs) = 'array'),
     CONSTRAINT chat_messages_session_sequence_uq UNIQUE (session_id, sequence_number)
 );
+
+CREATE UNIQUE INDEX chat_messages_request_uq ON chat_messages(session_id,client_request_id) WHERE client_request_id IS NOT NULL;
 
 CREATE INDEX chat_messages_image_id_idx ON chat_messages (image_id) WHERE image_id IS NOT NULL;
 

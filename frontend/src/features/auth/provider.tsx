@@ -4,8 +4,10 @@ import {
   useContext,
   useEffect,
   useState,
+  useRef,
   type ReactNode,
 } from "react";
+import { uuid7 } from "@/lib/uuid7";
 import { api, ApiError, errorText } from "@/lib/api";
 import type { Identity, Guest } from "@/lib/types";
 
@@ -16,7 +18,12 @@ type State = {
   expired: boolean;
   pendingGuest: Guest | null;
   revision: number;
+  messageErrors: Record<string, string>;
+  setMessageError: (key: string, value: string) => void;
   drafts: Record<string, string>;
+  attempt: (key: string, content: string) => string;
+  clearAttempt: (key: string) => void;
+  moveAttempt: (from: string, to: string) => void;
   setDraft: (key: string, value: string) => void;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -32,8 +39,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [expired, setExpired] = useState(false);
   const [pendingGuest, setPendingGuest] = useState<Guest | null>(null);
   const [revision, setRevision] = useState(0);
+  const [messageErrors, setMessageErrors] = useState<Record<string, string>>(
+    {},
+  );
   const [drafts, setDrafts] = useState<Record<string, string>>({});
+  const attempts = useRef<Record<string, { content: string; id: string }>>({});
+  function attempt(key: string, content: string) {
+    if (attempts.current[key]?.content !== content)
+      attempts.current[key] = { content, id: uuid7() };
+    return attempts.current[key].id;
+  }
+  function clearAttempt(key: string) {
+    delete attempts.current[key];
+  }
+  function moveAttempt(from: string, to: string) {
+    if (attempts.current[from]) {
+      attempts.current[to] = attempts.current[from];
+      delete attempts.current[from];
+    }
+  }
   function replace(next: Identity | null) {
+    setMessageErrors({});
+    attempts.current = {};
     setDrafts({});
     setIdentity(next);
     setRevision((v) => v + 1);
@@ -54,6 +81,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let active = true;
     api.onUnauthorized = () => {
       setExpired(true);
+      setMessageErrors({});
+      attempts.current = {};
       setDrafts({});
       setIdentity(null);
       setRevision((v) => v + 1);
@@ -91,6 +120,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await api.claim();
       setPendingGuest(null);
+      setMessageErrors({});
+      attempts.current = {};
       setDrafts({});
       setRevision((v) => v + 1);
     } catch (e) {
@@ -101,6 +132,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <Context.Provider
       value={{
+        messageErrors,
+        setMessageError: (key, value) =>
+          setMessageErrors((e) => ({ ...e, [key]: value })),
+        attempt,
+        clearAttempt,
+        moveAttempt,
         identity,
         loading,
         error,

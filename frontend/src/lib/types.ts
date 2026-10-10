@@ -18,6 +18,19 @@ export type ChatSession = {
   created_at: string;
   updated_at: string;
 };
+export type ProductReference = {
+  id: string;
+  sku: string | null;
+  name: string;
+  price: string | null;
+  currency: string | null;
+  availability: string | null;
+  source_ref: string | null;
+};
+export type SendMessageResult = {
+  user_message: Message;
+  assistant_message: Message;
+};
 export type Message = {
   id: string;
   session_id: string;
@@ -25,5 +38,6 @@ export type Message = {
   role: "user" | "assistant" | "system";
   content: string;
   image_id: string | null;
+  product_refs?: ProductReference[] | null;
 };
 export type Page<T> = { items: T[]; next_cursor: string | null };

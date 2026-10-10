@@ -4,7 +4,7 @@
 
 ## 1. สถานะ
 
-**27 operations บน 21 paths: implement แล้ว 20 และ scaffold 7** Authentication, Guest lifecycle, Profile GET และ Guest image upload/search ใช้งานจริงแล้ว การจัดการแชตและอ่านประวัติ implement แล้ว; ส่งข้อความ/สินค้า/รูป detail-delete/readiness ที่ยังเป็น scaffold ตรวจสิทธิ์ก่อนตอบ 501 ไม่คืนข้อมูลสำเร็จปลอม ไม่มี document upload
+**27 operations บน 21 paths: implement แล้ว 21 และ scaffold 6** Authentication, Guest lifecycle, Profile GET และ Guest image upload/search ใช้งานจริงแล้ว การจัดการแชตและอ่านประวัติ implement แล้ว; สินค้า/รูป detail-delete/readiness ที่ยังเป็น scaffold ตรวจสิทธิ์ก่อนตอบ 501 ไม่คืนข้อมูลสำเร็จปลอม ไม่มี document upload
 
 ## 2. Contract กลางและ Authentication
 
@@ -42,7 +42,7 @@
 | DELETE | `/api/v1/chat-sessions/{session_id}` | guest_or_user | Implemented |
 | GET | `/api/v1/chat-sessions/{session_id}/messages` | guest_or_user | Implemented |
 | PATCH | `/api/v1/chat-sessions/{session_id}` | guest_or_user | Implemented |
-| POST | `/api/v1/chat-sessions/{session_id}/messages` | guest_or_user | Scaffold: 501 |
+| POST | `/api/v1/chat-sessions/{session_id}/messages` | guest_or_user | Implemented |
 | POST | `/api/v1/images` | guest_or_user | Implemented |
 | POST | `/api/v1/images/{image_id}/analysis` | guest_or_user | Implemented |
 | POST | `/api/v1/images/{image_id}/ocr` | guest_or_user | Implemented |
@@ -248,16 +248,34 @@ Success ของ scaffold เป็น proposed schema เท่านั้น
 
 ### 5.14. POST /api/v1/chat-sessions/{session_id}/messages
 
-- Purpose: [Scaffold] send message
-- Authentication: User Bearer หรือ Guest cookie; Guest mutation ต้องมี Origin
-- Status: Scaffold — authenticated valid requests return 501
-- Request Headers: Accept: application/json; Content-Type: application/json; Authorization: Bearer <access_token> เมื่อใช้ User; Origin: <allowed origin> ตาม policy กลาง
-- Path Parameters: session_id {"type": "string", "format": "uuid", "title": "Session Id"}
-- Query Parameters: ไม่มี
-- Request Body: {"application/json": {"schema": {"$ref": "#/components/schemas/SendMessageRequest"}}}
-- Success Response: 201 {"application/json": {"schema": {"$ref": "#/components/schemas/SendMessageResponse"}}}
-- Error Responses: 501, 422, 401, 403; unexpected failure อาจเป็น 500
-- Validation Rules / Business Rules / Security: ดูข้อกำหนดกลางหัวข้อ 2–4 และ schema fields หัวข้อ 6; ตรวจสิทธิ์ก่อน business logic
+- Purpose: ส่งข้อความ ค้นสินค้าใน DB ตอบจาก catalog template และบันทึกประวัติ
+- Method: POST; Authentication: guest_or_user; User Bearer หรือ Guest cookie (Guest ต้องมี allowed Origin)
+- Headers: Content-Type/Accept application/json; credentials ตามชนิด; response Cache-Control: no-store
+- Path: session_id UUID; Query: ไม่มี
+- Body: content trim 1–4000 ตัว, client_request_id UUIDv7 required; extra fields/image_id ปฏิเสธ 422
+- Success: 201 {user_message,assistant_message}; replay สำเร็จคืน 201 และ IDs เดิม ไม่มีการบันทึกซ้ำ
+- Errors: 401 credential expired/revoked, 403 Origin, 404 not owned/deleted, 409 REQUEST_ID_CONFLICT/CHAT_CHANGED/CHAT_FULL, 422 validation, 502 ANSWER_FAILED/INVALID_ANSWER, 503 ANSWER_BUSY, 504 ANSWER_TIMEOUT, 500 MESSAGE_FAILED
+- Business rules: snapshot ประวัติ 10 ข้อความและ sequence, commit ก่อน search/adapter; recheck credential/ownership/sequence แล้วบันทึกคู่ใน transaction Guest-before-chat; User ล็อก Login sessionก่อนแชตเพื่อ serialize revocation
+- Request ID เดิม content เดิมคืนคู่เดิม; contentต่างกัน409 ส่งใหม่พร้อมกันต่างIDหนึ่งสำเร็จอีก409; search/adapter/DBfailureไม่บันทึกข้อความค้าง
+- Search: products DB, สูงสุด5, literal parameterized LIKE, category aliases/brand/budget THB; งบไม่ชัดเจนถามเพิ่ม สินค้าไม่มีราคาจะไม่รวมเมื่อมีงบ
+- Security: ไม่ถือ row locks ระหว่าง answer, ไม่ log conversation/credentials; adapterรับเฉพาะ question/history/products และ return product IDs ที่อยู่ในผลค้นหา
+- Example Request:
+
+```http
+POST /api/v1/chat-sessions/<session_uuid>/messages
+Content-Type: application/json
+Origin: http://localhost:3000
+
+{"content":"ปากกาเจลไม่เกิน 100 บาท","client_request_id":"019a0000-0000-7000-8000-000000000001"}
+```
+
+- Example Response (illustrative; ไม่ใช่สินค้า production):
+
+```json
+{"user_message":{"id":"019a0000-0000-7000-8000-000000000002","session_id":"019a0000-0000-7000-8000-000000000004","sequence_number":1,"role":"user","content":"ปากกาเจลไม่เกิน 100 บาท","image_id":null,"product_refs":null,"created_at":"2026-10-05T09:00:00Z"},"assistant_message":{"id":"019a0000-0000-7000-8000-000000000003","session_id":"019a0000-0000-7000-8000-000000000004","sequence_number":2,"role":"assistant","content":"ยังไม่พบสินค้าที่ตรงกับคำถามในข้อมูล catalog กรุณาระบุประเภท ยี่ห้อ หรือรุ่นเพิ่มเติม","image_id":null,"product_refs":[],"created_at":"2026-10-05T09:00:00Z"}}
+```
+
+ดู [adapter contract](session/ADAPTER_CONTRACT.md) สำหรับการต่อ AI โดยเพื่อนในทีม
 
 ### 5.15. POST /api/v1/images
 
@@ -494,14 +512,14 @@ Required อ้างอิง OpenAPI; nullable ดู anyOf/null และค�
 
 | Field | Required | Schema |
 |---|---|---|
-| id | Yes | `{"type": "string", "format": "uuid"}` |
-| session_id | Yes | `{"type": "string", "format": "uuid"}` |
-| sequence_number | Yes | `{"type": "integer", "exclusiveMinimum": 0.0}` |
-| role | Yes | `{"type": "string", "enum": ["user", "assistant", "system"]}` |
-| content | Yes | `{"type": "string"}` |
-| image_id | No | `{"anyOf": [{"type": "string", "format": "uuid"}, {"type": "null"}]}` |
-| product_refs | No | `{"anyOf": [{"items": {"additionalProperties": true, "type": "object"}, "type": "array"}, {"type": "null"}]}` |
-| created_at | Yes | `{"type": "string", "format": "date-time"}` |
+| id | Yes | `{"type": "string", "format": "uuid", "title": "Id"}` |
+| session_id | Yes | `{"type": "string", "format": "uuid", "title": "Session Id"}` |
+| sequence_number | Yes | `{"type": "integer", "exclusiveMinimum": 0.0, "title": "Sequence Number"}` |
+| role | Yes | `{"type": "string", "enum": ["user", "assistant", "system"], "title": "Role"}` |
+| content | Yes | `{"type": "string", "title": "Content"}` |
+| image_id | No | `{"anyOf": [{"type": "string", "format": "uuid"}, {"type": "null"}], "title": "Image Id"}` |
+| product_refs | No | `{"anyOf": [{"items": {"$ref": "#/components/schemas/ProductReference"}, "type": "array"}, {"type": "null"}], "title": "Product Refs"}` |
+| created_at | Yes | `{"type": "string", "format": "date-time", "title": "Created At"}` |
 
 ### ProductListResponse
 
@@ -571,8 +589,8 @@ Required อ้างอิง OpenAPI; nullable ดู anyOf/null และค�
 
 | Field | Required | Schema |
 |---|---|---|
-| content | No | `{"type": "string", "maxLength": 4000, "description": "Proposed MVP limit, pending policy confirmation", "default": ""}` |
-| image_id | No | `{"anyOf": [{"type": "string", "format": "uuid"}, {"type": "null"}]}` |
+| content | Yes | `{"type": "string", "maxLength": 4000, "minLength": 1, "title": "Content"}` |
+| client_request_id | Yes | `{"type": "string", "format": "uuid", "title": "Client Request Id"}` |
 
 ### SendMessageResponse
 
@@ -710,7 +728,7 @@ UUIDv7 มี Unix timestamp ระดับ millisecond และ random bits �
 
 DELETE soft delete ผ่าน deleted_at คืน204; อ่าน/แก้ไข/ลบซ้ำตอบ404 เก็บ messages/images และไม่คืน Guest quota ทุก Guest operation lock Guest ก่อนแชตเพื่อ serialize กับ claim Read endpoints ใช้ transaction request-scoped; routes เก็บ Cache-Control: no-store
 
-Frontend `/chat`, `/chat/{id}`, `/login` พร้อม Guest/User/claim และ prompt draft 3 รายการ ปุ่มส่งยัง disabled; POST messages ยัง501 รายละเอียด setup และโครง components ดู [Frontend README](../../frontend/README.md)
+Frontend `/chat`, `/chat/{id}`, `/login` พร้อม Guest/User/claim และ prompt draft 3 รายการ ปุ่มส่งเปิดใช้งาน; POST messages ค้น products DB ตอบ catalog template และบันทึกประวัติ พร้อม UUIDv7 request replay รายละเอียด setup และโครง components ดู [Frontend README](../../frontend/README.md)
 
 ## Register / Password Recovery — 2026-10-04
 

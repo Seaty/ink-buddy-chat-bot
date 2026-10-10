@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 from datetime import datetime
+from decimal import Decimal
 from typing import Literal
 from uuid import UUID
 
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, Field, field_validator
 
 
 class CreateSessionRequest(BaseModel):
@@ -34,18 +35,31 @@ class SessionListResponse(BaseModel):
 
 
 class SendMessageRequest(BaseModel):
-    content: str = Field(
-        default="",
-        max_length=4000,
-        description="Proposed MVP limit, pending policy confirmation",
-    )
-    image_id: UUID | None = None
+    model_config = {"extra": "forbid"}
+    content: str = Field(min_length=1, max_length=4000)
+    client_request_id: UUID
 
-    @model_validator(mode="after")
-    def require_content_or_image(self):
-        if not self.content.strip() and self.image_id is None:
-            raise ValueError("content or image_id is required")
-        return self
+    @field_validator("content", mode="before")
+    @classmethod
+    def trim_content(cls, value):
+        return value.strip() if isinstance(value, str) else value
+
+    @field_validator("client_request_id")
+    @classmethod
+    def request_v7(cls, value):
+        if value.version != 7:
+            raise ValueError("client_request_id must be UUIDv7")
+        return value
+
+
+class ProductReference(BaseModel):
+    id: UUID
+    sku: str | None = None
+    name: str
+    price: Decimal | None = None
+    currency: str | None = None
+    availability: str | None = None
+    source_ref: str | None = None
 
 
 class MessageResponse(BaseModel):
@@ -55,7 +69,7 @@ class MessageResponse(BaseModel):
     role: Literal["user", "assistant", "system"]
     content: str
     image_id: UUID | None = None
-    product_refs: list[dict] | None = None
+    product_refs: list[ProductReference] | None = None
     created_at: datetime
 
 

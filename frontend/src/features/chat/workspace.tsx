@@ -4,7 +4,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/features/auth/provider";
 import { api, errorText } from "@/lib/api";
-import type { ChatSession, Message, Page } from "@/lib/types";
+import type {
+  ChatSession,
+  Message,
+  Page,
+  SendMessageResult,
+} from "@/lib/types";
 import { Dialog } from "@/components/ui/dialog";
 import { Composer } from "./composer";
 
@@ -29,6 +34,9 @@ export function ChatWorkspace({ sessionId }: { sessionId?: string }) {
   const [listError, setListError] = useState("");
   const [detailError, setDetailError] = useState("");
   const [actionError, setActionError] = useState("");
+  const [sending, setSending] = useState(false);
+  const [pendingText, setPendingText] = useState("");
+  const sendLock = useRef(false);
   const [busy, setBusy] = useState(false);
   const [drawer, setDrawer] = useState(false);
   const [edit, setEdit] = useState<Edit | null>(null);
@@ -94,6 +102,64 @@ export function ChatWorkspace({ sessionId }: { sessionId?: string }) {
       active = false;
     };
   }, [sessionId, auth.identity, auth.revision, version]);
+  async function send() {
+    const key = sessionId || "home";
+    const content = (auth.drafts[key] || "").trim();
+    if (!content || sendLock.current || !auth.identity) return;
+    sendLock.current = true;
+    setSending(true);
+    setPendingText(content);
+    setActionError("");
+    auth.setMessageError(key, "");
+    const revision = auth.revision;
+    const snapshot = scope.current;
+    let target = sessionId;
+    let draftKey = key;
+    const requestId = auth.attempt(key, content);
+    try {
+      if (!target) {
+        const created = await api.request<ChatSession>(
+          "/chat-sessions",
+          "POST",
+          {},
+        );
+        if (scope.current !== snapshot) return;
+        target = created.id;
+        draftKey = target;
+        auth.setDraft(target, content);
+        auth.setDraft("home", "");
+        auth.moveAttempt("home", target);
+      }
+      const result = await api.request<SendMessageResult>(
+        `/chat-sessions/${target}/messages`,
+        "POST",
+        { content, client_request_id: requestId },
+      );
+      if (scope.current !== snapshot || auth.revision !== revision) return;
+      auth.setDraft(draftKey, "");
+      auth.clearAttempt(draftKey);
+      setMessages((old) => ({
+        ...old,
+        items: unique([
+          ...old.items,
+          result.user_message,
+          result.assistant_message,
+        ]).sort((a, b) => a.sequence_number - b.sequence_number),
+      }));
+      setVersion((v) => v + 1);
+    } catch (e) {
+      if (scope.current === snapshot) {
+        setActionError(errorText(e));
+        auth.setMessageError(draftKey, errorText(e));
+      }
+    } finally {
+      sendLock.current = false;
+      setSending(false);
+      setPendingText("");
+      if (!sessionId && target && scope.current === snapshot)
+        router.push(`/chat/${target}`);
+    }
+  }
   async function create() {
     setBusy(true);
     setActionError("");
@@ -386,7 +452,12 @@ export function ChatWorkspace({ sessionId }: { sessionId?: string }) {
           </section>
         )}
         <div className="conversation-body">
-          {actionError && !edit && (
+          {auth.messageErrors[sessionId || "home"] && (
+            <p role="alert" className="error">
+              {auth.messageErrors[sessionId || "home"]}
+            </p>
+          )}
+          {actionError && !edit && !auth.messageErrors[sessionId || "home"] && (
             <p role="alert" className="error">
               {actionError}
             </p>
@@ -434,6 +505,29 @@ export function ChatWorkspace({ sessionId }: { sessionId?: string }) {
                     <article key={m.id} className={`message ${m.role}`}>
                       <small>{m.role === "user" ? "คุณ" : "Ink Buddy"}</small>
                       <p>{m.content}</p>
+                      {m.product_refs?.map((p) => (
+                        <div key={p.id} className="card">
+                          <strong>{p.name}</strong>
+                          <p>
+                            {p.price !== null
+                              ? `${p.price} ${p.currency || ""}`
+                              : "ไม่มีข้อมูลราคา"}
+                          </p>
+                          {p.availability && (
+                            <p>สถานะตาม catalog: {p.availability}</p>
+                          )}
+                          {p.source_ref &&
+                            /^https?:\/\//i.test(p.source_ref) && (
+                              <a
+                                href={p.source_ref}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                แหล่งข้อมูลสินค้า
+                              </a>
+                            )}
+                        </div>
+                      ))}
                       {m.image_id && (
                         <p className="muted text-sm">มีรูปภาพแนบในข้อความนี้</p>
                       )}
@@ -441,9 +535,17 @@ export function ChatWorkspace({ sessionId }: { sessionId?: string }) {
                   ))}
                 </section>
               )}
+              {sending && (
+                <section role="status">
+                  <p>{pendingText}</p>
+                  <p>กำลังค้นข้อมูลและเตรียมคำตอบ</p>
+                </section>
+              )}
               <Composer
                 key={sessionId || "home"}
                 draftKey={sessionId || "home"}
+                onSend={send}
+                busy={sending || busy}
                 showPrompts={!messages.items.length}
               />
             </>

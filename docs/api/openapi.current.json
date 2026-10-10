@@ -1312,7 +1312,7 @@
         "tags": [
           "session"
         ],
-        "summary": "[Scaffold] send message",
+        "summary": "Send Message",
         "operationId": "send_message_api_v1_chat_sessions__session_id__messages_post",
         "parameters": [
           {
@@ -1358,34 +1358,64 @@
             "description": "Not Found"
           },
           "422": {
-            "description": "Request validation failed",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            }
-          },
-          "501": {
-            "description": "Route scaffold only; business logic not implemented",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
+            },
+            "description": "Unprocessable Content"
           },
           "401": {
-            "description": "Authentication or policy rejected",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            }
+            },
+            "description": "Unauthorized"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Gateway"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Gateway Timeout"
           },
           "403": {
             "description": "Authentication or policy rejected",
@@ -1398,7 +1428,6 @@
             }
           }
         },
-        "x-implementation-status": "scaffold",
         "x-access-policy": "guest_or_user",
         "security": [
           {
@@ -2845,8 +2874,7 @@
             "anyOf": [
               {
                 "items": {
-                  "additionalProperties": true,
-                  "type": "object"
+                  "$ref": "#/components/schemas/ProductReference"
                 },
                 "type": "array"
               },
@@ -3047,6 +3075,81 @@
         ],
         "title": "ProductMatch",
         "description": "Catalog facts come from the products table, never from the model."
+      },
+      "ProductReference": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "sku": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sku"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "price": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price"
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency"
+          },
+          "availability": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Availability"
+          },
+          "source_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Ref"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "ProductReference"
       },
       "ProductResponse": {
         "properties": {
@@ -3365,24 +3468,21 @@
           "content": {
             "type": "string",
             "maxLength": 4000,
-            "title": "Content",
-            "description": "Proposed MVP limit, pending policy confirmation",
-            "default": ""
+            "minLength": 1,
+            "title": "Content"
           },
-          "image_id": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "uuid"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Image Id"
+          "client_request_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Client Request Id"
           }
         },
+        "additionalProperties": false,
         "type": "object",
+        "required": [
+          "content",
+          "client_request_id"
+        ],
         "title": "SendMessageRequest"
       },
       "SendMessageResponse": {

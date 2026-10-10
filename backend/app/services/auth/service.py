@@ -1,7 +1,8 @@
 """Transactional auth lifecycle; parent session locks serialize refresh/logout."""
 
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 
+from jose import jwt
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -91,7 +92,15 @@ class AuthService:
         user = self.repo.user_session(uid, sid)
         if not user:
             raise unauthorized()
-        return Principal("user", uid, user["role"], sid)
+        return Principal(
+            "user",
+            uid,
+            user["role"],
+            sid,
+            datetime.fromtimestamp(
+                jwt.get_unverified_claims(token)["exp"], timezone.utc
+            ),
+        )
 
     def authenticate_guest(self, token: str | None):
         if not token:

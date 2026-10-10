@@ -11,7 +11,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # Ink Buddy frontend guidance
 
-- Read root BUSINESS_REQUIREMENTS.md and current API Spec before product behavior changes. Users attach images only; upload UI and sending messages are outside the current session-management feature.
+- Read root BUSINESS_REQUIREMENTS.md and current API Spec before product behavior changes. Users attach images only; upload UI is outside the current text-chat feature.
 - Access tokens and drafts stay in memory. Use the shared API/Auth modules; retain single-flight refresh, no automatic mutation retry, and draft clearing on identity change.
 - Suggested prompts are configured in src/features/chat/prompts.ts; changing a draft must not create a chat or message.
 - Preserve Mobile-first layouts, theme tokens, keyboard focus, and confirmation before replacing a draft or deleting a chat.

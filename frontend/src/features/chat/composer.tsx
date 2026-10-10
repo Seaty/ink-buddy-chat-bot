@@ -6,9 +6,13 @@ import { Dialog } from "@/components/ui/dialog";
 export function Composer({
   draftKey,
   showPrompts,
+  onSend,
+  busy = false,
 }: {
   draftKey: string;
   showPrompts: boolean;
+  onSend?: () => void;
+  busy?: boolean;
 }) {
   const { drafts, setDraft } = useAuth();
   const text = drafts[draftKey] || "";
@@ -30,6 +34,7 @@ export function Composer({
               <button
                 key={p.id}
                 className="prompt"
+                disabled={busy}
                 onClick={() =>
                   text && text !== p.text
                     ? setReplacement(p.text)
@@ -50,13 +55,25 @@ export function Composer({
           id="draft"
           placeholder="ลองเลือกคำถามแนะนำ หรือพิมพ์คำถามของคุณ…"
           value={text}
+          disabled={busy}
           maxLength={4000}
           rows={3}
           onChange={(e) => setDraft(draftKey, e.target.value)}
+          onKeyDown={(e) => {
+            if (
+              e.key === "Enter" &&
+              !e.shiftKey &&
+              !e.nativeEvent.isComposing &&
+              e.keyCode !== 229
+            ) {
+              e.preventDefault();
+              if (!busy && text.trim() && onSend) onSend();
+            }
+          }}
           aria-describedby="draft-help"
         />
         <div className="flex items-center justify-between gap-3">
-          <button onClick={() => apply("")} disabled={!text}>
+          <button onClick={() => apply("")} disabled={!text || busy}>
             ล้างร่าง
           </button>
           <div className="flex items-center gap-3">
@@ -65,13 +82,17 @@ export function Composer({
                 {text.length.toLocaleString()} / 4,000
               </span>
             )}
-            <button className="primary" disabled>
+            <button
+              className="primary"
+              disabled={busy || !text.trim() || !onSend}
+              onClick={onSend}
+            >
               ส่งข้อความ
             </button>
           </div>
         </div>
         <p id="draft-help" className="muted text-sm">
-          ขณะนี้ร่างข้อความได้ การส่งข้อความจะเพิ่มในขั้นถัดไป
+          Enter เพื่อส่ง · Shift+Enter เพื่อขึ้นบรรทัดใหม่
         </p>
       </section>
       {replacement !== null && (

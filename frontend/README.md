@@ -32,7 +32,7 @@ pnpm dev
 ## พฤติกรรม
 
 - สร้าง/เปลี่ยนชื่อ/ลบ/เปิดแชต และอ่านประวัติได้ทั้ง Guest/User ลบแบบ soft delete ไม่คืนโควตารูป
-- กด prompt เติม draft เท่านั้น ไม่สร้าง chat/message; ปุ่มส่ง disabled และ Enter ไม่ส่ง
+- กด prompt เติม draft เท่านั้น ไม่สร้าง chat/message; ปุ่มส่งเปิดเมื่อข้อความพร้อม Enter ส่ง/Shift+Enter ขึ้นบรรทัดใหม่ ไม่ส่งระหว่าง IME
 - Draft แยกต่อหน้า/แชตใน memory รักษาระหว่าง client navigation ล้างเมื่อ reload/logout/principal change
 - Prompt มี 3 รายการ เพิ่ม/แก้/ซ่อนผ่าน configuration ไม่มี management API
 - Bootstrap refresh ก่อน Guest; GET401 refresh และ retry ได้หนึ่งครั้ง; mutation401 refresh แต่ไม่ retry ให้ผู้ใช้ลองใหม่
@@ -54,7 +54,7 @@ Browser tests ใช้ Microsoft Edge ที่ติดตั้งในเ�
 
 ## ขอบเขตที่ยังไม่ทำ
 
-ส่งข้อความ/AI, upload UI, citations, summary และ Product browsing ยังไม่อยู่ในรอบนี้ ดู [API Spec](../docs/api/API_SPEC.md), [Token Flow](../docs/architecture/TOKEN_AUTH_FLOW.md) และ [Auth Review](../docs/api/auth/AUTH_REVIEW.md)
+LLM response, streaming, upload UI, summary และ Product browsing ยังไม่อยู่ในรอบนี้ ดู [API Spec](../docs/api/API_SPEC.md), [Token Flow](../docs/architecture/TOKEN_AUTH_FLOW.md) และ [Auth Review](../docs/api/auth/AUTH_REVIEW.md)
 
 ## Account pages
 
@@ -67,3 +67,11 @@ Browser tests ใช้ Microsoft Edge ที่ติดตั้งในเ�
 ## Password policy — 2026-10-05
 
 การตั้งรหัสผ่านใหม่ผ่าน Register/Reset/local script ต้องยาว 12–24 ตัวอักษร มี a–z, A–Z, 0–9 และอย่างน้อยหนึ่ง ASCII punctuation (เช่น !@#_-); ห้าม Unicode whitespace ทุกชนิด ไม่มีการ trim Password ภาษาอื่นยังใช้ร่วมได้แต่ไม่นับแทนกลุ่มภาษาอังกฤษหรืออักขระพิเศษ Frontend ตรวจและยืนยันสองช่อง Backend ตรวจซ้ำและตอบ 422 เมื่อไม่ผ่าน Login ยังคงรับ 1–1024 ตัวเพื่อรองรับบัญชีเดิม ไม่มีการแก้ password hash เดิมโดย migration
+
+## Text chat / catalog answer — 2026-10-05
+
+ส่งข้อความ 1–4000 ตัวผ่าน POST messages พร้อม client_request_id UUIDv7 ค้น products DB ตอบจาก template และแสดง product refs; ไม่ใช่คำตอบ LLM หน้า home กดส่งจึงสร้างแชต Prompt click ไม่สร้างข้อมูล Retry reuse ID เดิมเมื่อข้อความไม่เปลี่ยนและไม่สร้าง chat ใหม่หลังสร้างสำเร็จ ไม่มี automatic mutation retry Draft/errors/attempt IDs อยู่ใน memory ล้างเมื่อ principal เปลี่ยน/claim/reload คำขอที่หมดสิทธิ์ไม่คืนร่างส่วนตัวให้ principal ใหม่
+
+pending text เป็น UI ชั่วคราวไม่ใช่ committed history Success บันทึกคู่และล้างร่าง Errorรักษาร่าง/แสดงข้อความ Retry ด้วยปุ่มส่ง ลิงก์สินค้าเฉพาะ HTTP(S) renderผ่าน React ไม่ใช้ raw HTML
+
+ผล: Frontend19 passed, browser15 passed (API mocks), typecheck/container build ผ่าน เพิ่ม real browser smoke ผ่าน APIจริง+PGชั่วคราว สำหรับ Guest/User/claim/reload/no-match จาก backend รัน `.\.venv\Scripts\python.exe -m scripts.test_chat_browser` ต้องมี Frontend container localhost:3000 และพอร์ต8001ว่าง runner forward HTTP API ไป isolated backend ไม่ mock response และลบ DB ทิ้งเมื่อจบ

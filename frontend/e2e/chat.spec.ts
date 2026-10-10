@@ -1,6 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 
-async function fixture(page: Page) {
+async function fixture(page: Page, failMessageOnce = false) {
   let loggedIn = false;
   let claimed = false;
   let sequence = 0;
@@ -14,6 +14,8 @@ async function fixture(page: Page) {
     owner: string;
   };
   const chats: Chat[] = [];
+  const histories: Record<string, any[]> = {};
+  const sentIds: string[] = [];
   const guest = {
     id: "018f1234-0000-7000-8000-000000000001",
     expires_at: "2099-01-01T00:00:00Z",
@@ -88,8 +90,47 @@ async function fixture(page: Page) {
     const sid = path.split("/")[2];
     const c = chats.find((c) => c.id === sid && c.owner === owner);
     if (!c) return fail(404);
-    if (path.endsWith("/messages"))
-      return send({ items: [], next_cursor: null });
+    if (path.endsWith("/messages")) {
+      if (method === "POST") {
+        const body = request.postDataJSON();
+        sentIds.push(body.client_request_id);
+        if (failMessageOnce) {
+          failMessageOnce = false;
+          return fail(503);
+        }
+        const history = (histories[sid] ||= []);
+        const user = {
+          id: `message-${history.length + 1}`,
+          session_id: sid,
+          sequence_number: history.length + 1,
+          role: "user",
+          content: body.content,
+          image_id: null,
+          product_refs: null,
+        };
+        const assistant = {
+          ...user,
+          id: `message-${history.length + 2}`,
+          sequence_number: history.length + 2,
+          role: "assistant",
+          content: "พบสินค้าจาก catalog",
+          product_refs: [
+            {
+              id: "product-1",
+              sku: "PEN",
+              name: "ปากกาเจลทดสอบ",
+              price: "50.00",
+              currency: "THB",
+              availability: null,
+              source_ref: "https://example.test/product",
+            },
+          ],
+        };
+        history.push(user, assistant);
+        return send({ user_message: user, assistant_message: assistant }, 201);
+      }
+      return send({ items: histories[sid] || [], next_cursor: null });
+    }
     if (method === "PATCH") {
       c.title = request.postDataJSON().title;
       return send(c);
@@ -100,7 +141,7 @@ async function fixture(page: Page) {
     }
     return send(c);
   });
-  return { posts: () => posts };
+  return { posts: () => posts, sentIds: () => sentIds };
 }
 async function openList(page: Page) {
   if (await page.getByRole("button", { name: "☰ แชตของคุณ" }).isVisible())
@@ -227,4 +268,49 @@ test("register and password recovery screens", async ({ page }) => {
   await page.getByLabel("ยืนยันรหัสผ่าน").fill("Replacement123!");
   await page.getByRole("button", { name: "บันทึกรหัสผ่านใหม่" }).click();
   await expect(page.getByRole("status")).toContainText("เปลี่ยนรหัสผ่านแล้ว");
+});
+
+test("send from home persists answer and references after reload", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  await page.goto("/chat");
+  const draft = page.getByLabel("ร่างคำถามของคุณ");
+  await draft.fill("ปากกาเจลไม่เกิน 100 บาท");
+  await draft.press("Enter");
+  await expect(page).toHaveURL(/\/chat\/[\w-]+$/);
+  await expect(
+    page.getByText("พบสินค้าจาก catalog", { exact: true }),
+  ).toBeVisible();
+  await expect(page.getByText("ปากกาเจลทดสอบ", { exact: true })).toBeVisible();
+  await expect(draft).toHaveValue("");
+  expect(state.posts()).toBe(1);
+  expect(state.sentIds()[0]).toMatch(
+    /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
+  );
+  await page.reload();
+  await expect(
+    page.getByText("พบสินค้าจาก catalog", { exact: true }),
+  ).toBeVisible();
+});
+
+test("failed first send retains draft, request ID and created chat for retry", async ({
+  page,
+}) => {
+  const state = await fixture(page, true);
+  await page.goto("/chat");
+  const draft = page.getByLabel("ร่างคำถามของคุณ");
+  await draft.fill("ปากกาเจล");
+  await page.getByRole("button", { name: "ส่งข้อความ", exact: true }).click();
+  await expect(page).toHaveURL(/\/chat\/[\w-]+$/);
+  await expect(draft).toHaveValue("ปากกาเจล");
+  await expect(
+    page.getByRole("alert").filter({ hasText: "ไม่สามารถดำเนินการ" }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "ส่งข้อความ", exact: true }).click();
+  await expect(
+    page.getByText("พบสินค้าจาก catalog", { exact: true }),
+  ).toBeVisible();
+  expect(state.posts()).toBe(1);
+  expect(state.sentIds()[0]).toBe(state.sentIds()[1]);
 });
