@@ -1,4 +1,4 @@
-"""POST /api/v1/images — attach a photo (multipart field ``file``)."""
+"""/api/v1/images — attach a photo, analyse it, read its text (get/delete are scaffolds)."""
 
 from __future__ import annotations
 
@@ -16,7 +16,12 @@ from app.core.config import Settings, get_settings
 from app.core.errors import ApiError, ErrorResponse
 from app.core.security import Principal
 from app.db.database import get_db
-from app.schemas.image import ImageDetailResponse, ImageUploadResponse
+from app.schemas.image import (
+    ImageAnalysisResponse,
+    ImageDetailResponse,
+    ImageOcrResponse,
+    ImageUploadResponse,
+)
 from app.services.vision_service import VisionService, get_vision_service
 
 router = APIRouter(prefix="/images", tags=["images"])
@@ -49,6 +54,46 @@ async def upload_image(
             f"image larger than {settings.image_max_bytes // (1024 * 1024)} MB",
         )
     return await run_in_threadpool(service.upload_image, db, principal, data)
+
+
+@router.post(
+    "/{image_id}/analysis",
+    response_model=ImageAnalysisResponse,
+    responses={s: {"model": ErrorResponse} for s in (401, 403, 404, 422, 503)},
+)
+@access_policy("guest_or_user")
+async def analyze_image(
+    image_id: UUID,
+    principal: Principal = Depends(get_principal),
+    service: VisionService = Depends(get_vision_service),
+    db: Session = Depends(get_db),
+) -> ImageAnalysisResponse:
+    """Describe the photo and its visible attributes. An interpretation, not a confirmed product.
+
+    The first call runs the vision model (slow); later calls return the stored result.
+    Another principal's image answers 404.
+    """
+    return await run_in_threadpool(service.analyze_image, db, principal, image_id)
+
+
+@router.post(
+    "/{image_id}/ocr",
+    response_model=ImageOcrResponse,
+    responses={s: {"model": ErrorResponse} for s in (401, 403, 404, 422, 503)},
+)
+@access_policy("guest_or_user")
+async def ocr_image(
+    image_id: UUID,
+    principal: Principal = Depends(get_principal),
+    service: VisionService = Depends(get_vision_service),
+    db: Session = Depends(get_db),
+) -> ImageOcrResponse:
+    """Read the text printed on the item. Approximate: verify before citing a model or SKU.
+
+    The first call runs the vision model (slow); later calls return the stored result.
+    Another principal's image answers 404.
+    """
+    return await run_in_threadpool(service.ocr_image, db, principal, image_id)
 
 
 @router.get(

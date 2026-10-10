@@ -2,7 +2,7 @@
 
 ## Authentication / Guest
 
-- 23operationsบน18paths:11implementedและ12scaffoldหลังตรวจสิทธิ์
+- 25 operations บน 20 paths: 13 implemented (รวม image analysis/OCR จาก `feature/vision`) และ 12 scaffold หลังตรวจสิทธิ์
 - UserJWT15นาที,refreshsessionสูงสุด7วัน,rotation/reuse revokeและLogoutมีผลทันที
 - Guest24ชั่วโมง,3รูปต่อsession,Origincheck,ownership,atomicquotaและclaim
 - ทุกrouteประกาศpolicyและstartupปฏิเสธrouteที่ไม่ประกาศ; Adminindexตรวจrole+flag
@@ -20,6 +20,8 @@ Podmanพร้อมและPostgreSQL16+pgvectorรันผ่านdocker/c
 ImageRAGของทีมคงเดิม:Qwen3-VLผ่านOllamaและQwen3-VL-Embedding-2B/vector2048 ค่าเริ่มต้นretrievalmock ต้องindexและตั้งpgvectorก่อนค้นจริง TextBGE-M3/vector1024แยกspace ยังไม่ครบtextchatRAG
 
 Authintegrationtestsใช้fakeVisionpipeline ไม่ได้ยืนยันOllama/embeddingจริงหรือprecisionของexactlabel
+
+Image search (`feature/vision`): `exact` เฉพาะเมื่อรหัสรุ่นที่อ่านได้จากรูปตรงกับสินค้าเพียงตัวเดียว (คะแนนอย่างเดียวไม่นับ; fast path ได้มากสุด `similar`); ไม่พบสินค้า → `suggestions` แบบ "หมายถึงสิ่งนี้ไหม" (`IMAGE_TAU_SUGGEST`); `POST /images/{image_id}/analysis` และ `/ocr` เก็บผลใน `image_uploads` และรองรับ User/Guest (รูปของคนอื่นตอบ 404) ข้อจำกัด: OCR รูปที่มีข้อความเยอะใช้ไม่ได้กับ `qwen3-vl:latest` (context เต็มก่อนตอบ) และ Guest row ถูกล็อกตลอดการเรียก vision model ดู [IMAGE_RAG_DESIGN.md](IMAGE_RAG_DESIGN.md)
 
 ## งานถัดไป
 

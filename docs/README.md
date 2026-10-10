@@ -92,6 +92,8 @@
 
 - [`architecture/AI_STRUCTURE.md`](architecture/AI_STRUCTURE.md) — ร่างการแบ่ง AI modules จากช่วงแรก; ตรวจเทียบ Business Requirements ล่าสุดก่อนนำไปทำจริง
 - [`architecture/INK_BUDDY_DESIGN_DRAFT.md`](architecture/INK_BUDDY_DESIGN_DRAFT.md) — ร่าง architecture, database และ API ที่ปรับให้ใช้ catalog สินค้าและการแนบรูป
+- [`architecture/IMAGE_RAG_DESIGN.md`](architecture/IMAGE_RAG_DESIGN.md) — การค้นสินค้าจากรูป (implement แล้ว): flow, การตัดสิน exact/similar, ข้อมูล, ผลวัด และเรื่องที่รอตัดสินใจ
+- [`api/image/IMAGE_SEARCH_API.md`](api/image/IMAGE_SEARCH_API.md) — API contract ของ `/api/v1/images` และ `/api/v1/product-search/by-image`
 - [`../database/DATABASE_SCHEMA.md`](../database/DATABASE_SCHEMA.md) — โครงสร้างฐานข้อมูลตาม SQL init
 
 ## หลักการเลือกที่เก็บไฟล์ใหม่

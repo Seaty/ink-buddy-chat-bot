@@ -23,7 +23,7 @@ class ProductMatch(BaseModel):
     availability: str | None = Field(description="null when the catalog has no availability data")
     source_ref: str | None = Field(description="where the product data came from")
     image_url: str | None
-    match_type: Literal["exact", "similar"]
+    match_type: Literal["exact", "similar", "suggestion"]
     score: float = Field(description="retrieval score 0-1")
 
 
@@ -33,6 +33,10 @@ class ProductSearchByImageResponse(BaseModel):
     match_level: Literal["exact", "similar", "none"]
     matches: list[ProductMatch]
     path: Literal["fast", "full"] = Field(description="fast = embedding search only; full = vision model used")
+    suggestions: list[ProductMatch] = Field(
+        [], description="only when match_level is none: nearest products to offer as 'did you mean?'"
+    )
+    message: str | None = Field(None, description="customer-facing text when nothing matched (did-you-mean)")
     timings_s: dict[str, float] = {}
 
 

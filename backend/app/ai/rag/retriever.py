@@ -1,6 +1,6 @@
 """Retrievers.
 
-Image RAG part (IMAGE_RAG_DESIGN.md §1.3 step 5):
+Image RAG part (docs/architecture/IMAGE_RAG_DESIGN.md §1.3):
 - ``ImageRetriever``: hybrid image + caption similarity over a vector index.
 - ``MockCatalogRetriever``: metadata-only stand-in used before the catalog is embedded.
 
@@ -54,7 +54,7 @@ class ImageRetriever:
     """score = w_image·sim(image) + w_caption·sim(caption) + category/brand boosts.
 
     Weights and boosts are starting values; tune them on the eval set
-    (IMAGE_RAG_DESIGN.md §4).
+    (docs/architecture/IMAGE_RAG_DESIGN.md §4).
     """
 
     def __init__(

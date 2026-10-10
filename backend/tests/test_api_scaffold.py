@@ -50,7 +50,7 @@ def test_openapi_marks_all_scaffolds():
         for method, operation in item.items()
         if method in {"get", "post", "patch", "delete"}
     ]
-    assert len(operations) == 23
+    assert len(operations) == 25  # 12 scaffolds + 13 implemented (incl. image analysis and OCR)
     scaffolds = [
         operation
         for operation in operations

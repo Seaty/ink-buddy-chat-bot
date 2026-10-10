@@ -34,7 +34,8 @@ async def search_by_image(
     service: VisionService = Depends(get_vision_service),
     db: Session = Depends(get_db),
 ) -> ProductSearchByImageResponse:
-    """``exact`` only for the top match of a confident hit; everything else is ``similar``."""
+    """``exact`` only when the model text read off the photo identifies one product; everything else is
+    ``similar``. No match → ``suggestions`` ("did you mean?"). Another principal's image answers 404."""
     return await run_in_threadpool(
         service.search_by_image, db, principal, body.image_id, body.limit
     )

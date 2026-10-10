@@ -1,4 +1,4 @@
-"""Image RAG query pipeline (IMAGE_RAG_DESIGN.md §1.3).
+"""Image RAG query pipeline (docs/architecture/IMAGE_RAG_DESIGN.md §1.1, §1.5).
 
 image + message
   → validate
@@ -32,6 +32,7 @@ from app.ai.prompts.vision_prompt import (
     MatchLevel,
     build_answer_prompt,
     detect_intent_by_rules,
+    did_you_mean_answer,
     find_similar_answer,
     price_stock_answer,
     resolve_intent,
@@ -54,12 +55,18 @@ class PipelineSettings:
 
     catalog_dir: Path = BACKEND_DIR / "datasets" / "catalog"
     top_k: int = 5
-    tau_exact: float = 0.80
     tau_similar: float = 0.55
+    # below this, a product is too far off to offer even as "did you mean":
+    # random-noise / plain-colour photos scored 0.39-0.46; a partial crop of a real product 0.47-0.53 (3 samples; tune on real photos)
+    tau_suggest: float = 0.47
+    suggest_count: int = 3
     max_image_bytes: int = 5 * 1024 * 1024
     max_image_pixels: int = 40_000_000
     compare_items: int = 2
     fast_path: bool = True
+    # Fast path found nothing: True → ask the VLM (crop + is-stationery check, slow);
+    # False → offer "did you mean?" from the embedding hits right away.
+    escalate_no_match: bool = True
 
 
 class InvalidImageError(ValueError):
@@ -84,6 +91,7 @@ class VisionResult:
     analysis: ImageAnalysis | None = None
     timings_s: dict[str, float] = field(default_factory=dict)
     path: str = "full"  # "fast" = answered without the VLM
+    suggestions: list[dict] = field(default_factory=list)  # NONE only: nearest products, "did you mean?"
 
     def to_dict(self) -> dict:
         d = asdict(self)
@@ -124,10 +132,37 @@ def load_upload(data: bytes, max_bytes: int, max_pixels: int = 40_000_000) -> Im
     return img
 
 
-def match_level_for(score: float | None, settings: PipelineSettings) -> MatchLevel:
+def retrieval_level(score: float | None, settings: PipelineSettings) -> MatchLevel:
+    """SIMILAR or NONE from the retrieval score alone. A score never makes a match EXACT."""
     if score is None or score < settings.tau_similar:
         return MatchLevel.NONE
-    return MatchLevel.EXACT if score >= settings.tau_exact else MatchLevel.SIMILAR
+    return MatchLevel.SIMILAR
+
+
+MIN_MODEL_KEY = 3  # shorter readings ("A5", "0.5") identify nothing
+
+
+def verify_exact(candidates: Sequence[dict], analysis: ImageAnalysis, settings: PipelineSettings) -> dict | None:
+    """The one candidate the photo itself identifies, or None.
+
+    Spec: EXACT only when the model/SKU is independently verified. The model
+    text the VLM read off the item must appear in exactly one sufficiently
+    similar candidate's name, and a readable brand must not contradict it.
+    Series names shared by several products ("Precision", "500") stay SIMILAR.
+    """
+    model = normalize_key(analysis.model_text)
+    if len(model) < MIN_MODEL_KEY:
+        return None
+    brand = normalize_key(analysis.brand_text)
+    hits = []
+    for p in candidates:
+        name = normalize_key(p["name"])
+        if p["score"] < settings.tau_similar or model not in name:
+            continue
+        if brand and brand not in normalize_key(p.get("brand", "")) and brand not in name:
+            continue
+        hits.append(p)
+    return hits[0] if len(hits) == 1 else None
 
 
 def _piece_price(p: dict) -> float:
@@ -198,7 +233,23 @@ class VisionPipeline:
         timings["retrieve"] = time.perf_counter() - t
         # Match level says whether *this* item is in the store, so it uses the
         # unfiltered best hit; customer constraints only narrow what we show.
-        match_level = match_level_for(candidates[0]["score"] if candidates else None, self.settings)
+        verified = verify_exact(candidates, analysis, self.settings)
+        if verified is not None:
+            candidates = [verified] + [p for p in candidates if p is not verified]
+            match_level = MatchLevel.EXACT
+        else:
+            match_level = retrieval_level(candidates[0]["score"] if candidates else None, self.settings)
+
+        if match_level == MatchLevel.NONE:
+            # Nothing close enough: say so, and offer the nearest products as a question.
+            # Deterministic (no second LLM call) whatever the intent.
+            suggestions = self._suggest(candidates)
+            if intent == Intent.PRICE_STOCK:
+                answer, confirm = price_stock_answer([], match_level, suggestions)
+            else:
+                answer, confirm = did_you_mean_answer(suggestions), bool(suggestions)
+            timings["total"] = time.perf_counter() - t0
+            return VisionResult(answer, intent, match_level, [], confirm, analysis, timings, suggestions=suggestions)
 
         if intent == Intent.PRICE_STOCK:
             products = candidates[: self.settings.top_k]
@@ -206,7 +257,7 @@ class VisionPipeline:
             timings["total"] = time.perf_counter() - t0
             return VisionResult(answer, intent, match_level, products, confirm, analysis, timings)
 
-        products = self._select(intent, message, analysis, candidates, match_level, shown)
+        products = self._select(intent, message, analysis, candidates, shown)
         if not with_answer:
             timings["total"] = time.perf_counter() - t0
             return VisionResult("", intent, match_level, products, False, analysis, timings)
@@ -222,17 +273,27 @@ class VisionPipeline:
     def _run_fast(self, img: Image.Image, intent: Intent, timings: dict, t0: float, shown: int) -> VisionResult | None:
         """Retrieval-only answer. Returns None (→ full path) when nothing matches confidently.
 
-        Without the VLM there is no crop, category, brand or is-stationery check,
-        so a NONE match is escalated: the VLM can crop a cluttered photo or
-        recognise that the item is not stationery at all.
+        Without the VLM there is no crop, no model reading and no is-stationery
+        check, so the fast path is at most SIMILAR (price questions then ask
+        which product is meant), and a NONE match is escalated: the VLM can crop
+        a cluttered photo or recognise that the item is not stationery at all.
         """
         placeholder = ImageAnalysis(is_stationery=True, intent=intent, category_guess="other", description="")
         t = time.perf_counter()
         candidates = self.retriever.search(RetrievalQuery(img, "", placeholder), top_k=self.settings.top_k * 2)
         timings["retrieve_fast"] = time.perf_counter() - t
-        match_level = match_level_for(candidates[0]["score"] if candidates else None, self.settings)
+        match_level = retrieval_level(candidates[0]["score"] if candidates else None, self.settings)
         if match_level == MatchLevel.NONE:
-            return None
+            if self.settings.escalate_no_match:
+                return None
+            suggestions = self._suggest(candidates)
+            if intent == Intent.PRICE_STOCK:
+                answer, confirm = price_stock_answer([], match_level, suggestions)
+            else:
+                answer, confirm = did_you_mean_answer(suggestions), bool(suggestions)
+            timings["total"] = time.perf_counter() - t0
+            return VisionResult(answer, intent, match_level, [], confirm, None, timings, path="fast",
+                                suggestions=suggestions)
 
         if intent == Intent.PRICE_STOCK:
             products = candidates[: self.settings.top_k]
@@ -249,22 +310,22 @@ class VisionPipeline:
         text = " ".join(filter(None, [a.description, a.brand_text, a.model_text, *a.attributes]))
         return RetrievalQuery(image=analyzed.cropped, text=text, analysis=a)
 
+    def _suggest(self, candidates: list[dict]) -> list[dict]:
+        """Nearest products for a "did you mean?" offer when nothing matched."""
+        return [p for p in candidates if p["score"] >= self.settings.tau_suggest][: self.settings.suggest_count]
+
     def _select(
         self,
         intent: Intent,
         message: str | None,
         analysis: ImageAnalysis,
         candidates: list[dict],
-        match_level: MatchLevel,
         shown: int = SIMILAR_SHOWN,
     ) -> list[dict]:
+        """Products for a SIMILAR/EXACT result (NONE is handled by ``_suggest``)."""
         k = self.settings.top_k
-        if match_level == MatchLevel.NONE:
-            # nothing close: offer same-category items only
-            candidates = [p for p in candidates if p["category"] == analysis.category_guess]
-        else:
-            # never pad the list with unrelated items below the similarity bar
-            candidates = [p for p in candidates if p["score"] >= self.settings.tau_similar]
+        # never pad the list with unrelated items below the similarity bar
+        candidates = [p for p in candidates if p["score"] >= self.settings.tau_similar]
         if intent == Intent.RECOMMEND:
             products = apply_constraints(candidates, analysis.constraints)
             if candidates and any(w in (message or "").lower() for w in CHEAPER_WORDS):
