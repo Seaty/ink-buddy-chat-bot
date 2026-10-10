@@ -12,7 +12,14 @@ from uuid import UUID
 
 import bcrypt
 import pytest
-from app.ai.prompts.vision_prompt import MatchLevel
+from fastapi.testclient import TestClient
+from jose import jwt
+from PIL import Image
+from sqlalchemy import create_engine, text
+from sqlalchemy.orm import sessionmaker
+
+from app.ai.prompts.vision_prompt import Intent, MatchLevel
+from app.ai.vision.vision_pipeline import VisionResult
 from app.api.deps import GUEST_COOKIE, REFRESH_COOKIE
 from app.core.config import Settings
 from app.core.errors import ApiError
@@ -78,12 +85,9 @@ def setup(tmp_path):
 
     class EmptyPipeline:
         def run(self, *args, **kwargs):
-            return SimpleNamespace(
-                products=[],
-                analysis=None,
-                match_level=MatchLevel.NONE,
-                path="fast",
-                timings_s={},
+            # a real VisionResult, so new result fields (e.g. suggestions) keep the fake valid
+            return VisionResult(
+                answer="", intent=Intent.FIND_SIMILAR, match_level=MatchLevel.NONE, path="fast"
             )
 
     vision = VisionService(settings, pipeline=EmptyPipeline())

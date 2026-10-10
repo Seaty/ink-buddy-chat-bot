@@ -1,4 +1,4 @@
-"""Qwen3-VL wrapper (via Ollama): image analysis, catalog captions, answers.
+"""Qwen3-VL wrapper (via Ollama): image analysis, OCR, catalog captions, answers.
 
 Note: ``qwen3-vl:latest`` is a thinking model and ignores ``think=false`` — it
 writes a long reasoning trace (``thinking``) before the answer. ``num_predict``
@@ -21,7 +21,10 @@ from app.ai.prompts.vision_prompt import (
     CAPTION_PROMPT,
     IMAGE_ANALYSIS_PROMPT,
     IMAGE_ANALYSIS_SCHEMA,
+    OCR_PROMPT,
+    OCR_SCHEMA,
     ImageAnalysis,
+    OcrResult,
     sanitize_user_text,
 )
 
@@ -69,27 +72,27 @@ class QwenVision:
         model: str | None = None,
         num_predict: int = 6144,
         keep_alive: str = "30m",
+        num_ctx: int | None = None,
     ):
         self.client = client or OllamaClient()
         self.model = model or DEFAULT_MODEL
         self.num_predict = num_predict
         self.keep_alive = keep_alive
+        self.num_ctx = num_ctx  # None = Ollama's default (4096 on this setup)
 
     def _chat(self, messages: list[dict], *, format=None, temperature: float = 0.0) -> str:
-        resp = self.client.chat(
-            self.model,
-            messages,
-            format=format,
-            think=False,
-            keep_alive=self.keep_alive,
-            options={"temperature": temperature, "num_predict": self.num_predict},
-        )
+        options = {"temperature": temperature, "num_predict": self.num_predict}
+        if self.num_ctx:
+            options["num_ctx"] = self.num_ctx
+        resp = self.client.chat(self.model, messages, format=format, think=False,
+                                keep_alive=self.keep_alive, options=options)
         content = _clean(resp.get("message", {}).get("content", ""))
         if not content:
             reason = resp.get("done_reason")
             raise VisionModelError(
-                f"empty answer from {self.model} (done_reason={reason}); "
-                "if 'length', the thinking trace used up num_predict"
+                f"empty answer from {self.model} (done_reason={reason}); if 'length', the thinking trace "
+                "filled the context window (VISION_NUM_CTX: image + prompt + thinking) or num_predict "
+                "(VISION_NUM_PREDICT) before the answer — an instruct (non-thinking) model avoids this"
             )
         return content
 
@@ -108,6 +111,19 @@ class QwenVision:
             except (ValueError, ValidationError) as e:
                 last_error = e
         raise VisionModelError(f"invalid analysis JSON: {last_error}")
+
+    def ocr(self, image: Image.Image, retries: int = 1) -> list[str]:
+        """Text blocks printed on the item, in reading order (approximate; verify before citing a model/SKU)."""
+        messages = [{"role": "user", "content": OCR_PROMPT, "images": [encode_image(image)]}]
+        last_error: Exception | None = None
+        for _ in range(retries + 1):
+            content = self._chat(messages, format=OCR_SCHEMA)
+            try:
+                result = OcrResult.model_validate(json.loads(_extract_json(content)))
+                return [seg.text.strip() for seg in result.segments if seg.text.strip()]
+            except (ValueError, ValidationError) as e:
+                last_error = e
+        raise VisionModelError(f"invalid OCR JSON: {last_error}")
 
     def caption(self, image: Image.Image, name: str) -> str:
         """Indexing: short Thai visual description of a catalog photo."""

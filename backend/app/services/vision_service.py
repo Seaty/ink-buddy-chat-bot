@@ -1,4 +1,4 @@
-"""Vision service: wires settings → AI layer; image upload, image-based product search, catalog indexing.
+"""Vision service: wires settings → AI layer; image upload, analysis, OCR, image-based product search, indexing.
 
 The AI layer (ai/) knows nothing about settings, DB or HTTP; this is where
 they meet. Retriever mode comes from ``IMAGE_RETRIEVER``: "mock" (no
@@ -18,11 +18,12 @@ from sqlalchemy.orm import Session
 from app.ai.embeddings.embedding_service import get_image_embedder
 from app.ai.llm.ollama_client import OllamaClient, OllamaError
 from app.ai.llm.qwen_vision import QwenVision, VisionModelError
-from app.ai.prompts.vision_prompt import MatchLevel
+from app.ai.prompts.vision_prompt import ImageAnalysis, MatchLevel
 from app.ai.rag.chunker import CatalogChunk, build_catalog_chunks
 from app.ai.rag.indexing_service import load_catalog
 from app.ai.rag.retriever import ImageRetriever, MockCatalogRetriever, ProductRetriever
 from app.ai.vision.image_analyzer import ImageAnalyzer
+from app.ai.vision.ocr_service import OcrService
 from app.ai.vision.vision_pipeline import (
     InvalidImageError,
     PipelineSettings,
@@ -34,14 +35,17 @@ from app.core.errors import ApiError
 from app.core.security import Principal
 from app.db.database import get_sessionmaker
 from app.repositories.auth.repository import AuthRepository
-from app.repositories.image_repository import ImageUploadRepository
+from app.repositories.image_repository import ImageUpload, ImageUploadRepository
 from app.repositories.product_repository import PgImageIndex, ProductRepository
-from app.schemas.vision import (
+from app.schemas.admin import IndexCatalogResponse
+from app.schemas.image import (
+    ImageAnalysisResponse,
+    ImageAttributes,
+    ImageOcrResponse,
     ImageUploadResponse,
-    IndexCatalogResponse,
-    ProductMatch,
-    ProductSearchByImageResponse,
+    OcrSegmentOut,
 )
+from app.schemas.product import ProductMatch, ProductSearchByImageResponse
 from app.services.auth.service import require_live_guest
 from app.services.image_storage import ImageStorage
 
@@ -57,10 +61,12 @@ class VisionService:
         settings: Settings,
         pipeline: VisionPipeline | None = None,
         storage: ImageStorage | None = None,
+        ocr: OcrService | None = None,
     ):
         self.settings = settings
         self.pipeline = pipeline or self._build_pipeline()
         self.storage = storage or ImageStorage(settings.image_storage_dir)
+        self._ocr = ocr
 
     # ------------------------------------------------------------------ wiring
     def _embedder(self):
@@ -78,6 +84,7 @@ class VisionService:
             client=OllamaClient(s.ollama_base_url, s.ollama_timeout_s),
             model=s.vision_model,
             num_predict=s.vision_num_predict,
+            num_ctx=s.vision_num_ctx,
         )
         retriever: ProductRetriever
         if s.image_retriever == "pgvector":
@@ -95,11 +102,13 @@ class VisionService:
             PipelineSettings(
                 catalog_dir=s.catalog_dir,
                 top_k=s.image_top_k,
-                tau_exact=s.image_tau_exact,
                 tau_similar=s.image_tau_similar,
+                tau_suggest=s.image_tau_suggest,
+                suggest_count=s.image_suggest_count,
                 max_image_bytes=s.image_max_bytes,
                 max_image_pixels=s.image_max_pixels,
                 fast_path=s.image_fast_path,
+                escalate_no_match=s.image_escalate_on_no_match,
             ),
         )
 
@@ -115,9 +124,7 @@ class VisionService:
         except InvalidImageError as e:
             raise ApiError(INVALID_IMAGE_STATUS.get(e.code, 422), e.code, str(e)) from e
 
-        owner = (
-            user_id if isinstance(user_id, Principal) else Principal("user", user_id)
-        )
+        owner = _as_principal(user_id)
         stored = None
         try:
             if owner.kind == "guest":
@@ -148,69 +155,27 @@ class VisionService:
 
     # ------------------------------------------------------------------ search
     def search_by_image(
-        self, db: Session, user_id: UUID, image_id: UUID, limit: int
+        self, db: Session, user_id: UUID | Principal, image_id: UUID, limit: int
     ) -> ProductSearchByImageResponse:
         """Blocking (embedding, maybe VLM); call from a worker thread."""
         images = ImageUploadRepository(db)
-        owner = (
-            user_id if isinstance(user_id, Principal) else Principal("user", user_id)
-        )
-        if owner.kind == "guest":
-            require_live_guest(AuthRepository(db).lock_guest(owner.id))
-        upload = images.get_owned(image_id, owner)
-        if upload is None:
-            raise ApiError(404, "IMAGE_NOT_FOUND", "image not found")
-        if upload.status != "ready":
-            raise ApiError(422, "IMAGE_NOT_READY", f"image status is {upload.status}")
-        try:
-            img = self.storage.open(upload.storage_key)
-        except FileNotFoundError as e:
-            raise ApiError(404, "IMAGE_NOT_FOUND", "image file is missing") from e
-
-        try:
+        _, img = self._owned_image(db, images, _as_principal(user_id), image_id)
+        with _vision_errors():
             result = self.pipeline.run(img, None, limit=limit, with_answer=False)
-        except (OllamaError, VisionModelError) as e:
-            raise ApiError(503, "VISION_UNAVAILABLE", "vision model unavailable") from e
 
         catalog = ProductRepository(db).catalog_by_sku(
-            p["sku"] for p in result.products
+            p["sku"] for p in result.products + result.suggestions
         )
-        matches = []
-        for p in result.products[:limit]:
-            row = catalog.get(p["sku"])
-            if (
-                row is None
-            ):  # indexed but not seeded into products — never invent the product
-                logger.warning("indexed sku %s missing from products table", p["sku"])
-                continue
-            exact = result.match_level == MatchLevel.EXACT and not matches
-            matches.append(
-                ProductMatch(
-                    product_id=row["id"],
-                    sku=row["sku"],
-                    name=row["name"],
-                    category=row["category"],
-                    brand=row["brand"],
-                    price=float(row["price"]) if row["price"] is not None else None,
-                    currency=row["currency"],
-                    availability=row["availability"],
-                    source_ref=row["source_ref"],
-                    image_url=row["image_url"],
-                    match_type="exact" if exact else "similar",
-                    score=p["score"],
-                )
-            )
+        matches = _to_matches(
+            result.products[:limit],
+            catalog,
+            lambda i: "exact" if i == 0 and result.match_level == MatchLevel.EXACT else "similar",
+        )
+        suggestions = _to_matches(result.suggestions, catalog, lambda i: "suggestion")
 
-        if result.analysis is not None:
-            a = result.analysis
-            images.save_analysis(
-                image_id,
-                a.model_dump(mode="json"),
-                " ".join(filter(None, [a.brand_text, a.model_text])),
-            )
-            db.commit()
-
-        db.commit()  # Release Guest lock even when fast path has no analysis.
+        if result.analysis is not None:  # brand/model readings are not OCR: ocr_text is left alone
+            images.save_analysis(image_id, result.analysis.model_dump(mode="json"))
+        db.commit()  # saves the analysis and releases the Guest lock, also on the fast path
         return ProductSearchByImageResponse(
             image_id=image_id,
             description=result.analysis.description if result.analysis else None,
@@ -218,7 +183,89 @@ class VisionService:
             matches=matches,
             path=result.path,
             timings_s=result.timings_s,
+            suggestions=suggestions,
+            message=result.answer if result.match_level == MatchLevel.NONE else None,
         )
+
+    # ------------------------------------------------------------------ analysis / OCR
+    def analyze_image(
+        self, db: Session, user_id: UUID | Principal, image_id: UUID
+    ) -> ImageAnalysisResponse:
+        """Vision-model reading of the photo; cached in image_uploads.analysis (also filled by a full-path search)."""
+        images = ImageUploadRepository(db)
+        owner = _as_principal(user_id)
+        upload = self._owned_upload(db, images, owner, image_id)
+        analysis = _cached_analysis(upload)
+        cached = analysis is not None
+        if analysis is None:
+            img = self._open(upload)
+            with _vision_errors():
+                analysis = self.pipeline.analyzer.vision.analyze(img)
+            images.save_analysis(image_id, analysis.model_dump(mode="json"))
+        db.commit()  # saves a new analysis and releases the Guest lock
+        return ImageAnalysisResponse(
+            image_id=image_id,
+            description=analysis.description,
+            attributes=ImageAttributes(
+                is_stationery=analysis.is_stationery, category=analysis.category_guess,
+                brand_text=analysis.brand_text, model_text=analysis.model_text,
+                colors=analysis.colors, features=analysis.attributes,
+            ),
+            cached=cached,
+        )
+
+    def ocr_image(
+        self, db: Session, user_id: UUID | Principal, image_id: UUID
+    ) -> ImageOcrResponse:
+        """Text printed on the item; cached in image_uploads.ocr_text."""
+        images = ImageUploadRepository(db)
+        upload = self._owned_upload(db, images, _as_principal(user_id), image_id)
+        cached = upload.ocr_text is not None
+        if cached:
+            segments = [line for line in upload.ocr_text.split("\n") if line]
+        else:
+            img = self._open(upload)
+            with _vision_errors():
+                segments = self._ocr_service().read(img)
+            images.save_ocr(image_id, "\n".join(segments))
+        db.commit()  # saves new OCR text and releases the Guest lock
+        return ImageOcrResponse(image_id=image_id, text="\n".join(segments),
+                                segments=[OcrSegmentOut(text=t) for t in segments], cached=cached)
+
+    def _ocr_service(self) -> OcrService:
+        if self._ocr is None:
+            self._ocr = OcrService(self.pipeline.analyzer.vision)
+        return self._ocr
+
+    # ------------------------------------------------------------------ shared
+    def _owned_upload(
+        self, db: Session, images: ImageUploadRepository, owner: Principal, image_id: UUID
+    ) -> ImageUpload:
+        """The principal's ready image, or 404 (also for another principal's image).
+
+        A Guest must be live; its row stays locked (FOR UPDATE) until the caller commits,
+        which serializes this request with claim and quota updates.
+        """
+        if owner.kind == "guest":
+            require_live_guest(AuthRepository(db).lock_guest(owner.id))
+        upload = images.get_owned(image_id, owner)
+        if upload is None:
+            raise ApiError(404, "IMAGE_NOT_FOUND", "image not found")
+        if upload.status != "ready":
+            raise ApiError(422, "IMAGE_NOT_READY", f"image status is {upload.status}")
+        return upload
+
+    def _owned_image(
+        self, db: Session, images: ImageUploadRepository, owner: Principal, image_id: UUID
+    ) -> tuple[ImageUpload, Image.Image]:
+        upload = self._owned_upload(db, images, owner, image_id)
+        return upload, self._open(upload)
+
+    def _open(self, upload: ImageUpload) -> Image.Image:
+        try:
+            return self.storage.open(upload.storage_key)
+        except FileNotFoundError as e:
+            raise ApiError(404, "IMAGE_NOT_FOUND", "image file is missing") from e
 
     # ------------------------------------------------------------------ indexing
     def index_catalog(self, session: Session) -> IndexCatalogResponse:
@@ -273,6 +320,49 @@ class VisionService:
             warnings=report.warnings,
             seconds=round(time.perf_counter() - t0, 2),
         )
+
+
+def _as_principal(owner: UUID | Principal) -> Principal:
+    """Routes pass a Principal; a bare UUID (older callers/tests) means a User."""
+    return owner if isinstance(owner, Principal) else Principal("user", owner)
+
+
+def _to_matches(items: list[dict], catalog: dict[str, dict], match_type) -> list[ProductMatch]:
+    """Retrieval hits → ProductMatch using products-table facts; ``match_type(i)`` labels position i."""
+    out = []
+    for p in items:
+        row = catalog.get(p["sku"])
+        if row is None:  # indexed but not seeded into products — never invent the product
+            logger.warning("indexed sku %s missing from products table", p["sku"])
+            continue
+        out.append(ProductMatch(
+            product_id=row["id"], sku=row["sku"], name=row["name"], category=row["category"],
+            brand=row["brand"], price=float(row["price"]) if row["price"] is not None else None,
+            currency=row["currency"], availability=row["availability"], source_ref=row["source_ref"],
+            image_url=row["image_url"], match_type=match_type(len(out)), score=p["score"],
+        ))
+    return out
+
+
+class _vision_errors:
+    """Map model failures to 503 VISION_UNAVAILABLE."""
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc, tb):
+        if exc_type is not None and issubclass(exc_type, (OllamaError, VisionModelError)):
+            raise ApiError(503, "VISION_UNAVAILABLE", "vision model unavailable") from exc
+        return False
+
+
+def _cached_analysis(upload: ImageUpload) -> ImageAnalysis | None:
+    if not upload.analysis:
+        return None
+    try:
+        return ImageAnalysis.model_validate(upload.analysis)
+    except ValueError:  # stored by an older schema → re-analyse
+        return None
 
 
 def _key(c: CatalogChunk) -> tuple[str, str, int]:

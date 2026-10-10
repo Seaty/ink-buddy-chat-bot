@@ -54,7 +54,7 @@
             }
           },
           "422": {
-            "description": "Unprocessable Content",
+            "description": "Unprocessable Entity",
             "content": {
               "application/json": {
                 "schema": {
@@ -117,7 +117,7 @@
             }
           },
           "422": {
-            "description": "Unprocessable Content",
+            "description": "Unprocessable Entity",
             "content": {
               "application/json": {
                 "schema": {
@@ -177,7 +177,7 @@
             }
           },
           "422": {
-            "description": "Unprocessable Content",
+            "description": "Unprocessable Entity",
             "content": {
               "application/json": {
                 "schema": {
@@ -244,7 +244,7 @@
             }
           },
           "422": {
-            "description": "Unprocessable Content",
+            "description": "Unprocessable Entity",
             "content": {
               "application/json": {
                 "schema": {
@@ -317,7 +317,7 @@
             }
           },
           "422": {
-            "description": "Unprocessable Content",
+            "description": "Unprocessable Entity",
             "content": {
               "application/json": {
                 "schema": {
@@ -384,7 +384,7 @@
             }
           },
           "422": {
-            "description": "Unprocessable Content",
+            "description": "Unprocessable Entity",
             "content": {
               "application/json": {
                 "schema": {
@@ -1460,7 +1460,7 @@
             }
           },
           "413": {
-            "description": "Content Too Large",
+            "description": "Request Entity Too Large",
             "content": {
               "application/json": {
                 "schema": {
@@ -1480,7 +1480,7 @@
             }
           },
           "422": {
-            "description": "Unprocessable Content",
+            "description": "Unprocessable Entity",
             "content": {
               "application/json": {
                 "schema": {
@@ -1488,6 +1488,192 @@
                 }
               }
             }
+          }
+        },
+        "x-access-policy": "guest_or_user",
+        "security": [
+          {
+            "UserBearer": []
+          },
+          {
+            "GuestCookie": []
+          }
+        ]
+      }
+    },
+    "/api/v1/images/{image_id}/analysis": {
+      "post": {
+        "tags": [
+          "images"
+        ],
+        "summary": "Analyze Image",
+        "description": "Describe the photo and its visible attributes. An interpretation, not a confirmed product.\n\nThe first call runs the vision model (slow); later calls return the stored result.\nAnother principal's image answers 404.",
+        "operationId": "analyze_image_api_v1_images__image_id__analysis_post",
+        "parameters": [
+          {
+            "name": "image_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Image Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImageAnalysisResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "x-access-policy": "guest_or_user",
+        "security": [
+          {
+            "UserBearer": []
+          },
+          {
+            "GuestCookie": []
+          }
+        ]
+      }
+    },
+    "/api/v1/images/{image_id}/ocr": {
+      "post": {
+        "tags": [
+          "images"
+        ],
+        "summary": "Ocr Image",
+        "description": "Read the text printed on the item. Approximate: verify before citing a model or SKU.\n\nThe first call runs the vision model (slow); later calls return the stored result.\nAnother principal's image answers 404.",
+        "operationId": "ocr_image_api_v1_images__image_id__ocr_post",
+        "parameters": [
+          {
+            "name": "image_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Image Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImageOcrResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
           }
         },
         "x-access-policy": "guest_or_user",
@@ -1667,7 +1853,7 @@
           "product search"
         ],
         "summary": "Search By Image",
-        "description": "``exact`` only for the top match of a confident hit; everything else is ``similar``.",
+        "description": "``exact`` only when the model text read off the photo identifies one product; everything else is\n``similar``. No match → ``suggestions`` (\"did you mean?\"). Another principal's image answers 404.",
         "operationId": "search_by_image_api_v1_product_search_by_image_post",
         "requestBody": {
           "content": {
@@ -1711,7 +1897,7 @@
             }
           },
           "422": {
-            "description": "Unprocessable Content",
+            "description": "Unprocessable Entity",
             "content": {
               "application/json": {
                 "schema": {
@@ -2019,7 +2205,7 @@
             }
           },
           "422": {
-            "description": "Unprocessable Content",
+            "description": "Unprocessable Entity",
             "content": {
               "application/json": {
                 "schema": {
@@ -2355,6 +2541,84 @@
         "type": "object",
         "title": "HealthResponse"
       },
+      "ImageAnalysisResponse": {
+        "properties": {
+          "image_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Image Id"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "attributes": {
+            "$ref": "#/components/schemas/ImageAttributes"
+          },
+          "cached": {
+            "type": "boolean",
+            "title": "Cached",
+            "description": "true = stored result from an earlier analysis of this image"
+          }
+        },
+        "type": "object",
+        "required": [
+          "image_id",
+          "description",
+          "attributes",
+          "cached"
+        ],
+        "title": "ImageAnalysisResponse",
+        "description": "An interpretation of the photo, not a confirmed product."
+      },
+      "ImageAttributes": {
+        "properties": {
+          "is_stationery": {
+            "type": "boolean",
+            "title": "Is Stationery"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category",
+            "description": "closest catalog category, or 'other'"
+          },
+          "brand_text": {
+            "type": "string",
+            "title": "Brand Text",
+            "description": "brand text read off the item; empty if none"
+          },
+          "model_text": {
+            "type": "string",
+            "title": "Model Text",
+            "description": "model/series text read off the item; empty if none"
+          },
+          "colors": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Colors",
+            "default": []
+          },
+          "features": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Features",
+            "description": "visible features: tip size, pack count, shape, material",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "is_stationery",
+          "category",
+          "brand_text",
+          "model_text"
+        ],
+        "title": "ImageAttributes"
+      },
       "ImageDetailResponse": {
         "properties": {
           "id": {
@@ -2390,6 +2654,40 @@
           "created_at"
         ],
         "title": "ImageDetailResponse"
+      },
+      "ImageOcrResponse": {
+        "properties": {
+          "image_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Image Id"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text",
+            "description": "all segments joined by newlines; empty when no text was found"
+          },
+          "segments": {
+            "items": {
+              "$ref": "#/components/schemas/OcrSegmentOut"
+            },
+            "type": "array",
+            "title": "Segments"
+          },
+          "cached": {
+            "type": "boolean",
+            "title": "Cached"
+          }
+        },
+        "type": "object",
+        "required": [
+          "image_id",
+          "text",
+          "segments",
+          "cached"
+        ],
+        "title": "ImageOcrResponse",
+        "description": "Approximate; verify before citing a model or SKU."
       },
       "ImageUploadResponse": {
         "properties": {
@@ -2575,6 +2873,19 @@
         ],
         "title": "MessageResponse"
       },
+      "OcrSegmentOut": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "title": "Text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "title": "OcrSegmentOut"
+      },
       "ProductListResponse": {
         "properties": {
           "items": {
@@ -2708,7 +3019,8 @@
             "type": "string",
             "enum": [
               "exact",
-              "similar"
+              "similar",
+              "suggestion"
             ],
             "title": "Match Type"
           },
@@ -2907,6 +3219,27 @@
             ],
             "title": "Path",
             "description": "fast = embedding search only; full = vision model used"
+          },
+          "suggestions": {
+            "items": {
+              "$ref": "#/components/schemas/ProductMatch"
+            },
+            "type": "array",
+            "title": "Suggestions",
+            "description": "only when match_level is none: nearest products to offer as 'did you mean?'",
+            "default": []
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message",
+            "description": "customer-facing text when nothing matched (did-you-mean)"
           },
           "timings_s": {
             "additionalProperties": {

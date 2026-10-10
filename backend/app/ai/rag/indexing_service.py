@@ -2,7 +2,7 @@
 
 Image RAG part: load and validate the product catalog
 (``datasets/catalog/metadata.csv`` + images) before chunking and embedding.
-See IMAGE_RAG_DESIGN.md §2.1 for the schema.
+See docs/architecture/IMAGE_RAG_DESIGN.md §2.1 for the schema.
 """
 from __future__ import annotations
 

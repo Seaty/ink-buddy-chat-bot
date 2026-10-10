@@ -15,7 +15,14 @@ from app.core.rate_limit import limiter
 from app.core.security import Principal
 from app.db.database import get_db
 from app.main import app
-from app.schemas.vision import ImageUploadResponse, ProductSearchByImageResponse
+from app.schemas.image import (
+    ImageAnalysisResponse,
+    ImageAttributes,
+    ImageOcrResponse,
+    ImageUploadResponse,
+    OcrSegmentOut,
+)
+from app.schemas.product import ProductSearchByImageResponse
 from app.services.vision_service import VisionService, get_vision_service
 from fastapi.testclient import TestClient
 from PIL import Image
@@ -49,6 +56,24 @@ class FakeService:
             path="fast",
         )
 
+    def analyze_image(self, db, user_id, image_id):
+        user_id = user_id.id if isinstance(user_id, Principal) else user_id
+        self.calls.append(("analysis", user_id, image_id))
+        if self.error:
+            raise self.error
+        return ImageAnalysisResponse(
+            image_id=image_id, description="ปากกาสีน้ำเงิน", cached=False,
+            attributes=ImageAttributes(is_stationery=True, category="gel_pen", brand_text="Pentel",
+                                       model_text="BL667", colors=["น้ำเงิน"], features=["0.7 มม."]))
+
+    def ocr_image(self, db, user_id, image_id):
+        user_id = user_id.id if isinstance(user_id, Principal) else user_id
+        self.calls.append(("ocr", user_id, image_id))
+        if self.error:
+            raise self.error
+        return ImageOcrResponse(image_id=image_id, text="Pentel\nBL667", cached=True,
+                                segments=[OcrSegmentOut(text="Pentel"), OcrSegmentOut(text="BL667")])
+
 
 @pytest.fixture
 def client():
@@ -62,6 +87,8 @@ def client():
             app.dependency_overrides[authorize] = lambda: Principal(
                 "user", USER, "user"
             )
+        else:
+            app.dependency_overrides.pop(authorize, None)
         return TestClient(app, raise_server_exceptions=False)
 
     yield _make
@@ -267,3 +294,28 @@ def test_image_retriever_without_text_uses_image_only():
     index = FakeIndex({"a": (0.7, {"category": "glue", "brand": "X"})}, {})
     out = ImageRetriever(FakeEmbedder(), index).search(_query(text=" "), top_k=1)
     assert out[0]["score"] == pytest.approx(0.7)
+
+
+# --- /images/{id}/analysis and /ocr --------------------------------------------
+def test_analysis_returns_attributes(client):
+    service = FakeService()
+    r = client(service).post(f"/api/v1/images/{IMAGE}/analysis")
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert body["description"] == "ปากกาสีน้ำเงิน" and body["attributes"]["model_text"] == "BL667"
+    assert body["cached"] is False and service.calls == [("analysis", USER, IMAGE)]
+
+
+def test_ocr_returns_text_and_segments(client):
+    r = client().post(f"/api/v1/images/{IMAGE}/ocr")
+    assert r.status_code == 200, r.text
+    assert r.json()["text"] == "Pentel\nBL667" and [s["text"] for s in r.json()["segments"]] == ["Pentel", "BL667"]
+
+
+@pytest.mark.parametrize("path", ["analysis", "ocr"])
+def test_analysis_and_ocr_errors(client, path):
+    assert_error(client().post(f"/api/v1/images/not-a-uuid/{path}"), 422, "VALIDATION_ERROR")
+    assert_error(client(auth=False).post(f"/api/v1/images/{IMAGE}/{path}"), 401, "UNAUTHORIZED")
+    for status, code in ((404, "IMAGE_NOT_FOUND"), (503, "VISION_UNAVAILABLE")):
+        assert_error(client(FakeService(ApiError(status, code, "x"))).post(f"/api/v1/images/{IMAGE}/{path}"),
+                     status, code)

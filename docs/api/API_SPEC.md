@@ -44,6 +44,8 @@
 | PATCH | `/api/v1/chat-sessions/{session_id}` | guest_or_user | Implemented |
 | POST | `/api/v1/chat-sessions/{session_id}/messages` | guest_or_user | Scaffold: 501 |
 | POST | `/api/v1/images` | guest_or_user | Implemented |
+| POST | `/api/v1/images/{image_id}/analysis` | guest_or_user | Implemented |
+| POST | `/api/v1/images/{image_id}/ocr` | guest_or_user | Implemented |
 | GET | `/api/v1/images/{image_id}` | guest_or_user | Scaffold: 501 |
 | DELETE | `/api/v1/images/{image_id}` | guest_or_user | Scaffold: 501 |
 | POST | `/api/v1/product-search/by-image` | guest_or_user | Implemented |
@@ -63,7 +65,8 @@
 - Guest upload lock guest_sessions ตรวจ expiry/revoked/claimed และเพิ่ม counter+insert image ใน transaction เดียว Fail validation/DB ไม่เพิ่ม quota; ลบรูปไม่คืน quota; ค้นรูปเดิมไม่เสีย quota
 - รูปที่ 4: 403 GUEST_IMAGE_QUOTA_EXCEEDED details `{limit:3,used:3,remaining:0}` บัญชี Login ยังไม่มีโควตารูปธุรกิจ; ขนาดรูปยังจำกัดเหมือนเดิม
 - Search: image_id UUID และ limit default5 ช่วง1–10; ต้องเป็นเจ้าของรูป รายการสินค้ามาจาก products ไม่แต่งราคา/stock ค่าเริ่มต้น retrieval ยังเป็น mock ต้อง index และตั้ง pgvector จึงค้นเวกเตอร์จริง
-- exact ในผลค้นยังเป็น threshold similarity ไม่ใช่ยืนยัน SKU/รุ่นที่สอบเทียบแล้ว; description อาจ null บน fast path และ match_level none ไม่รับประกัน matches ว่าง
+- exact เฉพาะเมื่อรหัสรุ่นที่ vision model อ่านได้จากรูปอยู่ในชื่อสินค้าเพียงตัวเดียวและยี่ห้อไม่ขัดกัน คะแนนความคล้ายอย่างเดียวไม่ทำให้เป็น exact ดังนั้น fast path ได้มากสุด similar; description เป็น null บน fast path; match_level none → matches ว่าง และเสนอ suggestions สูงสุด 3 รายการ (คะแนน ≥ IMAGE_TAU_SUGGEST) พร้อม message "หมายถึงสิ่งนี้ไหม" ดู [image/IMAGE_SEARCH_API.md](image/IMAGE_SEARCH_API.md)
+- Image analysis/OCR (`POST /images/{image_id}/analysis`, `/ocr`): เจ้าของรูปเท่านั้น (อื่นตอบ 404) Guest ต้องยังใช้ได้; ครั้งแรกเรียก vision model แล้วเก็บผลใน image_uploads.analysis / ocr_text ครั้งต่อไปตอบ cached ไม่ใช้โควตารูป ผล analysis เป็นการตีความ ไม่ใช่การยืนยันสินค้า; OCR เป็นค่าประมาณ และกับ qwen3-vl:latest รูปที่มีข้อความเยอะตอบ 503 VISION_UNAVAILABLE
 - Claim: User Bearer และ Guest cookie ต้อง valid ย้ายแชต/รูปทั้งชุดแบบ atomic พร้อม revoke Guest และ clear cookie Claim ซ้ำ/expired Guest ตอบ 401
 - Profile GET ไม่ส่ง password hash; PATCH ยังเป็น scaffold ไม่มีการแก้ข้อมูล
 - Message contract ยังคง image_id เดียว ไม่ใช่ image_ids; content หรือ image ต้องมีอย่างน้อยหนึ่งอย่าง ข้อจำกัดข้อความ 4000 chars เป็น scaffold validation ที่เสนอ

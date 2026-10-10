@@ -1,7 +1,7 @@
 """Chunking.
 
 Image RAG part: turn catalog products into retrieval units
-(IMAGE_RAG_DESIGN.md §2.2). Price, stock and price date are deliberately
+(docs/architecture/IMAGE_RAG_DESIGN.md §2.3). Price, stock and price date are deliberately
 left out of chunk content — they change often and are read live from metadata.
 """
 from __future__ import annotations
