@@ -12,7 +12,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
-from pydantic import field_validator
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BACKEND_DIR = Path(__file__).resolve().parents[2]
@@ -96,6 +96,9 @@ class Settings(BaseSettings):
             raise RuntimeError(
                 "Multiple workers require shared AUTH_LIMITER_STORAGE_URI"
             )
+
+    chat_adapter: Literal["catalog_template"] = "catalog_template"
+    chat_timeout_seconds: float = Field(default=60.0, gt=0, le=300)
 
     ollama_base_url: str = "http://localhost:11434"
     ollama_timeout_s: float = 300.0

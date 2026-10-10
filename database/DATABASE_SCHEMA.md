@@ -4,7 +4,7 @@
 
 ## สถานะโครงสร้าง (2026-10-03)
 
-DDL snapshot ปัจจุบันมี **14 ตาราง** รวม Guest sessions และ Image RAG แล้ว Auth/Guest ใช้งานจริงแล้ว ฐาน local ใน Podman apply migration 003–005 แล้วพร้อม backup ใน .local/backups; ฐานเครื่องอื่นต้องตรวจและ apply migration ตาม schema ที่มี
+DDL snapshot ปัจจุบันมี **14 ตาราง** รวม Guest sessions และ Image RAG แล้ว Auth/Guest ใช้งานจริงแล้ว ฐาน local ใน Podman apply migration 003–006 แล้วพร้อม backup ใน .local/backups; ฐานเครื่องอื่นต้องตรวจและ apply migration ตาม schema ที่มี
 
 - ฐานใหม่: รัน `ddl/001_init.sql` ที่อัปเดตแล้วเพียงไฟล์เดียว
 - ฐานเดิม: backup ก่อน แล้วรัน migration ตามลำดับด้านล่าง ไม่รัน init ซ้ำ
@@ -16,6 +16,7 @@ psql -X -v ON_ERROR_STOP=1 -d ink_buddy -f database/migrations/002_product_image
 psql -X -v ON_ERROR_STOP=1 -d ink_buddy -f database/migrations/003_auth_sessions.sql
 psql -X -v ON_ERROR_STOP=1 -d ink_buddy -f database/migrations/004_uuid_v7.sql
 psql -X -v ON_ERROR_STOP=1 -d ink_buddy -f database/migrations/005_register_password_reset.sql
+psql -X -v ON_ERROR_STOP=1 -d ink_buddy -f database/migrations/006_chat_messages.sql
 ```
 
 Migration 002 รองรับตาราง image embeddings ที่ SQLAlchemy เคยสร้างไว้ด้วย IF NOT EXISTS แต่ไม่ซ่อมตารางที่ schema ไม่ตรง ต้องตรวจโครงสร้างเดิมก่อน apply และตรวจว่า constraint `uq_product_chunk` มีอยู่สำหรับ repository UPSERT Migration อาจ lock ตาราง ควรรันช่วงไม่มีการเขียนข้อมูล
@@ -427,3 +428,13 @@ erDiagram
         timestamptz revoked_at
     }
 ```
+
+## Message idempotency — migration 006 (2026-10-05)
+
+| Column Name | Data Type | Nullable | Description |
+|---|---|---|---|
+| chat_messages.client_request_id | uuid | Yes | User message request identifier UUIDv7; legacy/Assistant rows NULL |
+
+CHECK client_request_id IS NULL OR role=user. Unique partial B-tree chat_messages_request_uq(session_id,client_request_id) WHERE client_request_id IS NOT NULL provides replay lookup and duplicate prevention. Existing unique(session_id,sequence_number) remains. No new tables;14 total. Request ID is not a credential; ownership rechecked for replay. Both messages commit atomically; assistant is immediately next sequence. Local migration006 applied after pg_dump backup without altering catalog/accounts/history. Existing DB apply006 after005; fresh DB uses current init. Existing migration files unchanged.
+
+Search LIMIT5 uses literal ILIKE-equivalent lower/LIKE and stable scoring; leading-wildcard scans intended for current small catalog. Existing B-tree cannot accelerate substring matching; evaluate pg_trgm with EXPLAIN on real catalog volume before adding production index, no vector/text index introduced here.

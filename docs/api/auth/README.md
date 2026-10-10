@@ -90,7 +90,7 @@ Claim: POST /auth/guest-sessions/current/claim พร้อม UserBearer, Guest
 - APP_ENVIRONMENT=production เปิดSecurecookiesและปิด docs/redoc/openapi; ใช้HTTPS
 - memory limiterรองรับหนึ่งworkerเท่านั้น หลายworkersตั้งAUTH_WORKERSให้ตรงและAUTH_LIMITER_STORAGE_URIไปsharedstore เช่นRedis (ติดตั้งdriver Redisเพิ่มเติมเมื่อตั้งinfraนี้)
 - Login10/min/IP, Guestcreation5/hour/IP, Refresh30/min/IP, ImageSearch20/min/verifiedprincipal; ไม่trustX-Forwarded-Forโดยอัตโนมัติ
-- Frontend Auth/Session UI ทำแล้ว; ยังไม่มี EmailVerification และ businesslogic SendMessage/Product/ImageDetailDelete
+- Frontend Auth/Session UI ทำแล้ว; ยังไม่มี EmailVerification และ businesslogic Product browsing/ImageDetailDelete
 - Visionintegrationtestsใช้fakepipeline ไม่ได้ยืนยันOllama/embeddingจริงหรือความแม่นยำค้นสินค้า
 
 ดู [API_SPEC.md](../API_SPEC.md), [TOKEN_AUTH_FLOW.md](../../architecture/TOKEN_AUTH_FLOW.md) และ [Database Schema](../../../database/DATABASE_SCHEMA.md)

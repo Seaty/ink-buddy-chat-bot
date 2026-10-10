@@ -1,17 +1,18 @@
 # Ink Buddy Chat Bot
 
-ตรวจเอกสารล่าสุด: 2026-10-03
+ตรวจเอกสารล่าสุด: 2026-10-05
 
 เว็บแชตบอตสำหรับคำถามเครื่องเขียน ค้นหาและแนะนำสินค้า รวมถึงค้นสินค้าจากภาพ ผู้ใช้แนบ **รูปภาพเท่านั้น** ไม่มีการแนบ PDF/DOCX รายละเอียดธุรกิจอยู่ใน [Business Requirements](BUSINESS_REQUIREMENTS.md)
 
 ## สถานะปัจจุบัน
 
-- Backend FastAPI: 27 operations บน 21 paths; ทำงานแล้ว 17 operations และเป็น scaffold 7 operations ที่ตรวจสิทธิ์ก่อนตอบ 501
+- Backend FastAPI: 27 operations บน 21 paths; ทำงานแล้ว 21 operations และเป็น scaffold 6 operations ที่ตรวจสิทธิ์ก่อนตอบ 501
 - Authentication: User JWT, refresh rotation, logout, Guest session, claim และ profile GET ทำแล้ว
 - Guest ใช้งาน 24 ชั่วโมง อัปโหลดสำเร็จได้ 3 รูปรวมทุกแชต การลบไม่คืนโควตา
 - Image upload/search และ admin indexing มี implementation; retrieval เริ่มต้นเป็น mock ต้องตั้งค่าและ index ก่อนค้น catalog จริง
-- Send message, Product list/detail, Profile PATCH, Image detail/delete และ Readiness ยังไม่มี business logic
-- Frontend Next.js/TypeScript/Tailwind มี Guest/Login/claim และ Session UI แล้ว ดู frontend/README.md
+- Product list/detail, Profile PATCH, Image detail/delete และ Readiness ยังไม่มี business logic
+- Text send/catalog template/history พร้อม typed product references และ UUIDv7 request replay ทำแล้ว
+- Frontend Next.js/TypeScript/Tailwind มี Guest/Login/claim และ Session/Message UI แล้ว ดู frontend/README.md
 
 ## Technology และฐานข้อมูล
 
@@ -35,7 +36,7 @@ UUID ที่สร้างใหม่ใช้ v7 ทั้ง database defa
 ผลทดสอบหลังเปลี่ยน: regression 113 passed / 23 skipped; PostgreSQL integration 19 passed แยกผ่าน Podman (รวม migration repeat-safe, defaults ทั้ง 12 UUID tables, timestamp/version และ uniqueness) ค่า integer ID คงชนิดเดิม
 
 
-อัปเดต Chat Session 2026-10-04: CRUD/rename/history ใช้งานแล้ว ส่วน send message ยัง501; Frontend มี Auth/Session UI และ prompt draft 3 รายการ ดู [Frontend setup](frontend/README.md)
+อัปเดต Chat Session 2026-10-04: CRUD/rename/history ใช้งานแล้ว ส่งข้อความและตอบจาก catalog template ใช้งานแล้ว; Frontend มี Auth/Session UI และ prompt draft 3 รายการ ดู [Frontend setup](frontend/README.md)
 
 ## Register / Reset Password
 

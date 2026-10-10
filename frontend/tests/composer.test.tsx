@@ -50,3 +50,15 @@ it("asks before replacing existing draft and can clear it", () => {
   expect(textarea).toHaveValue("");
   expect(textarea).toHaveAttribute("maxlength", "4000");
 });
+
+it("Enter sends once, Shift+Enter and IME do not send", () => {
+  const send = vi.fn();
+  render(<Composer draftKey="chat" showPrompts={false} onSend={send} />);
+  const textarea = screen.getByLabelText("ร่างคำถามของคุณ");
+  fireEvent.change(textarea, { target: { value: "ปากกาเจล" } });
+  fireEvent.keyDown(textarea, { key: "Enter", shiftKey: true });
+  fireEvent.keyDown(textarea, { key: "Enter", isComposing: true });
+  expect(send).not.toHaveBeenCalled();
+  fireEvent.keyDown(textarea, { key: "Enter" });
+  expect(send).toHaveBeenCalledTimes(1);
+});

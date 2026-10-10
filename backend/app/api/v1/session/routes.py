@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.api.deps import get_principal
 from app.api.policy import access_policy
-from app.api.scaffold import SCAFFOLD_OPENAPI, SCAFFOLD_RESPONSES, not_implemented
+from app.core.config import Settings, get_settings
 from app.core.errors import ErrorResponse
 from app.core.security import Principal
 from app.db.database import get_db
@@ -18,6 +18,7 @@ from app.schemas.session import (
     SessionListResponse,
     SessionResponse,
 )
+from app.services.session.message_service import MessageService
 from app.services.session.service import ChatSessionService
 
 router = APIRouter(
@@ -97,14 +98,33 @@ def list_messages(
     return chats.messages(principal, session_id, limit, cursor)
 
 
+def message_service(
+    db: Session = Depends(get_db), settings: Settings = Depends(get_settings)
+):
+    return MessageService(db, settings)
+
+
 @router.post(
     "/{session_id}/messages",
     status_code=201,
     response_model=SendMessageResponse,
-    responses=SCAFFOLD_RESPONSES,
-    openapi_extra=SCAFFOLD_OPENAPI,
-    summary="[Scaffold] send message",
+    responses={
+        401: {"model": ErrorResponse},
+        404: {"model": ErrorResponse},
+        409: {"model": ErrorResponse},
+        422: {"model": ErrorResponse},
+        502: {"model": ErrorResponse},
+        503: {"model": ErrorResponse},
+        504: {"model": ErrorResponse},
+    },
 )
 @access_policy("guest_or_user")
-def send_message(session_id: UUID, body: SendMessageRequest):
-    not_implemented("send_message")
+def send_message(
+    session_id: UUID,
+    body: SendMessageRequest,
+    response: Response,
+    principal: Principal = Depends(get_principal),
+    messages: MessageService = Depends(message_service),
+):
+    response.headers["Cache-Control"] = "no-store"
+    return messages.send(principal, session_id, body)
