@@ -4,7 +4,9 @@ from datetime import datetime
 from typing import Literal
 from uuid import UUID
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
+
+from app.core.password_policy import validate_new_password
 
 
 class LoginRequest(BaseModel):
@@ -31,3 +33,40 @@ class GuestClaimResponse(BaseModel):
     user_id: UUID
     chat_sessions_claimed: int = Field(ge=0)
     images_claimed: int = Field(ge=0)
+
+
+class RegisterRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    email: EmailStr = Field(max_length=320)
+    password: str = Field(
+        min_length=12,
+        max_length=24,
+        description="Requires a-z, A-Z, 0-9 and ASCII punctuation; no whitespace",
+    )
+
+    _password_policy = field_validator("password")(validate_new_password)
+    display_name: str | None = Field(default=None, min_length=1, max_length=120)
+
+    @field_validator("display_name", mode="before")
+    @classmethod
+    def trim_name(cls, value):
+        return value.strip() if isinstance(value, str) else value
+
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr = Field(max_length=320)
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str = Field(min_length=43, max_length=128)
+    password: str = Field(
+        min_length=12,
+        max_length=24,
+        description="Requires a-z, A-Z, 0-9 and ASCII punctuation; no whitespace",
+    )
+
+    _password_policy = field_validator("password")(validate_new_password)
+
+
+class AuthMessageResponse(BaseModel):
+    message: str

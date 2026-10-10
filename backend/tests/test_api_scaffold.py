@@ -21,11 +21,6 @@ def authorized_scaffold():
 ID = "123e4567-e89b-42d3-a456-426614174000"
 CASES = [
     ("PATCH", "/users/me", {"display_name": "Example"}),
-    ("POST", "/chat-sessions", {}),
-    ("GET", "/chat-sessions", None),
-    ("GET", f"/chat-sessions/{ID}", None),
-    ("DELETE", f"/chat-sessions/{ID}", None),
-    ("GET", f"/chat-sessions/{ID}/messages", None),
     ("POST", f"/chat-sessions/{ID}/messages", {"content": "Find a pen"}),
     ("GET", f"/images/{ID}", None),
     ("DELETE", f"/images/{ID}", None),
@@ -50,13 +45,13 @@ def test_openapi_marks_all_scaffolds():
         for method, operation in item.items()
         if method in {"get", "post", "patch", "delete"}
     ]
-    assert len(operations) == 25  # 12 scaffolds + 13 implemented (incl. image analysis and OCR)
+    assert len(operations) == 27
     scaffolds = [
         operation
         for operation in operations
         if operation.get("x-implementation-status") == "scaffold"
     ]
-    assert len(scaffolds) == 12
+    assert len(scaffolds) == 7
     assert all("501" in operation["responses"] for operation in scaffolds)
 
 

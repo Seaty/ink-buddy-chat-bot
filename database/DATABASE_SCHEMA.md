@@ -4,7 +4,7 @@
 
 ## สถานะโครงสร้าง (2026-10-03)
 
-DDL snapshot ปัจจุบันมี **13 ตาราง** รวม Guest sessions และ Image RAG แล้ว Auth/Guest ใช้งานจริงแล้ว ฐาน local ใน Podman apply migration 003 แล้วพร้อม backup ใน .local/backups; ฐานเครื่องอื่นต้องตรวจและ apply migration ตาม schema ที่มี
+DDL snapshot ปัจจุบันมี **14 ตาราง** รวม Guest sessions และ Image RAG แล้ว Auth/Guest ใช้งานจริงแล้ว ฐาน local ใน Podman apply migration 003–005 แล้วพร้อม backup ใน .local/backups; ฐานเครื่องอื่นต้องตรวจและ apply migration ตาม schema ที่มี
 
 - ฐานใหม่: รัน `ddl/001_init.sql` ที่อัปเดตแล้วเพียงไฟล์เดียว
 - ฐานเดิม: backup ก่อน แล้วรัน migration ตามลำดับด้านล่าง ไม่รัน init ซ้ำ
@@ -14,6 +14,8 @@ DDL snapshot ปัจจุบันมี **13 ตาราง** รวม Gue
 psql -X -v ON_ERROR_STOP=1 -d ink_buddy -f database/migrations/001_guest_sessions.sql
 psql -X -v ON_ERROR_STOP=1 -d ink_buddy -f database/migrations/002_product_image_embeddings.sql
 psql -X -v ON_ERROR_STOP=1 -d ink_buddy -f database/migrations/003_auth_sessions.sql
+psql -X -v ON_ERROR_STOP=1 -d ink_buddy -f database/migrations/004_uuid_v7.sql
+psql -X -v ON_ERROR_STOP=1 -d ink_buddy -f database/migrations/005_register_password_reset.sql
 ```
 
 Migration 002 รองรับตาราง image embeddings ที่ SQLAlchemy เคยสร้างไว้ด้วย IF NOT EXISTS แต่ไม่ซ่อมตารางที่ schema ไม่ตรง ต้องตรวจโครงสร้างเดิมก่อน apply และตรวจว่า constraint `uq_product_chunk` มีอยู่สำหรับ repository UPSERT Migration อาจ lock ตาราง ควรรันช่วงไม่มีการเขียนข้อมูล
@@ -390,3 +392,38 @@ Types/nullability จาก SQL init; constraints/defaults/FKs ดู SQL แล
 ID ใหม่ที่เป็น UUID ใช้ UUIDv7: database defaults เรียก `public.ink_buddy_uuid_v7()` และ Python ใช้ `app.core.identifiers.uuid7()` ชนิด column/API ยังคง UUID เพื่อรองรับ ID เดิม ไม่มีการเปลี่ยน primary/foreign keys ที่มีอยู่ ฐานเดิมต้อง apply `database/migrations/004_uuid_v7.sql` หลัง 003; ฐานใหม่ใช้ init ปัจจุบัน migrations 001–003 เก็บเป็นประวัติเดิม
 
 UUIDv7 มี Unix timestamp ระดับ millisecond และ random bits ตาม [RFC 9562](https://www.rfc-editor.org/rfc/rfc9562.html#section-5.7) ไม่รับประกันลำดับภายใน millisecond หรือเมื่อ clock ย้อนกลับ ไม่ใช้ ID เป็น credential และยังตรวจ ownership ตามเดิม PostgreSQL 16 ใช้ compatibility function เพราะ built-in generator เป็น UUIDv4; ไม่มีการเปลี่ยนคอลัมน์ integer เช่น product_image_embeddings.id
+
+
+## Chat Session behavior — 2026-10-04
+
+API จัดการแชตใช้ schema/indexes เดิม ไม่มี migration ใหม่ Session service กำหนด title เริ่มต้น “แชตใหม่” และ soft delete ผ่าน deleted_at; เก็บข้อความ/รูปไว้ Message history ใช้ unique(session_id,sequence_number) index สำหรับ pagination Guest-before-chat locking ป้องกัน claim แข่งกับ mutations ส่วนการส่งข้อความยังไม่ implement
+
+## password_reset_tokens — 2026-10-04
+
+เก็บ credential สำหรับ reset password เฉพาะ hash; UUIDv7 ID ใหม่ Migration 005 เพิ่มตาราง/indices โดยไม่เปลี่ยนบัญชีหรือแชต ฐาน local apply แล้วหลัง backup
+
+| Column Name | Data Type | Nullable | Description |
+|---|---|---|---|
+| id | uuid | No | PK default ink_buddy_uuid_v7() |
+| user_id | uuid | No | FK users(id), ON DELETE CASCADE |
+| token_hash | text | No | UNIQUE SHA-256 ของ opaque token |
+| created_at | timestamptz | No | เวลาสร้าง default clock_timestamp() |
+| expires_at | timestamptz | No | อายุเริ่มต้น 15 นาที ต้องมากกว่า created_at |
+| used_at | timestamptz | Yes | เวลาที่ใช้สำเร็จ |
+| revoked_at | timestamptz | Yes | เวลายกเลิก |
+
+Relationship users 1:N password_reset_tokens. Unique token_hash ใช้ lookup credential; password_reset_user_recent_idx(user_id,created_at DESC) ใช้ cooldown/revoke; password_reset_expires_idx(expires_at) เตรียมค้นข้อมูลหมดอายุ ไม่มี vector ในตารางนี้ ไม่ลบ token rows อัตโนมัติในรอบนี้
+
+```mermaid
+erDiagram
+    users ||--o{ password_reset_tokens : owns
+    password_reset_tokens {
+        uuid id PK
+        uuid user_id FK
+        text token_hash UK
+        timestamptz created_at
+        timestamptz expires_at
+        timestamptz used_at
+        timestamptz revoked_at
+    }
+```

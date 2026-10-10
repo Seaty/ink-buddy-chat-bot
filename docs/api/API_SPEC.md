@@ -1,10 +1,10 @@
 # Ink Buddy API Specification
 
-อัปเดต 2026-10-03 · อ้างอิง code และ openapi.current.json หลัง implementation Authentication
+อัปเดต 2026-10-05 · อ้างอิง code และ openapi.current.json หลัง implementation Chat Session และ Register/Reset Password
 
 ## 1. สถานะ
 
-**23 operations บน 18 paths: implement แล้ว 11 และ scaffold 12** Authentication, Guest lifecycle, Profile GET และ Guest image upload/search ใช้งานจริงแล้ว Routes แชต/สินค้า/รูป detail-delete/readiness ที่ยังเป็น scaffold ตรวจสิทธิ์ก่อนตอบ 501 ไม่คืนข้อมูลสำเร็จปลอม ไม่มี document upload
+**27 operations บน 21 paths: implement แล้ว 20 และ scaffold 7** Authentication, Guest lifecycle, Profile GET และ Guest image upload/search ใช้งานจริงแล้ว การจัดการแชตและอ่านประวัติ implement แล้ว; ส่งข้อความ/สินค้า/รูป detail-delete/readiness ที่ยังเป็น scaffold ตรวจสิทธิ์ก่อนตอบ 501 ไม่คืนข้อมูลสำเร็จปลอม ไม่มี document upload
 
 ## 2. Contract กลางและ Authentication
 
@@ -13,7 +13,7 @@
 - Refresh: opaque random token ใน cookie ink_buddy_refresh อายุสูงสุด 7 วันจาก Login เก็บ hash และ rotate เมื่อ refresh; reuse token เก่าจะ revoke ทั้ง Login session แม้เกิดจาก refresh พร้อมกัน client ต้องทำ refresh แบบ single-flight
 - Guest: opaque random token ใน cookie ink_buddy_guest อายุ 24 ชั่วโมงคงที่ ใช้โควตา 3 รูปร่วมกันทุกแชต คืน session เดิมเมื่อ cookie ยังใช้ได้ ไม่สร้างใหม่ทุก API request
 - Cookies: HttpOnly, SameSite=Lax, Path=/api/v1, ไม่มี Domain; Secure ใน production
-- Login/Create Guest/Refresh/Logout/Claim และ Guest mutation ต้องส่ง Origin ที่ตรง CORS_ORIGINS หากไม่มีหรือผิดตอบ 403 ORIGIN_NOT_ALLOWED
+- Register/Forgot Password/Reset Password/Login/Create Guest/Refresh/Logout/Claim และ Guest mutation ต้องส่ง Origin ที่ตรง CORS_ORIGINS หากไม่มีหรือผิดตอบ 403 ORIGIN_NOT_ALLOWED
 - Bearer ที่ส่งมาแต่ผิดไม่ fallback เป็น Guest ใน routes ที่รับได้ทั้งสองชนิด User/Admin ไม่มี Bearer ตอบ 401 แม้มี Guest cookie
 - ทุก operation มี x-access-policy; startup ล้มเหลวหากมี route ที่ยังไม่ประกาศ policy เอกสาร production ปิด /docs, /redoc และ /openapi.json
 - Status: 401 invalid/missing/expired credential, 403 role/Origin/quota denied, 404 resource missing/not-owned, 422 input validation, 429 rate limit, 500 unexpected failure, 501 scaffold
@@ -25,6 +25,9 @@
 
 | Method | Path | Access | Implementation |
 |---|---|---|---|
+| POST | `/api/v1/auth/register` | public | Implemented |
+| POST | `/api/v1/auth/forgot-password` | public | Implemented |
+| POST | `/api/v1/auth/reset-password` | public | Implemented |
 | POST | `/api/v1/auth/login` | public | Implemented |
 | POST | `/api/v1/auth/refresh` | refresh | Implemented |
 | POST | `/api/v1/auth/logout` | refresh | Implemented |
@@ -33,11 +36,12 @@
 | POST | `/api/v1/auth/guest-sessions/current/claim` | claim | Implemented |
 | GET | `/api/v1/users/me` | user | Implemented |
 | PATCH | `/api/v1/users/me` | user | Scaffold: 501 |
-| POST | `/api/v1/chat-sessions` | guest_or_user | Scaffold: 501 |
-| GET | `/api/v1/chat-sessions` | guest_or_user | Scaffold: 501 |
-| GET | `/api/v1/chat-sessions/{session_id}` | guest_or_user | Scaffold: 501 |
-| DELETE | `/api/v1/chat-sessions/{session_id}` | guest_or_user | Scaffold: 501 |
-| GET | `/api/v1/chat-sessions/{session_id}/messages` | guest_or_user | Scaffold: 501 |
+| POST | `/api/v1/chat-sessions` | guest_or_user | Implemented |
+| GET | `/api/v1/chat-sessions` | guest_or_user | Implemented |
+| GET | `/api/v1/chat-sessions/{session_id}` | guest_or_user | Implemented |
+| DELETE | `/api/v1/chat-sessions/{session_id}` | guest_or_user | Implemented |
+| GET | `/api/v1/chat-sessions/{session_id}/messages` | guest_or_user | Implemented |
+| PATCH | `/api/v1/chat-sessions/{session_id}` | guest_or_user | Implemented |
 | POST | `/api/v1/chat-sessions/{session_id}/messages` | guest_or_user | Scaffold: 501 |
 | POST | `/api/v1/images` | guest_or_user | Implemented |
 | POST | `/api/v1/images/{image_id}/analysis` | guest_or_user | Implemented |
@@ -54,7 +58,7 @@
 ## 4. กฎธุรกิจสำคัญ
 
 - Login: email validation, password 1–1024 chars; missing user/wrong password/inactive ใช้ 401 error เดียวกัน บัญชีใหม่ใช้ Argon2id; bcrypt เดิม upgrade หลัง Login สำเร็จ
-- สร้างบัญชีผ่าน `python -m scripts.create_user --email ... --role user|admin` รับ password แบบซ่อน 12–1024 chars ไม่แก้บัญชีเดิม ยังไม่มี Register API
+- สร้างบัญชีผ่าน `python -m scripts.create_user --email ... --role user|admin` รับ password แบบซ่อน 12–24 chars ไม่แก้บัญชีเดิม Register API ใช้งานแล้ว
 - Create Guest ตอบ 201 สำหรับ session ใหม่ และ 200 สำหรับ session เดิม ไม่คืน token ดิบใน JSON ให้ browser เก็บ cookie
 - Guest current ส่ง id/expiry/limit/used/remaining ไม่ใช่โควตาฝั่ง client
 - Upload: JPEG/PNG/WEBP ตรวจเนื้อหาจริง สูงสุด 5 MiB / 40 ล้าน pixels / แต่ละด้านอย่างน้อย 32 pixels ตาม config เก็บ private re-encoded image และลบ metadata
@@ -66,12 +70,12 @@
 - Claim: User Bearer และ Guest cookie ต้อง valid ย้ายแชต/รูปทั้งชุดแบบ atomic พร้อม revoke Guest และ clear cookie Claim ซ้ำ/expired Guest ตอบ 401
 - Profile GET ไม่ส่ง password hash; PATCH ยังเป็น scaffold ไม่มีการแก้ข้อมูล
 - Message contract ยังคง image_id เดียว ไม่ใช่ image_ids; content หรือ image ต้องมีอย่างน้อยหนึ่งอย่าง ข้อจำกัดข้อความ 4000 chars เป็น scaffold validation ที่เสนอ
-- Lists ใน scaffold: limit default20 ช่วง1–100, cursor optional; product q≤200, category/brand≤100 chars Cursor/query implementation ยังไม่ได้ทำ
+- Chat lists: limit default20 ช่วง1–100; cursor scoped ตาม owner ใช้ updated_at/id สำหรับแชต และ sequence_number สำหรับข้อความ; cursor ผิดตอบ422 Product lists ยัง scaffold
 - Guest data cleanup: ลบเมื่อ expires_at ผ่านไปอีก24ชั่วโมงและยังไม่ได้ claim ใช้ script dry-run/--apply ต้องตั้ง scheduler เอง; ไม่ลบไฟล์ของข้อมูลที่ย้ายเข้าบัญชีแล้ว
 
 ## 5. Endpoint contracts
 
-Success ของ scaffold เป็น proposed schema เท่านั้น หลังผ่าน auth และ input validation จะได้ 501 ไม่มี DB/business operation
+Success ของ scaffold เป็น proposed schema เท่านั้น หลังผ่าน auth และ input validation จะได้ 501 handler ไม่มี business operation แต่ auth guard อาจอ่าน DB
 
 ### 5.1. POST /api/v1/auth/login
 
@@ -179,67 +183,67 @@ Success ของ scaffold เป็น proposed schema เท่านั้น
 
 ### 5.9. POST /api/v1/chat-sessions
 
-- Purpose: [Scaffold] create chat session
+- Purpose: create chat session
 - Authentication: User Bearer หรือ Guest cookie; Guest mutation ต้องมี Origin
-- Status: Scaffold — authenticated valid requests return 501
+- Status: Implemented
 - Request Headers: Accept: application/json; Content-Type: application/json; Authorization: Bearer <access_token> เมื่อใช้ User; Origin: <allowed origin> ตาม policy กลาง
 - Path Parameters: ไม่มี
 - Query Parameters: ไม่มี
 - Request Body: {"application/json": {"schema": {"$ref": "#/components/schemas/CreateSessionRequest"}}}
 - Success Response: 201 {"application/json": {"schema": {"$ref": "#/components/schemas/SessionResponse"}}}
-- Error Responses: 501, 422, 401, 403; unexpected failure อาจเป็น 500
+- Error Responses: 404, 422, 401, 403; unexpected failure อาจเป็น 500
 - Validation Rules / Business Rules / Security: ดูข้อกำหนดกลางหัวข้อ 2–4 และ schema fields หัวข้อ 6; ตรวจสิทธิ์ก่อน business logic
 
 ### 5.10. GET /api/v1/chat-sessions
 
-- Purpose: [Scaffold] list chat sessions
+- Purpose: list chat sessions
 - Authentication: User Bearer หรือ Guest cookie; Guest mutation ต้องมี Origin
-- Status: Scaffold — authenticated valid requests return 501
+- Status: Implemented
 - Request Headers: Accept: application/json; Authorization: Bearer <access_token> เมื่อใช้ User
 - Path Parameters: ไม่มี
 - Query Parameters: limit {"type": "integer", "maximum": 100, "minimum": 1, "default": 20, "title": "Limit"}; cursor {"anyOf": [{"type": "string"}, {"type": "null"}], "title": "Cursor"}
 - Request Body: ไม่มี
 - Success Response: 200 {"application/json": {"schema": {"$ref": "#/components/schemas/SessionListResponse"}}}
-- Error Responses: 501, 422, 401, 403; unexpected failure อาจเป็น 500
+- Error Responses: 404, 422, 401, 403; unexpected failure อาจเป็น 500
 - Validation Rules / Business Rules / Security: ดูข้อกำหนดกลางหัวข้อ 2–4 และ schema fields หัวข้อ 6; ตรวจสิทธิ์ก่อน business logic
 
 ### 5.11. GET /api/v1/chat-sessions/{session_id}
 
-- Purpose: [Scaffold] get chat session
+- Purpose: get chat session
 - Authentication: User Bearer หรือ Guest cookie; Guest mutation ต้องมี Origin
-- Status: Scaffold — authenticated valid requests return 501
+- Status: Implemented
 - Request Headers: Accept: application/json; Authorization: Bearer <access_token> เมื่อใช้ User
 - Path Parameters: session_id {"type": "string", "format": "uuid", "title": "Session Id"}
 - Query Parameters: ไม่มี
 - Request Body: ไม่มี
 - Success Response: 200 {"application/json": {"schema": {"$ref": "#/components/schemas/SessionResponse"}}}
-- Error Responses: 501, 422, 401, 403; unexpected failure อาจเป็น 500
+- Error Responses: 404, 422, 401, 403; unexpected failure อาจเป็น 500
 - Validation Rules / Business Rules / Security: ดูข้อกำหนดกลางหัวข้อ 2–4 และ schema fields หัวข้อ 6; ตรวจสิทธิ์ก่อน business logic
 
 ### 5.12. DELETE /api/v1/chat-sessions/{session_id}
 
-- Purpose: [Scaffold] delete chat session
+- Purpose: delete chat session
 - Authentication: User Bearer หรือ Guest cookie; Guest mutation ต้องมี Origin
-- Status: Scaffold — authenticated valid requests return 501
+- Status: Implemented
 - Request Headers: Accept: application/json; Authorization: Bearer <access_token> เมื่อใช้ User; Origin: <allowed origin> ตาม policy กลาง
 - Path Parameters: session_id {"type": "string", "format": "uuid", "title": "Session Id"}
 - Query Parameters: ไม่มี
 - Request Body: ไม่มี
 - Success Response: 204 {}
-- Error Responses: 501, 422, 401, 403; unexpected failure อาจเป็น 500
+- Error Responses: 404, 422, 401, 403; unexpected failure อาจเป็น 500
 - Validation Rules / Business Rules / Security: ดูข้อกำหนดกลางหัวข้อ 2–4 และ schema fields หัวข้อ 6; ตรวจสิทธิ์ก่อน business logic
 
 ### 5.13. GET /api/v1/chat-sessions/{session_id}/messages
 
-- Purpose: [Scaffold] list messages
+- Purpose: list messages
 - Authentication: User Bearer หรือ Guest cookie; Guest mutation ต้องมี Origin
-- Status: Scaffold — authenticated valid requests return 501
+- Status: Implemented
 - Request Headers: Accept: application/json; Authorization: Bearer <access_token> เมื่อใช้ User
 - Path Parameters: session_id {"type": "string", "format": "uuid", "title": "Session Id"}
 - Query Parameters: limit {"type": "integer", "maximum": 100, "minimum": 1, "default": 20, "title": "Limit"}; cursor {"anyOf": [{"type": "string"}, {"type": "null"}], "title": "Cursor"}
 - Request Body: ไม่มี
 - Success Response: 200 {"application/json": {"schema": {"$ref": "#/components/schemas/MessageListResponse"}}}
-- Error Responses: 501, 422, 401, 403; unexpected failure อาจเป็น 500
+- Error Responses: 404, 422, 401, 403; unexpected failure อาจเป็น 500
 - Validation Rules / Business Rules / Security: ดูข้อกำหนดกลางหัวข้อ 2–4 และ schema fields หัวข้อ 6; ตรวจสิทธิ์ก่อน business logic
 
 ### 5.14. POST /api/v1/chat-sessions/{session_id}/messages
@@ -371,6 +375,23 @@ Success ของ scaffold เป็น proposed schema เท่านั้น
 - Success Response: 200 {"application/json": {"schema": {"$ref": "#/components/schemas/ReadinessResponse"}}}
 - Error Responses: 501, 422, 401, 403; unexpected failure อาจเป็น 500
 - Validation Rules / Business Rules / Security: ดูข้อกำหนดกลางหัวข้อ 2–4 และ schema fields หัวข้อ 6; ตรวจสิทธิ์ก่อน business logic
+
+### 5.24. PATCH /api/v1/chat-sessions/{session_id}
+
+- Purpose: เปลี่ยนชื่อแชตของ principal ปัจจุบัน
+- Endpoint / Method: `/api/v1/chat-sessions/{session_id}` / PATCH
+- Authentication Required: User Bearer หรือ Guest cookie
+- Request Headers: Content-Type: application/json; Authorization: Bearer <access_token> สำหรับ User; Origin ที่อนุญาตสำหรับ Guest
+- Path Parameters: session_id UUID (รับ ID เดิมได้)
+- Query Parameters: ไม่มี
+- Request Body: `{ "title": "สมุดที่สนใจ" }`
+- Success Response: 200 SessionResponse ที่ updated_at เปลี่ยนแล้ว
+- Error Responses: 401 credential expired/revoked; 403 Origin; 404 missing/not-owned/deleted; 422 invalid title; 500 unexpected failure
+- Validation Rules: trim title ก่อนตรวจ; 1–200 chars ห้าม null/blank
+- Business Rules: Guest lock ก่อน chat lock ตรวจ live session และ ownership ใน transaction; ไม่แก้ summary หรือ messages
+- Security Considerations: ใช้เจ้าของจาก principal เท่านั้น ไม่มี owner ID ใน request; Cache-Control: no-store
+- Example Request: `PATCH /api/v1/chat-sessions/019a0000-0000-7000-8000-000000000001` พร้อม body ข้างต้น
+- Example Response: `{ "id":"019a0000-0000-7000-8000-000000000001", "title":"สมุดที่สนใจ", "summary":null, "created_at":"2026-10-04T00:00:00Z", "updated_at":"2026-10-04T01:00:00Z" }`
 
 ## 6. Schema fields
 
@@ -678,3 +699,247 @@ Token lifecycle, whitelist และข้อจำกัดดู [TOKEN_AUTH_F
 ID ใหม่ที่เป็น UUID ใช้ UUIDv7: database defaults เรียก `public.ink_buddy_uuid_v7()` และ Python ใช้ `app.core.identifiers.uuid7()` ชนิด column/API ยังคง UUID เพื่อรองรับ ID เดิม ไม่มีการเปลี่ยน primary/foreign keys ที่มีอยู่ ฐานเดิมต้อง apply `database/migrations/004_uuid_v7.sql` หลัง 003; ฐานใหม่ใช้ init ปัจจุบัน migrations 001–003 เก็บเป็นประวัติเดิม
 
 UUIDv7 มี Unix timestamp ระดับ millisecond และ random bits ตาม [RFC 9562](https://www.rfc-editor.org/rfc/rfc9562.html#section-5.7) ไม่รับประกันลำดับภายใน millisecond หรือเมื่อ clock ย้อนกลับ ไม่ใช้ ID เป็น credential และยังตรวจ ownership ตามเดิม PostgreSQL 16 ใช้ compatibility function เพราะ built-in generator เป็น UUIDv4; ไม่มีการเปลี่ยนคอลัมน์ integer เช่น product_image_embeddings.id
+
+## Chat Session implementation — 2026-10-04
+
+สร้างแชต title omitted/null ใช้ “แชตใหม่”; title ที่ส่งมาต้อง trim และมี 1–200 chars ใช้ UUIDv7 และ owner จาก principal API ไม่สร้างข้อความจำลอง
+
+รายการเรียง updated_at DESC,id DESC; next_cursor เป็น opaque base64 JSON ผูก owner และชนิดรายการ แชตที่ updated_at เปลี่ยนระหว่าง pagination อาจย้ายหน้า ให้ reload รายการเพื่อดูสถานะล่าสุด ไม่ใช่ snapshot pagination
+
+ประวัติโหลดหน้าล่าสุดก่อนด้วย sequence_number และคืน items ในหน้าเรียงเก่าไปใหม่; cursor ของ session/owner อื่นตอบ422 Frontend prepend ข้อความเก่าและ deduplicate ID
+
+DELETE soft delete ผ่าน deleted_at คืน204; อ่าน/แก้ไข/ลบซ้ำตอบ404 เก็บ messages/images และไม่คืน Guest quota ทุก Guest operation lock Guest ก่อนแชตเพื่อ serialize กับ claim Read endpoints ใช้ transaction request-scoped; routes เก็บ Cache-Control: no-store
+
+Frontend `/chat`, `/chat/{id}`, `/login` พร้อม Guest/User/claim และ prompt draft 3 รายการ ปุ่มส่งยัง disabled; POST messages ยัง501 รายละเอียด setup และโครง components ดู [Frontend README](../../frontend/README.md)
+
+## Register / Password Recovery — 2026-10-04
+
+
+# Register
+
+## Purpose
+
+สร้างบัญชี role=user active แล้ว Login ได้ทันที ไม่บังคับยืนยันอีเมล
+
+## Endpoint
+
+`/api/v1/auth/register`
+
+## Method
+
+POST
+
+## Authentication Required
+
+ไม่ต้อง Login; policy public และตรวจ Origin
+
+## Request Headers
+
+`Content-Type: application/json`, `Origin: http://localhost:3000` (ต้องอยู่ใน CORS_ORIGINS)
+
+## Path Parameters
+
+ไม่มี
+
+## Query Parameters
+
+ไม่มี
+
+## Request Body
+
+```json
+{
+  "email": "new@example.com",
+  "password": "ExamplePass123!",
+  "display_name": "ผู้ใช้ใหม่"
+}
+```
+
+## Success Response
+
+HTTP 201; Cache-Control: no-store
+
+## Error Responses
+
+409 EMAIL_ALREADY_REGISTERED; 503 เมื่อ role user ยังไม่ได้ตั้งค่า; 403 ORIGIN_NOT_ALLOWED, 422 validation, 429 rate limit พร้อม Retry-After; error envelope ตาม contract กลาง
+
+## Validation Rules
+
+email ถูก normalize เป็น lowercase; password 12–24 ตัวอักษร; display_name optional trim 1–120; extra fields เช่น role ถูกปฏิเสธ
+
+## Business Rules
+
+สร้างบัญชี role=user active แล้ว Login ได้ทันที ไม่บังคับยืนยันอีเมล. Reset token อายุเริ่มต้น 15 นาที ใช้ครั้งเดียว; ขอใหม่ revoke ตัวเดิม และ cooldown 60 วินาทีต่อบัญชี การสมัคร/รีเซ็ตไม่ออก JWT อัตโนมัติและไม่ claim Guest
+
+## Security Considerations
+
+Rate limit 5/hour/IP; Argon2id สำหรับ password; reset token สุ่มและเก็บเฉพาะ hash; reset ทำใน transaction พร้อม user/token/session locks การส่งอีเมลเป็น background best effort ดูคู่มือ Auth สำหรับข้อจำกัด SMTP
+
+## Example Request
+
+```http
+POST /api/v1/auth/register HTTP/1.1
+Origin: http://localhost:3000
+Content-Type: application/json
+
+{"email": "new@example.com", "password": "ExamplePass123!", "display_name": "ผู้ใช้ใหม่"}
+```
+
+## Example Response
+
+```json
+{"message": "Account created. Please log in."}
+```
+
+# Forgot Password
+
+## Purpose
+
+ขอลิงก์รีเซ็ตรหัสผ่านทางอีเมล
+
+## Endpoint
+
+`/api/v1/auth/forgot-password`
+
+## Method
+
+POST
+
+## Authentication Required
+
+ไม่ต้อง Login; policy public และตรวจ Origin
+
+## Request Headers
+
+`Content-Type: application/json`, `Origin: http://localhost:3000` (ต้องอยู่ใน CORS_ORIGINS)
+
+## Path Parameters
+
+ไม่มี
+
+## Query Parameters
+
+ไม่มี
+
+## Request Body
+
+```json
+{
+  "email": "new@example.com"
+}
+```
+
+## Success Response
+
+HTTP 202; Cache-Control: no-store
+
+## Error Responses
+
+ไม่มีบัญชี/inactive/cooldown/SMTP failure ยังคงคืนข้อความทั่วไป 202; 403 ORIGIN_NOT_ALLOWED, 422 validation, 429 rate limit พร้อม Retry-After; error envelope ตาม contract กลาง
+
+## Validation Rules
+
+email รูปแบบถูกต้อง ยาวไม่เกิน 320
+
+## Business Rules
+
+ขอลิงก์รีเซ็ตรหัสผ่านทางอีเมล. Reset token อายุเริ่มต้น 15 นาที ใช้ครั้งเดียว; ขอใหม่ revoke ตัวเดิม และ cooldown 60 วินาทีต่อบัญชี การสมัคร/รีเซ็ตไม่ออก JWT อัตโนมัติและไม่ claim Guest
+
+## Security Considerations
+
+Rate limit 10/hour/IP; Argon2id สำหรับ password; reset token สุ่มและเก็บเฉพาะ hash; reset ทำใน transaction พร้อม user/token/session locks การส่งอีเมลเป็น background best effort ดูคู่มือ Auth สำหรับข้อจำกัด SMTP
+
+## Example Request
+
+```http
+POST /api/v1/auth/forgot-password HTTP/1.1
+Origin: http://localhost:3000
+Content-Type: application/json
+
+{"email": "new@example.com"}
+```
+
+## Example Response
+
+```json
+{"message": "If the account is eligible, a reset link will be sent."}
+```
+
+# Reset Password
+
+## Purpose
+
+ตั้งรหัสผ่านใหม่และ revoke Login sessions/refresh tokens ทั้งหมดของบัญชี
+
+## Endpoint
+
+`/api/v1/auth/reset-password`
+
+## Method
+
+POST
+
+## Authentication Required
+
+ไม่ต้อง Login; policy public และตรวจ Origin
+
+## Request Headers
+
+`Content-Type: application/json`, `Origin: http://localhost:3000` (ต้องอยู่ใน CORS_ORIGINS)
+
+## Path Parameters
+
+ไม่มี
+
+## Query Parameters
+
+ไม่มี
+
+## Request Body
+
+```json
+{
+  "token": "<opaque token from email>",
+  "password": "Replacement123!"
+}
+```
+
+## Success Response
+
+HTTP 200; Cache-Control: no-store
+
+## Error Responses
+
+400 INVALID_RESET_TOKEN สำหรับไม่พบ/หมดอายุ/ใช้แล้ว/revoked/inactive; 403 ORIGIN_NOT_ALLOWED, 422 validation, 429 rate limit พร้อม Retry-After; error envelope ตาม contract กลาง
+
+## Validation Rules
+
+token 43–128 ตัวอักษร; password 12–24; extra fields ถูกปฏิเสธ
+
+## Business Rules
+
+ตั้งรหัสผ่านใหม่และ revoke Login sessions/refresh tokens ทั้งหมดของบัญชี. Reset token อายุเริ่มต้น 15 นาที ใช้ครั้งเดียว; ขอใหม่ revoke ตัวเดิม และ cooldown 60 วินาทีต่อบัญชี การสมัคร/รีเซ็ตไม่ออก JWT อัตโนมัติและไม่ claim Guest
+
+## Security Considerations
+
+Rate limit 10/hour/IP; Argon2id สำหรับ password; reset token สุ่มและเก็บเฉพาะ hash; reset ทำใน transaction พร้อม user/token/session locks การส่งอีเมลเป็น background best effort ดูคู่มือ Auth สำหรับข้อจำกัด SMTP
+
+## Example Request
+
+```http
+POST /api/v1/auth/reset-password HTTP/1.1
+Origin: http://localhost:3000
+Content-Type: application/json
+
+{"token": "<opaque token from email>", "password": "Replacement123!"}
+```
+
+## Example Response
+
+```json
+{"message": "Password changed. Please log in again."}
+```
+
+## Password policy — 2026-10-05
+
+การตั้งรหัสผ่านใหม่ผ่าน Register/Reset/local script ต้องยาว 12–24 ตัวอักษร มี a–z, A–Z, 0–9 และอย่างน้อยหนึ่ง ASCII punctuation (เช่น !@#_-); ห้าม Unicode whitespace ทุกชนิด ไม่มีการ trim Password ภาษาอื่นยังใช้ร่วมได้แต่ไม่นับแทนกลุ่มภาษาอังกฤษหรืออักขระพิเศษ Frontend ตรวจและยืนยันสองช่อง Backend ตรวจซ้ำและตอบ 422 เมื่อไม่ผ่าน Login ยังคงรับ 1–1024 ตัวเพื่อรองรับบัญชีเดิม ไม่มีการแก้ password hash เดิมโดย migration

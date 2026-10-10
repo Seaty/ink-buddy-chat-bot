@@ -30,7 +30,12 @@ from app.main import create_app
 from app.services.auth.service import AuthService
 from app.services.image_storage import ImageStorage
 from app.services.vision_service import VisionService, get_vision_service
+from fastapi.testclient import TestClient
+from jose import jwt
+from PIL import Image
 from scripts.cleanup_guests import cleanup
+from sqlalchemy import create_engine, text
+from sqlalchemy.orm import sessionmaker
 
 URL = os.environ.get("INK_BUDDY_TEST_DATABASE_URL")
 pytestmark = pytest.mark.skipif(
@@ -600,7 +605,13 @@ def test_user_admin_and_rate_limit(setup):
 
 
 def test_production_cookie_and_docs(setup):
-    settings = setup.settings.model_copy(update={"app_environment": "production"})
+    settings = setup.settings.model_copy(
+        update={
+            "app_environment": "production",
+            "auth_frontend_url": "https://ink-buddy.example",
+            "smtp_starttls": True,
+        }
+    )
     app = create_app(settings)
     app.dependency_overrides[get_db] = setup.app.dependency_overrides[get_db]
     with TestClient(app, base_url="https://testserver") as client:
@@ -668,6 +679,12 @@ def test_guest_schema_migrations_from_original_user_only_schema(setup):
     ddl = Path("../database/ddl/001_init.sql").read_text(encoding="utf-8")
     ddl = re.sub(
         r"CREATE TABLE auth_sessions .*?(?=CREATE TABLE refresh_tokens)",
+        "",
+        ddl,
+        flags=re.S,
+    )
+    ddl = re.sub(
+        r"CREATE TABLE IF NOT EXISTS password_reset_tokens .*?(?=CREATE TABLE guest_sessions)",
         "",
         ddl,
         flags=re.S,
@@ -781,7 +798,9 @@ def test_uuid7_defaults_and_migration_preserves_existing_ids(setup):
         dbname=url.database,
         autocommit=True,
     ) as conn:
-        conn.execute("INSERT INTO users(id,role_id,email,password_hash) SELECT gen_random_uuid(),id,'legacy-uuid@test.example','unused' FROM roles WHERE name='user'")
+        conn.execute(
+            "INSERT INTO users(id,role_id,email,password_hash) SELECT gen_random_uuid(),id,'legacy-uuid@test.example','unused' FROM roles WHERE name='user'"
+        )
         before = conn.execute("SELECT id FROM users ORDER BY id").fetchall()
         conn.execute(
             "ALTER TABLE public.users ALTER COLUMN id SET DEFAULT gen_random_uuid()"
@@ -795,7 +814,7 @@ def test_uuid7_defaults_and_migration_preserves_existing_ids(setup):
         defaults = conn.execute(
             "SELECT column_default FROM information_schema.columns WHERE table_schema='public' AND column_name='id' AND data_type='uuid'"
         ).fetchall()
-        assert len(defaults) == 12
+        assert len(defaults) == 13
         assert all("ink_buddy_uuid_v7" in row[0] for row in defaults)
         rows = conn.execute(
             "SELECT public.ink_buddy_uuid_v7() FROM generate_series(1, 10000)"
@@ -811,3 +830,467 @@ def test_uuid7_defaults_and_migration_preserves_existing_ids(setup):
             "INSERT INTO users(role_id,email,password_hash) SELECT id,'uuid7@test.example','unused' FROM roles WHERE name='user' RETURNING id"
         ).fetchone()[0]
         assert generated.version == 7
+
+
+create_guest = guest
+
+
+def test_chat_session_crud_ownership_and_soft_delete(setup):
+    with TestClient(setup.app) as guest, TestClient(setup.app) as other:
+        g = create_guest(guest)
+        create_guest(other)
+        result = guest.post("/api/v1/chat-sessions", json={}, headers=ORIGIN)
+        assert result.status_code == 201, result.text
+        chat = result.json()
+        assert UUID(chat["id"]).version == 7 and chat["title"] == "แชตใหม่"
+        path = "/api/v1/chat-sessions/" + chat["id"]
+        for method in ("GET", "PATCH", "DELETE"):
+            response = other.request(
+                method,
+                path,
+                json={"title": "other"} if method == "PATCH" else None,
+                headers=ORIGIN,
+            )
+            assert response.status_code == 404
+        assert other.get(path + "/messages").status_code == 404
+        assert (
+            guest.patch(path, json={"title": "  สมุด  "}, headers=ORIGIN).json()["title"]
+            == "สมุด"
+        )
+        for title in ("", "   ", "x" * 201, None):
+            assert (
+                guest.patch(path, json={"title": title}, headers=ORIGIN).status_code
+                == 422
+            )
+        assert guest.get(path + "/messages").json()["items"] == []
+        with setup.sessions() as db:
+            db.execute(
+                text(
+                    "INSERT INTO chat_messages(session_id,sequence_number,role,content) VALUES(:sid,1,'user','kept')"
+                ),
+                {"sid": UUID(chat["id"])},
+            )
+            db.commit()
+        assert guest.delete(path, headers=ORIGIN).status_code == 204
+        assert guest.get(path).status_code == 404
+        assert guest.get(path + "/messages").status_code == 404
+        assert guest.delete(path, headers=ORIGIN).status_code == 404
+        assert guest.get("/api/v1/chat-sessions").json()["items"] == []
+        with setup.sessions() as db:
+            assert (
+                db.execute(
+                    text("SELECT count(*) FROM chat_messages WHERE session_id=:sid"),
+                    {"sid": UUID(chat["id"])},
+                ).scalar_one()
+                == 1
+            )
+            assert (
+                db.execute(
+                    text("SELECT image_uploads_used FROM guest_sessions WHERE id=:gid"),
+                    {"gid": UUID(g["id"])},
+                ).scalar_one()
+                == 0
+            )
+
+
+def test_chat_cursor_and_message_pagination(setup):
+    with TestClient(setup.app) as client:
+        create_guest(client)
+        chats = [
+            client.post(
+                "/api/v1/chat-sessions", json={"title": f"chat {n}"}, headers=ORIGIN
+            ).json()
+            for n in range(5)
+        ]
+        with setup.sessions() as db:
+            db.execute(
+                text(
+                    "UPDATE chat_sessions SET updated_at=(SELECT max(created_at) FROM chat_sessions)"
+                )
+            )
+            db.commit()
+        found = []
+        cursor = None
+        while True:
+            result = client.get(
+                "/api/v1/chat-sessions",
+                params={"limit": 2, **({"cursor": cursor} if cursor else {})},
+            ).json()
+            found.extend(x["id"] for x in result["items"])
+            cursor = result["next_cursor"]
+            if not cursor:
+                break
+        assert found == sorted([c["id"] for c in chats], reverse=True)
+        assert len(set(found)) == 5
+        sid = UUID(chats[0]["id"])
+        with setup.sessions() as db:
+            for n in range(1, 8):
+                db.execute(
+                    text(
+                        "INSERT INTO chat_messages(session_id,sequence_number,role,content) VALUES(:sid,:n,'user',:content)"
+                    ),
+                    {"sid": sid, "n": n, "content": str(n)},
+                )
+            db.commit()
+        path = f"/api/v1/chat-sessions/{sid}/messages"
+        page = client.get(path, params={"limit": 3}).json()
+        assert [m["sequence_number"] for m in page["items"]] == [5, 6, 7]
+        older = client.get(
+            path, params={"limit": 3, "cursor": page["next_cursor"]}
+        ).json()
+        assert [m["sequence_number"] for m in older["items"]] == [2, 3, 4]
+        last = client.get(
+            path, params={"limit": 3, "cursor": older["next_cursor"]}
+        ).json()
+        assert [m["sequence_number"] for m in last["items"]] == [1] and last[
+            "next_cursor"
+        ] is None
+        assert (
+            client.get(
+                f"/api/v1/chat-sessions/{chats[1]['id']}/messages",
+                params={"cursor": page["next_cursor"]},
+            ).status_code
+            == 422
+        )
+        for cursor in ("garbage", "W10", "bnVsbA", "a" * 1025):
+            assert (
+                client.get(
+                    "/api/v1/chat-sessions", params={"cursor": cursor}
+                ).status_code
+                == 422
+            )
+            assert client.get(path, params={"cursor": cursor}).status_code == 422
+        assert (
+            client.get("/api/v1/chat-sessions", params={"limit": 101}).status_code
+            == 422
+        )
+
+
+def test_chat_claim_and_expiry(setup):
+    with TestClient(setup.app) as client:
+        create_guest(client)
+        chat = client.post("/api/v1/chat-sessions", json={}, headers=ORIGIN).json()
+        token = login(client)
+        headers = {"Authorization": "Bearer " + token, **ORIGIN}
+        assert (
+            client.get(
+                "/api/v1/chat-sessions/" + chat["id"], headers=headers
+            ).status_code
+            == 404
+        )
+        assert (
+            client.post(
+                "/api/v1/auth/guest-sessions/current/claim", headers=headers
+            ).status_code
+            == 200
+        )
+        assert (
+            client.get(
+                "/api/v1/chat-sessions/" + chat["id"], headers=headers
+            ).status_code
+            == 200
+        )
+        assert (
+            client.patch(
+                "/api/v1/chat-sessions/" + chat["id"],
+                json={"title": "user owned"},
+                headers=headers,
+            ).status_code
+            == 200
+        )
+        assert client.get("/api/v1/chat-sessions/" + chat["id"]).status_code == 401
+    with TestClient(setup.app) as expired:
+        guest = create_guest(expired)
+        with setup.sessions() as db:
+            db.execute(
+                text(
+                    "UPDATE guest_sessions SET created_at=now()-interval '2 days',expires_at=now()-interval '1 day' WHERE id=:gid"
+                ),
+                {"gid": UUID(guest["id"])},
+            )
+            db.commit()
+        assert (
+            expired.post("/api/v1/chat-sessions", json={}, headers=ORIGIN).status_code
+            == 401
+        )
+
+
+def test_chat_claim_races_mutations(setup):
+    from threading import Barrier
+
+    from app.services.session.service import ChatSessionService
+
+    for operation in ("create", "rename"):
+        with TestClient(setup.app) as client:
+            guest = create_guest(client)
+            chat = client.post("/api/v1/chat-sessions", json={}, headers=ORIGIN).json()
+            token = login(client)
+            with setup.sessions() as db:
+                user = AuthService(db, setup.settings).authenticate_user(token)
+            raw = client.cookies.get(GUEST_COOKIE)
+            barrier = Barrier(2)
+
+            def mutate():
+                with setup.sessions() as db:
+                    principal = Principal("guest", UUID(guest["id"]))
+                    barrier.wait(timeout=5)
+                    try:
+                        service = ChatSessionService(db)
+                        if operation == "create":
+                            service.create(principal, "race")
+                        else:
+                            service.rename(principal, UUID(chat["id"]), "race")
+                        return 200
+                    except ApiError as e:
+                        db.rollback()
+                        return e.status
+
+            def claim_guest():
+                with setup.sessions() as db:
+                    barrier.wait(timeout=5)
+                    return AuthService(db, setup.settings).claim(user, raw)
+
+            with ThreadPoolExecutor(max_workers=2) as pool:
+                a = pool.submit(mutate)
+                b = pool.submit(claim_guest)
+                assert a.result(timeout=10) in (200, 401)
+                b.result(timeout=10)
+            with setup.sessions() as db:
+                assert (
+                    db.execute(
+                        text(
+                            "SELECT count(*) FROM chat_sessions WHERE guest_session_id=:gid"
+                        ),
+                        {"gid": UUID(guest["id"])},
+                    ).scalar_one()
+                    == 0
+                )
+                assert (
+                    db.execute(
+                        text("SELECT user_id FROM chat_sessions WHERE id=:sid"),
+                        {"sid": UUID(chat["id"])},
+                    ).scalar_one()
+                    == user.id
+                )
+
+
+def test_register_login_and_reserved_role(setup):
+    with TestClient(setup.app) as client:
+        data = {
+            "email": "new@example.com",
+            "password": "NewAccount123!",
+            "display_name": "  New User  ",
+        }
+        assert (
+            client.post("/api/v1/auth/register", json=data, headers=ORIGIN).status_code
+            == 201
+        )
+        assert (
+            client.post(
+                "/api/v1/auth/register",
+                json={**data, "email": "NEW@example.com"},
+                headers=ORIGIN,
+            ).status_code
+            == 409
+        )
+        assert (
+            client.post(
+                "/api/v1/auth/register",
+                json={**data, "email": "admin-new@example.com", "role": "admin"},
+                headers=ORIGIN,
+            ).status_code
+            == 422
+        )
+        assert (
+            client.post(
+                "/api/v1/auth/register",
+                json={**data, "password": "short"},
+                headers=ORIGIN,
+            ).status_code
+            == 422
+        )
+        assert client.post("/api/v1/auth/register", json=data).status_code == 403
+        token = client.post(
+            "/api/v1/auth/login",
+            json={"email": data["email"], "password": data["password"]},
+            headers=ORIGIN,
+        ).json()["access_token"]
+        profile = client.get(
+            "/api/v1/users/me", headers={"Authorization": "Bearer " + token}
+        ).json()
+        assert profile["role"] == "user" and profile["display_name"] == "New User"
+
+
+def test_password_reset_single_use_revokes_sessions_and_private_response(
+    setup, monkeypatch
+):
+    from app.core.security import token_hash
+    from app.services.auth.mail import Mailer
+
+    sent = []
+    monkeypatch.setattr(Mailer, "send", lambda self, message: sent.append(message))
+    with TestClient(setup.app) as client:
+        access = login(client)
+        raw_refresh = client.cookies.get(REFRESH_COOKIE)
+        existing = client.post(
+            "/api/v1/auth/forgot-password",
+            json={"email": "user@example.com"},
+            headers=ORIGIN,
+        )
+        missing = client.post(
+            "/api/v1/auth/forgot-password",
+            json={"email": "absent@example.com"},
+            headers=ORIGIN,
+        )
+        assert (
+            existing.status_code == missing.status_code == 202
+            and existing.json() == missing.json()
+        )
+        assert len(sent) == 1
+        raw = sent[0].get_content().split("#token=")[1].split()[0]
+        assert raw not in existing.text
+        with setup.sessions() as db:
+            row = (
+                db.execute(text("SELECT * FROM password_reset_tokens")).mappings().one()
+            )
+            assert (
+                row["token_hash"] == token_hash(raw)
+                and UUID(str(row["id"])).version == 7
+            )
+        # Per-account cooldown returns generic 202 without another email.
+        client.post(
+            "/api/v1/auth/forgot-password",
+            json={"email": "user@example.com"},
+            headers=ORIGIN,
+        )
+        assert len(sent) == 1
+        payload = {"token": raw, "password": "Replacement123!"}
+        assert (
+            client.post(
+                "/api/v1/auth/reset-password", json=payload, headers=ORIGIN
+            ).status_code
+            == 200
+        )
+        assert (
+            client.post(
+                "/api/v1/auth/reset-password", json=payload, headers=ORIGIN
+            ).status_code
+            == 400
+        )
+        assert (
+            client.get(
+                "/api/v1/users/me", headers={"Authorization": "Bearer " + access}
+            ).status_code
+            == 401
+        )
+        client.cookies.set(REFRESH_COOKIE, raw_refresh)
+        assert client.post("/api/v1/auth/refresh", headers=ORIGIN).status_code == 401
+        assert (
+            client.post(
+                "/api/v1/auth/login",
+                json={"email": "user@example.com", "password": PASSWORD},
+                headers=ORIGIN,
+            ).status_code
+            == 401
+        )
+        assert (
+            client.post(
+                "/api/v1/auth/login",
+                json={"email": "user@example.com", "password": payload["password"]},
+                headers=ORIGIN,
+            ).status_code
+            == 200
+        )
+        assert len(sent) == 2 and payload["password"] not in sent[-1].get_content()
+
+
+def test_password_reset_expiry_replacement_and_concurrency(setup, monkeypatch):
+    from app.services.auth.mail import Mailer
+
+    sent = []
+    monkeypatch.setattr(Mailer, "send", lambda self, message: sent.append(message))
+    with TestClient(setup.app) as client:
+        client.post(
+            "/api/v1/auth/forgot-password",
+            json={"email": "user@example.com"},
+            headers=ORIGIN,
+        )
+        raw = sent[-1].get_content().split("#token=")[1].split()[0]
+        with setup.sessions() as db:
+            db.execute(
+                text(
+                    "UPDATE password_reset_tokens SET created_at=now()-interval '2 hours',expires_at=now()-interval '1 hour'"
+                )
+            )
+            db.commit()
+        assert (
+            client.post(
+                "/api/v1/auth/reset-password",
+                json={"token": raw, "password": "UpdatedPassword123!"},
+                headers=ORIGIN,
+            ).status_code
+            == 400
+        )
+        client.post(
+            "/api/v1/auth/forgot-password",
+            json={"email": "user@example.com"},
+            headers=ORIGIN,
+        )
+        raw_new = sent[-1].get_content().split("#token=")[1].split()[0]
+        assert (
+            client.post(
+                "/api/v1/auth/reset-password",
+                json={"token": raw, "password": "UpdatedPassword123!"},
+                headers=ORIGIN,
+            ).status_code
+            == 400
+        )
+        from threading import Barrier
+
+        barrier = Barrier(2)
+
+        def consume():
+            with setup.sessions() as db:
+                barrier.wait(timeout=5)
+                try:
+                    AuthService(db, setup.settings).reset_password(
+                        raw_new, "Concurrent123!"
+                    )
+                    return 200
+                except ApiError as e:
+                    db.rollback()
+                    return e.status
+
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            a = pool.submit(consume)
+            b = pool.submit(consume)
+            assert sorted([a.result(timeout=10), b.result(timeout=10)]) == [200, 400]
+
+
+def test_password_reset_migration_repeat_safe(setup):
+    import psycopg
+    from sqlalchemy.engine import make_url
+
+    url = make_url(URL)
+    with psycopg.connect(
+        host=url.host,
+        port=url.port,
+        user=url.username,
+        password=url.password,
+        dbname=url.database,
+        autocommit=True,
+    ) as db:
+        before = db.execute("SELECT id FROM users ORDER BY id").fetchall()
+        db.execute("DROP TABLE password_reset_tokens")
+        migration = Path(
+            "../database/migrations/005_register_password_reset.sql"
+        ).read_text(encoding="utf-8")
+        db.execute(migration)
+        db.execute(migration)
+        assert db.execute("SELECT id FROM users ORDER BY id").fetchall() == before
+        assert (
+            db.execute(
+                "SELECT count(*) FROM information_schema.tables WHERE table_schema='public'"
+            ).fetchone()[0]
+            == 14
+        )

@@ -6,16 +6,16 @@
 
 ## สถานะปัจจุบัน
 
-- Backend FastAPI: 23 operations บน 18 paths; ทำงานแล้ว 11 operations และเป็น scaffold 12 operations ที่ตรวจสิทธิ์ก่อนตอบ 501
+- Backend FastAPI: 27 operations บน 21 paths; ทำงานแล้ว 17 operations และเป็น scaffold 7 operations ที่ตรวจสิทธิ์ก่อนตอบ 501
 - Authentication: User JWT, refresh rotation, logout, Guest session, claim และ profile GET ทำแล้ว
 - Guest ใช้งาน 24 ชั่วโมง อัปโหลดสำเร็จได้ 3 รูปรวมทุกแชต การลบไม่คืนโควตา
 - Image upload/search และ admin indexing มี implementation; retrieval เริ่มต้นเป็น mock ต้องตั้งค่าและ index ก่อนค้น catalog จริง
-- Chat, Product list/detail, Profile PATCH, Image detail/delete และ Readiness ยังไม่มี business logic
-- Frontend Next.js/TypeScript/Tailwind ยังเป็นโครงและแผน ยังไม่มี Auth UI ที่พร้อมใช้งาน
+- Send message, Product list/detail, Profile PATCH, Image detail/delete และ Readiness ยังไม่มี business logic
+- Frontend Next.js/TypeScript/Tailwind มี Guest/Login/claim และ Session UI แล้ว ดู frontend/README.md
 
 ## Technology และฐานข้อมูล
 
-FastAPI, SQLAlchemy, PostgreSQL 16 และ pgvector ใช้จริงใน backend โดย Auth ใช้ raw SQL ตาม DDL ฐานข้อมูลมี 13 ตาราง ไม่มี document tables
+FastAPI, SQLAlchemy, PostgreSQL 16 และ pgvector ใช้จริงใน backend โดย Auth ใช้ raw SQL ตาม DDL ฐานข้อมูลมี 14 ตาราง ไม่มี document tables
 
 Image pipeline ใช้ Ollama Qwen3-VL (ค่าเริ่มต้น `qwen3-vl:latest`) และ `Qwen/Qwen3-VL-Embedding-2B` เวกเตอร์ 2048 มิติ ส่วน Qwen3:8b, BGE-M3 และ text/chat RAG ยังเป็นแผนที่ต้องเชื่อมต่อเพิ่มเติม การทดสอบ Auth ไม่ได้ยืนยันโมเดล AI จริง
 
@@ -33,3 +33,10 @@ Image pipeline ใช้ Ollama Qwen3-VL (ค่าเริ่มต้น `qwe
 UUID ที่สร้างใหม่ใช้ v7 ทั้ง database defaults, Python storage keys และ scripts ฐาน local สำรองแล้วและ apply migration 004 เรียบร้อย ID เดิมและ FK ไม่เปลี่ยน API ยังรับ UUID เดิมได้ ดู [RFC 9562](https://www.rfc-editor.org/rfc/rfc9562.html#section-5.7) สำหรับรูปแบบ
 
 ผลทดสอบหลังเปลี่ยน: regression 113 passed / 23 skipped; PostgreSQL integration 19 passed แยกผ่าน Podman (รวม migration repeat-safe, defaults ทั้ง 12 UUID tables, timestamp/version และ uniqueness) ค่า integer ID คงชนิดเดิม
+
+
+อัปเดต Chat Session 2026-10-04: CRUD/rename/history ใช้งานแล้ว ส่วน send message ยัง501; Frontend มี Auth/Session UI และ prompt draft 3 รายการ ดู [Frontend setup](frontend/README.md)
+
+## Register / Reset Password
+
+สมัครแล้ว Login ได้ทันที ยังไม่บังคับยืนยันอีเมล Reset ส่งลิงก์ทาง Mailpit local (http://localhost:8025) และเตรียม SMTP configuration สำหรับ production เมื่อ reset สำเร็จ revoke ทุก Login session ดู [คู่มือ Auth](docs/api/auth/README.md) Node 24.19.0 ใช้งานและทดสอบแล้ว

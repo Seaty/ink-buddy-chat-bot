@@ -15,7 +15,7 @@
 .\.venv\Scripts\python.exe -m uvicorn app.main:app --reload
 ```
 
-สคริปต์ถาม password แบบซ่อน รับ12–1024charsและยืนยันสองครั้ง ไม่ใส่ password ใน command arguments ไม่มีบัญชี/passwordเริ่มต้น และไม่เขียนทับบัญชีเดิม ยังไม่มี Register API
+สคริปต์ถาม password แบบซ่อน รับ12–24charsและยืนยันสองครั้ง ไม่ใส่ password ใน command arguments ไม่มีบัญชี/passwordเริ่มต้น และไม่เขียนทับบัญชีเดิม Register API ใช้งานแล้ว; สคริปต์ local ใช้สร้าง Admin ได้
 
 ## นโยบาย token
 
@@ -90,7 +90,7 @@ Claim: POST /auth/guest-sessions/current/claim พร้อม UserBearer, Guest
 - APP_ENVIRONMENT=production เปิดSecurecookiesและปิด docs/redoc/openapi; ใช้HTTPS
 - memory limiterรองรับหนึ่งworkerเท่านั้น หลายworkersตั้งAUTH_WORKERSให้ตรงและAUTH_LIMITER_STORAGE_URIไปsharedstore เช่นRedis (ติดตั้งdriver Redisเพิ่มเติมเมื่อตั้งinfraนี้)
 - Login10/min/IP, Guestcreation5/hour/IP, Refresh30/min/IP, ImageSearch20/min/verifiedprincipal; ไม่trustX-Forwarded-Forโดยอัตโนมัติ
-- ยังไม่มีfrontendAuthUI/Register/ResetPassword/EmailVerification และbusinesslogicChat/Product/ImageDetailDelete
+- Frontend Auth/Session UI ทำแล้ว; ยังไม่มี EmailVerification และ businesslogic SendMessage/Product/ImageDetailDelete
 - Visionintegrationtestsใช้fakepipeline ไม่ได้ยืนยันOllama/embeddingจริงหรือความแม่นยำค้นสินค้า
 
 ดู [API_SPEC.md](../API_SPEC.md), [TOKEN_AUTH_FLOW.md](../../architecture/TOKEN_AUTH_FLOW.md) และ [Database Schema](../../../database/DATABASE_SCHEMA.md)
@@ -107,3 +107,50 @@ Claim: POST /auth/guest-sessions/current/claim พร้อม UserBearer, Guest
 ID ใหม่ที่เป็น UUID ใช้ UUIDv7: database defaults เรียก `public.ink_buddy_uuid_v7()` และ Python ใช้ `app.core.identifiers.uuid7()` ชนิด column/API ยังคง UUID เพื่อรองรับ ID เดิม ไม่มีการเปลี่ยน primary/foreign keys ที่มีอยู่ ฐานเดิมต้อง apply `database/migrations/004_uuid_v7.sql` หลัง 003; ฐานใหม่ใช้ init ปัจจุบัน migrations 001–003 เก็บเป็นประวัติเดิม
 
 UUIDv7 มี Unix timestamp ระดับ millisecond และ random bits ตาม [RFC 9562](https://www.rfc-editor.org/rfc/rfc9562.html#section-5.7) ไม่รับประกันลำดับภายใน millisecond หรือเมื่อ clock ย้อนกลับ ไม่ใช้ ID เป็น credential และยังตรวจ ownership ตามเดิม PostgreSQL 16 ใช้ compatibility function เพราะ built-in generator เป็น UUIDv4; ไม่มีการเปลี่ยนคอลัมน์ integer เช่น product_image_embeddings.id
+
+
+Frontend setup ปัจจุบันดู [Frontend README](../../../frontend/README.md) มี single-flight refresh, Guest/Login/Logout/claim และ draft clearing แล้ว PostgreSQL tests รวม Chat Session ตอนนี้ผ่าน 23 tests
+
+## Register / Reset Password — 2026-10-04
+
+- POST /api/v1/auth/register: สร้างบัญชี user ที่ active; password 12–24 ตัวอักษร hash Argon2id; สมัครแล้ว Login ได้ทันที ไม่มี email verification หรือ auto Login/claim Guest
+- POST /api/v1/auth/forgot-password: ส่งคำตอบทั่วไป 202 ทั้งบัญชีที่มี/ไม่มี/inactive/cooldown; token สุ่ม เก็บเฉพาะ SHA-256 hash อายุ 900 วินาที ขอใหม่ revoke token เดิม cooldown 60 วินาทีต่อบัญชี
+- POST /api/v1/auth/reset-password: ใช้ token ครั้งเดียว transaction ล็อก user/token/auth sessions; เปลี่ยน hash และ revoke Login sessions/refresh tokens ทั้งหมด พร้อมแจ้งอีเมลและล้าง refresh cookie ไม่มี auto Login
+- Public mutations ทั้งสามต้องส่ง Origin ที่อยู่ใน CORS_ORIGINS; limit Register 5/hour/IP, Forgot/Reset 10/hour/IP
+- ลิงก์ใช้ /reset-password#token=... fragment ไม่ถูกส่งเป็น URL request ไป server หน้าเว็บอ่านเข้า memory และลบจาก address bar; reload ต้องเปิดลิงก์ในอีเมลใหม่ ใช้ Referrer-Policy no-referrer
+
+### Mailpit local
+
+จาก docker/ รัน `podman compose up -d` แล้วเปิด [Mailpit](http://localhost:8025) SMTP อยู่ 127.0.0.1:1025 รับอีเมลทดลองโดยไม่ส่งออกภายนอก ทั้งสองพอร์ต bind loopback เก็บสูงสุด 100 ข้อความใน container ไม่ได้ mount volume อีเมล
+
+backend/.env ใช้ค่าตัวอย่างนี้ (DB/JWT ใช้ค่าของเครื่องเดิม):
+
+```dotenv
+AUTH_FRONTEND_URL=http://localhost:3000
+AUTH_RESET_SECONDS=900
+AUTH_RESET_COOLDOWN_SECONDS=60
+SMTP_HOST=127.0.0.1
+SMTP_PORT=1025
+SMTP_STARTTLS=false
+SMTP_SSL=false
+SMTP_SENDER=Ink Buddy <noreply@ink-buddy.local>
+SMTP_TIMEOUT_SECONDS=10
+```
+
+SMTP_USERNAME/SMTP_PASSWORD ไม่ต้องตั้งสำหรับ Mailpit. หาก backend รันใน Compose network เดียวกันให้ใช้ SMTP_HOST=mailpit
+
+### SMTP production
+
+กำหนด AUTH_FRONTEND_URL เป็น HTTPS origin ที่เชื่อถือได้; SMTP_HOST/PORT/SENDER/USERNAME/PASSWORD ตาม provider และเลือก SMTP_STARTTLS=true หรือ SMTP_SSL=true เพียงอย่างเดียว Production startup ตรวจ HTTPS frontend และ SMTP TLS นอกเหนือจาก JWT/cookie configuration เดิม ตัวอย่างทุกค่าอยู่ backend/.env.example เก็บ secret นอก Git
+
+ส่งอีเมลด้วย FastAPI BackgroundTasks หลัง commit แบบ best effort ไม่ใช่ durable queue ไม่มี retry อัตโนมัติ; server หยุดหรือ SMTP ล้มเหลวอาจไม่ได้รับอีเมล API ยังตอบทั่วไปเพื่อไม่เปิดเผยบัญชี Log บอก delivery failed โดยไม่บันทึก recipient/token/body ควรเพิ่ม outbox/worker/retry ก่อน production ที่ต้องรับประกันการส่ง ไม่เก็บ password ในอีเมล
+
+### ผลตรวจ
+
+2026-10-04: backend regression 109 passed; PostgreSQL integration 27 passed บน Podman; frontend unit/component 11 passed; browser 9 passed ผ่าน API mocks แยกจาก PG; typecheck/build ผ่าน; SMTP transport ส่งเข้า Mailpit จริงผ่าน Main DB apply migration 005 หลัง backup ไม่มีการสร้างบัญชีทดลองในฐานหลัก
+
+อ้างอิงแนวทาง [OWASP Forgot Password](https://cheatsheetseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html) และ [Mailpit Docker](https://mailpit.axllent.org/docs/install/docker/)
+
+## Password policy — 2026-10-05
+
+การตั้งรหัสผ่านใหม่ผ่าน Register/Reset/local script ต้องยาว 12–24 ตัวอักษร มี a–z, A–Z, 0–9 และอย่างน้อยหนึ่ง ASCII punctuation (เช่น !@#_-); ห้าม Unicode whitespace ทุกชนิด ไม่มีการ trim Password ภาษาอื่นยังใช้ร่วมได้แต่ไม่นับแทนกลุ่มภาษาอังกฤษหรืออักขระพิเศษ Frontend ตรวจและยืนยันสองช่อง Backend ตรวจซ้ำและตอบ 422 เมื่อไม่ผ่าน Login ยังคงรับ 1–1024 ตัวเพื่อรองรับบัญชีเดิม ไม่มีการแก้ password hash เดิมโดย migration

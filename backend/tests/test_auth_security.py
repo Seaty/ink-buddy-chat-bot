@@ -3,8 +3,6 @@
 from datetime import timedelta
 
 import pytest
-from fastapi.testclient import TestClient
-
 from app.core.config import Settings
 from app.core.identifiers import uuid7
 from app.core.security import (
@@ -15,6 +13,7 @@ from app.core.security import (
     verify_password,
 )
 from app.main import create_app
+from fastapi.testclient import TestClient
 
 SECRET = "test-only-signing-key-never-use-in-production-12345"
 
@@ -68,3 +67,17 @@ def test_access_claims_and_schema_security():
     ] == [{"UserBearer": [], "GuestCookie": []}]
     assert schema["paths"]["/api/v1/health"]["get"]["security"] == []
     assert len(schema["components"]["securitySchemes"]) == 3
+
+
+def test_reset_production_configuration_requires_https_and_tls():
+    settings = Settings(
+        _env_file=None, auth_jwt_secret=SECRET, app_environment="production"
+    )
+    with pytest.raises(RuntimeError, match="HTTPS and SMTP TLS"):
+        settings.validate_auth()
+    settings.auth_frontend_url = "https://ink-buddy.example"
+    settings.smtp_starttls = True
+    settings.validate_auth()
+    settings.auth_frontend_url = "https://ink-buddy.example/reset?evil=1"
+    with pytest.raises(RuntimeError, match="trusted frontend origin"):
+        settings.validate_auth()

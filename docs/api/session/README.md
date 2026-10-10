@@ -1,14 +1,15 @@
-# Session API
+# Chat Session API
 
-ตรวจล่าสุด 2026-10-03 จาก OpenAPI snapshot ดูรายละเอียด request/response และสิทธิ์ใน [API_SPEC](../API_SPEC.md)
+อัปเดต 2026-10-04: policy guest_or_user ทุก operation ตรวจ ownership และ live credential; Guest mutation ต้องมี allowed Origin
 
-| Operation | สถานะ | Policy |
+| Method | Path ใต้ /api/v1 | สถานะ |
 |---|---|---|
-| POST /api/v1/chat-sessions | scaffold | guest_or_user |
-| GET /api/v1/chat-sessions | scaffold | guest_or_user |
-| GET /api/v1/chat-sessions/{session_id} | scaffold | guest_or_user |
-| DELETE /api/v1/chat-sessions/{session_id} | scaffold | guest_or_user |
-| GET /api/v1/chat-sessions/{session_id}/messages | scaffold | guest_or_user |
-| POST /api/v1/chat-sessions/{session_id}/messages | scaffold | guest_or_user |
+| POST | /chat-sessions | Implemented |
+| GET | /chat-sessions | Implemented |
+| GET | /chat-sessions/{session_id} | Implemented |
+| PATCH | /chat-sessions/{session_id} | Implemented |
+| DELETE | /chat-sessions/{session_id} | Implemented (soft delete) |
+| GET | /chat-sessions/{session_id}/messages | Implemented |
+| POST | /chat-sessions/{session_id}/messages | Scaffold501 |
 
-scaffold ตรวจสิทธิ์ก่อนตอบ 501; ยังไม่มี business logic ดู [Auth review](../auth/AUTH_REVIEW.md) สำหรับเคส credential และข้อจำกัด
+รายละเอียด cursor, validation, locking และตัวอย่างอยู่ใน [API_SPEC](../API_SPEC.md) โครง frontend และ prompt draft อยู่ใน [Frontend README](../../../frontend/README.md)
