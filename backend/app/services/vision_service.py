@@ -16,7 +16,9 @@ from PIL import Image
 from sqlalchemy.orm import Session
 
 from app.ai.embeddings.embedding_service import get_image_embedder
-from app.ai.llm.ollama_client import OllamaClient, OllamaError
+from app.ai.llm.errors import LLMError
+from app.ai.llm.ollama_client import OllamaClient
+from app.ai.llm.openrouter_client import OpenRouterClient
 from app.ai.llm.qwen_vision import QwenVision, VisionModelError
 from app.ai.prompts.vision_prompt import ImageAnalysis, MatchLevel
 from app.ai.rag.chunker import CatalogChunk, build_catalog_chunks
@@ -78,10 +80,20 @@ class VisionService:
             s.image_embed_max_pixels,
         )
 
+    def _llm_client(self) -> OllamaClient | OpenRouterClient:
+        s = self.settings
+        if s.vision_provider == "openrouter":
+            key = s.openrouter_api_key.get_secret_value() if s.openrouter_api_key else None
+            if not key:
+                logger.warning("VISION_PROVIDER=openrouter but OPENROUTER_API_KEY is empty; vision calls will answer 503")
+            return OpenRouterClient(key, s.openrouter_base_url, s.openrouter_timeout_s,
+                                    fallback_models=s.openrouter_fallback_models)
+        return OllamaClient(s.ollama_base_url, s.ollama_timeout_s)
+
     def _build_pipeline(self) -> VisionPipeline:
         s = self.settings
         vision = QwenVision(
-            client=OllamaClient(s.ollama_base_url, s.ollama_timeout_s),
+            client=self._llm_client(),
             model=s.vision_model,
             num_predict=s.vision_num_predict,
             num_ctx=s.vision_num_ctx,
@@ -351,7 +363,7 @@ class _vision_errors:
         return self
 
     def __exit__(self, exc_type, exc, tb):
-        if exc_type is not None and issubclass(exc_type, (OllamaError, VisionModelError)):
+        if exc_type is not None and issubclass(exc_type, (LLMError, VisionModelError)):
             raise ApiError(503, "VISION_UNAVAILABLE", "vision model unavailable") from exc
         return False
 
