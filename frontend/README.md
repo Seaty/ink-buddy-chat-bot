@@ -1,5 +1,9 @@
 # Ink Buddy Frontend
 
+## Chat UI presentation — 2026-10-15
+
+เพิ่ม loading animation, แสดงคำตอบใหม่ทีละคำพร้อม auto-scroll ที่พักเมื่อเลื่อนขึ้นอ่าน, ปุ่มแสดงทั้งหมด และ reduced-motion. การ์ดสินค้าจัดกลุ่มชื่อ/ราคา/สี/variants/แหล่งข้อมูลใหม่ ใช้ palette เดิม ดู [รายละเอียดและวิธีทดสอบ](../docs/architecture/CHAT_UI_PRESENTATION.md). เป็น presentation หลัง REST response ไม่ใช่ backend streaming และไม่เปลี่ยน provider/API contract
+
 ## Conversational RAG UAT — 2026-10-14
 
 ProductReferenceCard แสดงสีหมึก/ด้าม, หน่วยราคา, ฐาน VAT demo, แหล่งสินค้า/แหล่งราคาแยกกัน และ variants ใต้รุ่นหลัก. ป้าย AI/กฎระบบแยกจาก Ink Buddy ชัดเจน ใช้ React text และเฉพาะลิงก์ HTTP/HTTPS
