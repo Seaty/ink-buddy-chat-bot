@@ -1,5 +1,9 @@
 # Ink Buddy — Token และการควบคุมสิทธิ์ API
 
+## Private chat images — 2026-10-15
+
+GET /api/v1/images/{image_id}/content ใช้ guest_or_user และตรวจเจ้าของปัจจุบัน ไม่มี public file URL หรือ token ใน query; browser โหลดผ่าน API client เป็น blob. POST messages ที่มี image_id ตรวจ credential/เจ้าของรูปก่อนเรียก Vision และก่อนบันทึก Claim/logout ระหว่างตอบไม่บันทึกข้าม principal; อัปโหลดสำเร็จใช้ quota แม้ message ล้มเหลว ดู [Vision Chat](VISION_CHAT_PROCESS.md)
+
 อัปเดต2026-10-03 · Authentication และGuestaccess implementแล้ว; Chat/Product/ImageDetailDelete/Readiness ยังเป็น scaffold ที่ตรวจสิทธิ์ก่อนตอบ501
 
 ## 1. Tokenสามชนิด

@@ -108,6 +108,8 @@ class Settings(BaseSettings):
 
     chat_adapter: Literal["catalog_template", "openrouter_catalog"] = "catalog_template"
     chat_timeout_seconds: float = Field(default=60.0, gt=0, le=300)
+    vision_chat_retrieval: Literal['text_catalog','image_embedding'] = 'text_catalog'
+    vision_chat_model: str = 'qwen/qwen3-vl-8b-instruct'
 
     ollama_base_url: str = "http://localhost:11434"
     ollama_timeout_s: float = 300.0

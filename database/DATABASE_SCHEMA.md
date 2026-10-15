@@ -1,5 +1,9 @@
 # Ink Buddy Database Schema
 
+## Vision Chat — 2026-10-15
+
+ไม่มี schema migration ใหม่: ใช้ chat_messages.image_id เดิมเฉพาะข้อความ User และตรวจ ownership รูปทั้งก่อน inference/ก่อน atomic pair write; product_refs JSONB เพิ่ม match_type/match_score/match_method แบบ optional. Vision text retrieval ระบุ similar ไม่ใช่ exact หรือ stock confirmation. ดู [Process](../docs/architecture/VISION_CHAT_PROCESS.md)
+
 ## product_refs snapshot — 2026-10-14
 
 chat_messages.product_refs JSONB เก็บ ProductReference หลักพร้อม optional price_source_ref/price_basis/price_verification/selling_unit/pack_quantity/ink_color/body_color และ variants สูงสุด 5 (ProductFactReference ไม่ซ้อน variants). ใช้ snapshot เดิมที่ตอบเพื่อให้ ordinal อ้างลำดับจริง; ประวัติเก่าอ่าน defaults ต่อได้ ไม่ backfill คำตอบเดิม

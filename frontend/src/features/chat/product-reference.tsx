@@ -41,6 +41,17 @@ export function ProductReferenceCard({
         </span>
       </div>
       <h3 className="product-title">{p.name}</h3>
+      {p.match_type && (
+        <span className={`image-match ${p.match_type}`}>
+          {p.match_type === "exact"
+            ? "ตรงรุ่นจากข้อมูลที่อ่านได้"
+            : p.match_type === "similar"
+              ? p.match_method === "vision_text_catalog"
+                ? "ใกล้เคียงจากรายละเอียดในรูป"
+                : "คล้ายกับรูปที่แนบ"
+              : "ตัวเลือกที่อาจหมายถึง"}
+        </span>
+      )}
       <div className="product-pricing">
         <Price product={p} />
         {p.selling_unit && (

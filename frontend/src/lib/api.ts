@@ -23,16 +23,24 @@ export class ApiClient {
     method = "GET",
     body?: unknown,
     bearer = true,
+    responseKind: "json" | "blob" = "json",
   ): Promise<T> {
     const headers: Record<string, string> = {};
-    if (body !== undefined) headers["Content-Type"] = "application/json";
+    const multipart = body instanceof FormData;
+    if (body !== undefined && !multipart)
+      headers["Content-Type"] = "application/json";
     if (bearer && this.token) headers.Authorization = `Bearer ${this.token}`;
     const response = await fetch(this.base + path, {
       method,
       headers,
       credentials: "include",
       cache: "no-store",
-      body: body === undefined ? undefined : JSON.stringify(body),
+      body:
+        body === undefined
+          ? undefined
+          : multipart
+            ? body
+            : JSON.stringify(body),
     });
     if (!response.ok) {
       const data = await response.json().catch(() => ({}));
@@ -42,7 +50,11 @@ export class ApiClient {
         data.error?.message || "ไม่สามารถดำเนินการได้",
       );
     }
-    return response.status === 204 ? (undefined as T) : response.json();
+    return response.status === 204
+      ? (undefined as T)
+      : responseKind === "blob"
+        ? (response.blob() as Promise<T>)
+        : response.json();
   }
   async refresh(): Promise<void> {
     if (!this.refreshFlight) {
@@ -66,10 +78,15 @@ export class ApiClient {
     }
     return this.refreshFlight;
   }
-  async request<T>(path: string, method = "GET", body?: unknown): Promise<T> {
+  async request<T>(
+    path: string,
+    method = "GET",
+    body?: unknown,
+    responseKind: "json" | "blob" = "json",
+  ): Promise<T> {
     const snapshot = this.token;
     try {
-      return await this.raw<T>(path, method, body);
+      return await this.raw<T>(path, method, body, true, responseKind);
     } catch (error) {
       if (!(error instanceof ApiError) || error.status !== 401) throw error;
       if (snapshot) {
@@ -81,11 +98,13 @@ export class ApiClient {
           throw refreshError;
         }
         if (method === "GET")
-          return this.raw<T>(path).catch((e) => {
-            if (e instanceof ApiError && e.status === 401)
-              this.onUnauthorized?.();
-            throw e;
-          });
+          return this.raw<T>(path, "GET", undefined, true, responseKind).catch(
+            (e) => {
+              if (e instanceof ApiError && e.status === 401)
+                this.onUnauthorized?.();
+              throw e;
+            },
+          );
       } else {
         this.onUnauthorized?.();
       }
@@ -120,6 +139,23 @@ export class ApiClient {
       "GET",
       undefined,
       false,
+    );
+  }
+  uploadImage(file: File) {
+    const form = new FormData();
+    form.append("file", file);
+    return this.request<{ id: string; status: string }>(
+      "/images",
+      "POST",
+      form,
+    );
+  }
+  imageContent(id: string) {
+    return this.request<Blob>(
+      `/images/${id}/content`,
+      "GET",
+      undefined,
+      "blob",
     );
   }
   createGuest() {
@@ -168,6 +204,21 @@ export class ApiClient {
 export const api = new ApiClient();
 export function errorText(error: unknown) {
   if (error instanceof ApiError) {
+    if (error.code === "GUEST_IMAGE_QUOTA_EXCEEDED")
+      return "ใช้โควตารูปครบ 3 รูปแล้ว เข้าสู่ระบบเพื่อแนบรูปต่อได้ครับ";
+    if (error.code === "IMAGE_SEARCH_NOT_CONFIGURED")
+      return "ระบบค้นรูปยังเตรียมไม่พร้อม รูปที่อัปโหลดแล้วยังอยู่ ลองใหม่ได้โดยไม่ต้องอัปโหลดซ้ำ";
+    if (error.code === "VISION_UNAVAILABLE")
+      return "วิเคราะห์รูปไม่สำเร็จ รูปและคำถามยังอยู่ กรุณาลองใหม่";
+    if (error.code === "OPENROUTER_POLICY_REJECTED")
+      return "OpenRouter ไม่อนุญาตโมเดลที่ตั้งไว้ กรุณาตรวจ allowlist ของโมเดล";
+    if (error.code === "INVALID_VISION_ANALYSIS")
+      return "อ่านรายละเอียดรูปไม่สำเร็จ ลองใช้รูปที่เห็นตัวสินค้าและชื่อรุ่นชัดขึ้นครับ";
+    if (error.code === "IMAGE_NOT_FOUND")
+      return "ไม่พบรูปนี้ หรือคุณไม่มีสิทธิ์เข้าถึงรูป";
+    if (error.status === 413)
+      return "รูปมีขนาดใหญ่เกินไป กรุณาเลือกรูปไม่เกิน 5 MB";
+    if (error.status === 415) return "รองรับเฉพาะรูป JPEG, PNG และ WEBP";
     if (error.code === "EMAIL_ALREADY_REGISTERED")
       return "อีเมลนี้สมัครไว้แล้ว กรุณาเข้าสู่ระบบหรือลืมรหัสผ่าน";
     if (error.code === "INVALID_RESET_TOKEN")

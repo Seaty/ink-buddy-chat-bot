@@ -19,6 +19,7 @@ import {
   ThinkingIndicator,
 } from "./assistant-message";
 import { useChatScroll } from "./use-chat-scroll";
+import { MessageImage } from "./message-image";
 
 type Edit = { kind: "rename" | "delete"; chat: ChatSession };
 function unique<T extends { id: string }>(items: T[]) {
@@ -43,6 +44,7 @@ export function ChatWorkspace({ sessionId }: { sessionId?: string }) {
   const [actionError, setActionError] = useState("");
   const [sending, setSending] = useState(false);
   const [pendingText, setPendingText] = useState("");
+  const [pendingImage, setPendingImage] = useState("");
   const sendLock = useRef(false);
   const [busy, setBusy] = useState(false);
   const [drawer, setDrawer] = useState(false);
@@ -52,6 +54,10 @@ export function ChatWorkspace({ sessionId }: { sessionId?: string }) {
   const [claimBusy, setClaimBusy] = useState(false);
   const scope = useRef("");
   scope.current = `${auth.revision}:${sessionId || "home"}`;
+  const principalId =
+    auth.identity?.kind === "guest"
+      ? auth.identity.guest.id
+      : auth.identity?.profile.id;
   const scroll = useChatScroll(
     scope.current,
     messages.items.length > 0 || sending,
@@ -80,7 +86,7 @@ export function ChatWorkspace({ sessionId }: { sessionId?: string }) {
     return () => {
       active = false;
     };
-  }, [auth.identity, auth.revision, version]);
+  }, [principalId, auth.revision, version]);
   useEffect(() => {
     let active = true;
     setChat(null);
@@ -112,14 +118,17 @@ export function ChatWorkspace({ sessionId }: { sessionId?: string }) {
     return () => {
       active = false;
     };
-  }, [sessionId, auth.identity, auth.revision, version]);
+  }, [sessionId, principalId, auth.revision, version]);
   async function send() {
     const key = sessionId || "home";
-    const content = (auth.drafts[key] || "").trim();
+    const attachment = auth.attachments[key];
+    const content =
+      (auth.drafts[key] || "").trim() || (attachment ? "มีสินค้านี้ไหม" : "");
     if (!content || sendLock.current || !auth.identity) return;
     sendLock.current = true;
     setSending(true);
     setPendingText(content);
+    setPendingImage(attachment?.previewUrl || "");
     scroll.latest();
     setActionError("");
     auth.setMessageError(key, "");
@@ -127,7 +136,10 @@ export function ChatWorkspace({ sessionId }: { sessionId?: string }) {
     const snapshot = scope.current;
     let target = sessionId;
     let draftKey = key;
-    const requestId = auth.attempt(key, content);
+    const requestId = auth.attempt(
+      key,
+      attachment ? content + "\u0000" + attachment.key : content,
+    );
     try {
       if (!target) {
         const created = await api.request<ChatSession>(
@@ -141,15 +153,29 @@ export function ChatWorkspace({ sessionId }: { sessionId?: string }) {
         auth.setDraft(target, content);
         auth.setDraft("home", "");
         auth.moveAttempt("home", target);
+        auth.moveAttachment("home", target);
+      }
+      let imageId = attachment?.imageId;
+      if (attachment && !imageId) {
+        const uploaded = await api.uploadImage(attachment.file);
+        if (scope.current !== snapshot || auth.revision !== revision) return;
+        imageId = uploaded.id;
+        auth.markImageUploaded(draftKey, attachment.key, imageId);
+        void auth.refreshGuestQuota().catch(() => {});
       }
       const result = await api.request<SendMessageResult>(
         `/chat-sessions/${target}/messages`,
         "POST",
-        { content, client_request_id: requestId },
+        {
+          content,
+          client_request_id: requestId,
+          ...(imageId ? { image_id: imageId } : {}),
+        },
       );
       if (scope.current !== snapshot || auth.revision !== revision) return;
       auth.setDraft(draftKey, "");
       auth.clearAttempt(draftKey);
+      if (attachment) auth.setAttachment(draftKey, null);
       beginAnswerReveal(result.assistant_message.id);
       setMessages((old) => ({
         ...old,
@@ -176,6 +202,7 @@ export function ChatWorkspace({ sessionId }: { sessionId?: string }) {
       sendLock.current = false;
       setSending(false);
       setPendingText("");
+      setPendingImage("");
       if (!sessionId && target && scope.current === snapshot)
         router.push(`/chat/${target}`);
     }
@@ -254,6 +281,7 @@ export function ChatWorkspace({ sessionId }: { sessionId?: string }) {
       if (snapshot === scope.current) {
         if (edit.kind === "delete") {
           auth.setDraft(edit.chat.id, "");
+          auth.setAttachment(edit.chat.id, null);
           if (sessionId === edit.chat.id) router.push("/chat");
         }
         setEdit(null);
@@ -544,11 +572,7 @@ export function ChatWorkspace({ sessionId }: { sessionId?: string }) {
                         ) : (
                           <p className="answer-text">{m.content}</p>
                         )}
-                        {m.image_id && (
-                          <p className="muted text-sm">
-                            มีรูปภาพแนบในข้อความนี้
-                          </p>
-                        )}
+                        {m.image_id && <MessageImage imageId={m.image_id} />}
                       </article>
                     ))}
                   </section>
@@ -566,6 +590,13 @@ export function ChatWorkspace({ sessionId }: { sessionId?: string }) {
                         <small>คุณ</small>
                       </div>
                       <p className="answer-text">{pendingText}</p>
+                      {pendingImage && (
+                        <img
+                          className="message-image"
+                          src={pendingImage}
+                          alt="รูปที่กำลังส่ง"
+                        />
+                      )}
                     </article>
                     <ThinkingIndicator />
                   </section>

@@ -864,3 +864,95 @@ textarea {
     transition: none;
   }
 }
+.attachment-preview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--accent-soft);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  min-width: 0;
+}
+.attachment-preview img {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  background: var(--surface);
+  border-radius: 9px;
+  flex-shrink: 0;
+}
+.attachment-preview > div {
+  min-width: 0;
+  flex: 1;
+}
+.attachment-preview strong {
+  display: block;
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.attachment-preview small {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+.composer-tools {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex-wrap: wrap;
+}
+.composer-tools button {
+  padding: 8px;
+  font-size: 12px;
+}
+.attach-button {
+  color: var(--accent);
+  border: 1px solid var(--border);
+}
+.image-prompts {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.image-prompts button {
+  background: var(--accent-soft);
+  border: 1px solid var(--border);
+  border-radius: 30px;
+  font-size: 12px;
+}
+.message-image {
+  display: block;
+  width: auto;
+  max-width: min(100%, 320px);
+  max-height: 240px;
+  object-fit: contain;
+  margin-top: 14px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+.image-match {
+  display: inline-flex;
+  font-size: 10px;
+  border-radius: 20px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  padding: 4px 9px;
+  margin-bottom: 12px;
+}
+.image-match.suggestion {
+  background: #fff5e6;
+  color: #875a20;
+}
+.image-load-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--muted);
+}

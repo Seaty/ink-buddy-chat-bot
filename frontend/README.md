@@ -1,5 +1,9 @@
 # Ink Buddy Frontend
 
+## แนบรูปถามสินค้า — 2026-10-15
+
+กด ＋ รูปภาพ แนบ JPEG/PNG/WEBP ≤5 MiB พร้อมคำถาม ≤500 ตัวอักษร หรือส่งรูปอย่างเดียว ใช้ Vision + Text RAG แนะนำสินค้าจาก catalog มี preview/remove, Guest quota, error/retry โดยไม่ upload ซ้ำเมื่อมี image ID แล้ว และรูปในประวัติเป็น private ดู [Process / วิธีทดสอบ](../docs/architecture/VISION_CHAT_PROCESS.md)
+
 ## Chat UI presentation — 2026-10-15
 
 เพิ่ม loading animation, แสดงคำตอบใหม่ทีละคำพร้อม auto-scroll ที่พักเมื่อเลื่อนขึ้นอ่าน, ปุ่มแสดงทั้งหมด และ reduced-motion. การ์ดสินค้าจัดกลุ่มชื่อ/ราคา/สี/variants/แหล่งข้อมูลใหม่ ใช้ palette เดิม ดู [รายละเอียดและวิธีทดสอบ](../docs/architecture/CHAT_UI_PRESENTATION.md). เป็น presentation หลัง REST response ไม่ใช่ backend streaming และไม่เปลี่ยน provider/API contract

@@ -1,5 +1,13 @@
 # Ink Buddy API Specification
 
+## Vision Chat — 2026-10-15
+
+ส่ง image_id พร้อมข้อความได้จริงผ่าน endpoint messages เดิม ใช้ OpenRouter Vision → Text RAG; product_refs เพิ่ม optional match_type/match_score/match_method สำหรับรูป match_score เป็น similarity ไม่ใช่ confidence ทุกผลของ text path เป็น similar ไม่อ้าง exact/stock
+
+`GET /api/v1/images/{image_id}/content` policy guest_or_user: ไม่มี request body, ไม่มี query; ต้องเป็นเจ้าของรูป ready คืน 200 image/jpeg, image/png หรือ image/webp แบบ binary พร้อม private,no-store; credential ผิด 401, ไม่พบ/คนอื่น/ไฟล์หาย 404 ใช้ Authorization Bearer หรือ Guest cookie ไม่ใส่ token ใน URL ตัวอย่าง `GET {{base_url}}/images/{{image_id}}/content`
+
+ส่งซ้ำต้องตรงทั้ง content และ image_id มิฉะนั้น 409; provider failure/invalid analysis/timeout ไม่บันทึกคู่ข้อความ 502/503/504 และ upstream policy rejection แยกเป็น OPENROUTER_POLICY_REJECTED ดู [Process](../architecture/VISION_CHAT_PROCESS.md) และ [Postman](image/vision-chat.postman_collection.json)
+
 ## Conversational RAG contract — 2026-10-14
 
 POST /api/v1/chat-sessions/{id}/messages รองรับคำถามต่อใน session เดิม, ordinal, จำนวน 1–5, ราคา/งบ และ variants แล้ว ราคาจัดอันดับใน PostgreSQL ไม่ใช้ LLM คำนวณ ค่าเริ่มต้นเลือกเฉพาะสินค้า THB ที่มีราคาเมื่อเป็น price intent และไม่เปรียบเทียบต่อแพ็คกับต่อด้ามเงียบ ๆ
@@ -12,7 +20,7 @@ product_refs เพิ่ม optional price_source_ref, price_basis, price_verif
 
 ## 1. สถานะ
 
-**32 operations บน 26 paths: implement แล้ว 26 และ scaffold 6** Authentication, Guest lifecycle, Profile GET และ Guest image upload/search ใช้งานจริงแล้ว การจัดการแชตและอ่านประวัติ implement แล้ว; สินค้า/รูป detail-delete/readiness ที่ยังเป็น scaffold ตรวจสิทธิ์ก่อนตอบ 501 ไม่คืนข้อมูลสำเร็จปลอม ไม่มี document upload
+**33 operations บน 27 paths: implement แล้ว 27 และ scaffold 6** Authentication, Guest lifecycle, Profile GET และ Guest image upload/search ใช้งานจริงแล้ว การจัดการแชตและอ่านประวัติ implement แล้ว; สินค้า/รูป detail-delete/readiness ที่ยังเป็น scaffold ตรวจสิทธิ์ก่อนตอบ 501 ไม่คืนข้อมูลสำเร็จปลอม ไม่มี document upload
 
 ## 2. Contract กลางและ Authentication
 
@@ -54,6 +62,7 @@ product_refs เพิ่ม optional price_source_ref, price_basis, price_verif
 | POST | `/api/v1/images` | guest_or_user | Implemented |
 | POST | `/api/v1/images/{image_id}/analysis` | guest_or_user | Implemented |
 | POST | `/api/v1/images/{image_id}/ocr` | guest_or_user | Implemented |
+| GET | `/api/v1/images/{image_id}/content` | guest_or_user | Implemented: private binary image |
 | GET | `/api/v1/images/{image_id}` | guest_or_user | Scaffold: 501 |
 | DELETE | `/api/v1/images/{image_id}` | guest_or_user | Scaffold: 501 |
 | POST | `/api/v1/product-search/by-image` | guest_or_user | Implemented |
@@ -77,7 +86,7 @@ product_refs เพิ่ม optional price_source_ref, price_basis, price_verif
 - Image analysis/OCR (`POST /images/{image_id}/analysis`, `/ocr`): เจ้าของรูปเท่านั้น (อื่นตอบ 404) Guest ต้องยังใช้ได้; ครั้งแรกเรียก vision model แล้วเก็บผลใน image_uploads.analysis / ocr_text ครั้งต่อไปตอบ cached ไม่ใช้โควตารูป ผล analysis เป็นการตีความ ไม่ใช่การยืนยันสินค้า; OCR เป็นค่าประมาณ และกับ qwen3-vl:latest รูปที่มีข้อความเยอะตอบ 503 VISION_UNAVAILABLE
 - Claim: User Bearer และ Guest cookie ต้อง valid ย้ายแชต/รูปทั้งชุดแบบ atomic พร้อม revoke Guest และ clear cookie Claim ซ้ำ/expired Guest ตอบ 401
 - Profile GET ไม่ส่ง password hash; PATCH ยังเป็น scaffold ไม่มีการแก้ข้อมูล
-- Message contract ยังคง image_id เดียว ไม่ใช่ image_ids; content หรือ image ต้องมีอย่างน้อยหนึ่งอย่าง ข้อจำกัดข้อความ 4000 chars เป็น scaffold validation ที่เสนอ
+- Message ใช้ image_id เดียว ไม่ใช่ image_ids; content หรือ image ต้องมีอย่างน้อยหนึ่งอย่าง ข้อความล้วน 4000 ตัวอักษร; แนบรูปได้คำถามสูงสุด 500 ตัวอักษร ถ้าไม่ระบุใช้ “มีสินค้านี้ไหม” ใช้งานจริงแล้ว ดู [Vision Chat Process](../architecture/VISION_CHAT_PROCESS.md)
 - Chat lists: limit default20 ช่วง1–100; cursor scoped ตาม owner ใช้ updated_at/id สำหรับแชต และ sequence_number สำหรับข้อความ; cursor ผิดตอบ422 Product lists ยัง scaffold
 - Guest data cleanup: ลบเมื่อ expires_at ผ่านไปอีก24ชั่วโมงและยังไม่ได้ claim ใช้ script dry-run/--apply ต้องตั้ง scheduler เอง; ไม่ลบไฟล์ของข้อมูลที่ย้ายเข้าบัญชีแล้ว
 
@@ -260,7 +269,7 @@ Success ของ scaffold เป็น proposed schema เท่านั้น
 - Method: POST; Authentication: guest_or_user; User Bearer หรือ Guest cookie (Guest ต้องมี allowed Origin)
 - Headers: Content-Type/Accept application/json; credentials ตามชนิด; response Cache-Control: no-store
 - Path: session_id UUID; Query: ไม่มี
-- Body: content trim 1–4000 ตัว, client_request_id UUIDv7 required; extra fields/image_id ปฏิเสธ 422
+- Body: content trim 1–4000 ตัวสำหรับข้อความล้วน; optional image_id UUID ของรูปที่ upload แล้วและตนเป็นเจ้าของ เมื่อมีรูป content สูงสุด 500 ตัวอักษร/ไม่ส่งใช้ “มีสินค้านี้ไหม”; client_request_id UUIDv7 required; extra fields ปฏิเสธ 422
 - Success: 201 {user_message,assistant_message}; replay สำเร็จคืน 201 และ IDs เดิม ไม่มีการบันทึกซ้ำ
 - Errors: 401 credential expired/revoked, 403 Origin, 404 not owned/deleted, 409 REQUEST_ID_CONFLICT/CHAT_CHANGED/CHAT_FULL, 422 validation, 502 ANSWER_FAILED/INVALID_ANSWER, 503 ANSWER_BUSY, 504 ANSWER_TIMEOUT, 500 MESSAGE_FAILED
 - Business rules: snapshot ประวัติ 10 ข้อความและ sequence, commit ก่อน search/adapter; recheck credential/ownership/sequence แล้วบันทึกคู่ใน transaction Guest-before-chat; User ล็อก Login sessionก่อนแชตเพื่อ serialize revocation

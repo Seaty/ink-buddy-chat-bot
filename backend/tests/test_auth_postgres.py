@@ -1453,7 +1453,7 @@ def test_message_api_replay_validation_ownership(setup):
                 json={**payload, "image_id": str(product)},
                 headers=ORIGIN,
             ).status_code
-            == 422
+            == 409
         )
         with setup.sessions() as db:
             other, token, _ = AuthService(db, setup.settings).create_guest(None)
@@ -1708,3 +1708,85 @@ def test_message_user_credential_rechecked_after_answer(setup, event, adapter_mo
         assert error.value.status == 401
     with setup.sessions() as db:
         assert db.execute(text("SELECT COUNT(*) FROM chat_messages")).scalar_one() == 0
+
+
+def test_vision_text_message_private_preview_and_replay(setup):
+    from fastapi import Depends
+    from app.core.identifiers import uuid7
+    from app.api.v1.session.routes import message_service
+    from app.services.session.message_service import MessageService
+    from app.ai.prompts.vision_prompt import ImageAnalysis,Intent
+    principal,sid,raw,pid=message_setup(setup)
+    with setup.sessions() as db:
+        image=setup.vision.upload_image(db,principal,image_bytes()).id
+    class Vision:
+        calls=0
+        def analyze(self,img,prompt,retries=0):
+            self.calls+=1
+            assert prompt=='มีสินค้านี้ไหม' and img.size==(64,64) and retries==0
+            return ImageAnalysis(is_stationery=True,intent=Intent.FIND_SIMILAR,category_guess='gel_pen',brand_text='Ink',description='ปากกาเจล')
+    vision=Vision()
+    def service(db=Depends(get_db)):return MessageService(db,setup.settings,vision_service=vision)
+    setup.app.dependency_overrides[message_service]=service
+    payload={'image_id':str(image),'client_request_id':str(uuid7())}
+    with TestClient(setup.app) as client:
+        client.cookies.set(GUEST_COOKIE,raw)
+        content=client.get(f'/api/v1/images/{image}/content')
+        assert content.status_code==200 and content.headers['content-type']=='image/png'
+        assert content.headers['cache-control']=='private, no-store'
+        assert Image.open(io.BytesIO(content.content)).size==(64,64)
+        first=client.post(f'/api/v1/chat-sessions/{sid}/messages',json=payload,headers=ORIGIN)
+        assert first.status_code==201,first.text
+        pair=first.json();assert pair['user_message']['image_id']==str(image)
+        assert pair['assistant_message']['model_name']=='vision_catalog'
+        ref=pair['assistant_message']['product_refs'][0]
+        assert ref['id']==str(pid) and ref['match_type']=='similar' and ref['match_method']=='vision_text_catalog'
+        assert ref['match_score'] is None # no fake probability from keyword/RRF score
+        assert client.post(f'/api/v1/chat-sessions/{sid}/messages',json=payload,headers=ORIGIN).json()==pair
+        assert vision.calls==1
+        conflict=client.post(f'/api/v1/chat-sessions/{sid}/messages',json={**payload,'image_id':str(uuid7())},headers=ORIGIN)
+        assert conflict.status_code==409
+        with setup.sessions() as db:
+            other,token,_=AuthService(db,setup.settings).create_guest(None)
+        client.cookies.set(GUEST_COOKIE,token)
+        assert client.get(f'/api/v1/images/{image}/content').status_code==404
+        from app.services.session.service import ChatSessionService
+        with setup.sessions() as db:other_chat=ChatSessionService(db).create(Principal('guest',other.id),None)
+        assert client.post(f'/api/v1/chat-sessions/{other_chat.id}/messages',json={**payload,'client_request_id':str(uuid7())},headers=ORIGIN).status_code==404
+    with setup.sessions() as db:
+        assert db.execute(text('SELECT count(*) FROM chat_messages')).scalar_one()==2
+        assert db.execute(text('SELECT image_uploads_used FROM guest_sessions WHERE id=:id'),{'id':principal.id}).scalar_one()==1
+
+
+@pytest.mark.parametrize('event',['claim','delete','logout','failure','non_stationery'])
+def test_vision_message_rechecks_and_rolls_back(setup,event):
+    from app.core.identifiers import uuid7
+    from app.schemas.session import SendMessageRequest
+    from app.services.session.message_service import MessageService
+    from app.ai.prompts.vision_prompt import ImageAnalysis,Intent
+    principal,sid,raw,_=message_setup(setup)
+    if event=='logout':
+        from app.services.session.service import ChatSessionService
+        with setup.sessions() as db:
+            access,refresh,_=AuthService(db,setup.settings).login('user@example.com',PASSWORD)
+            principal=AuthService(db,setup.settings).authenticate_user(access.access_token)
+            sid=ChatSessionService(db).create(principal,None).id
+    with setup.sessions() as db:image=setup.vision.upload_image(db,principal,image_bytes()).id
+    class Vision:
+        def analyze(self,img,prompt,retries=0):
+            if event=='failure':raise RuntimeError('fake provider failure')
+            if event in ('claim','delete','logout'):
+                with setup.sessions() as db:
+                    if event=='claim':AuthService(db,setup.settings).claim(Principal('user',setup.ids['user']),raw)
+                    elif event=='logout':AuthService(db,setup.settings).logout(refresh)
+                    else:
+                        db.execute(text('UPDATE chat_sessions SET deleted_at=now() WHERE id=:id'),{'id':sid});db.commit()
+            return ImageAnalysis(is_stationery=event!='non_stationery',intent=Intent.FIND_SIMILAR,category_guess='gel_pen',description='ปากกา')
+    with setup.sessions() as db:
+        call=lambda:MessageService(db,setup.settings,vision_service=Vision()).send(principal,sid,SendMessageRequest(image_id=image,client_request_id=uuid7()))
+        if event=='non_stationery':assert not call().assistant_message.product_refs
+        else:
+            with pytest.raises(ApiError) as error:call()
+            assert error.value.status in (401,404,502)
+    with setup.sessions() as db:
+        assert db.execute(text('SELECT count(*) FROM chat_messages')).scalar_one()==(2 if event=='non_stationery' else 0)

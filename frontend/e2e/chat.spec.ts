@@ -14,6 +14,7 @@ async function fixture(
   let claimed = false;
   let sequence = 0;
   let posts = 0;
+  let uploads = 0;
   type Chat = {
     id: string;
     title: string;
@@ -51,6 +52,29 @@ async function fixture(
     const fail = (status: number) =>
       send({ error: { code: "UNAUTHORIZED", message: "failed" } }, status);
     if (method === "OPTIONS") return send({});
+    if (path === "/images" && method === "POST") {
+      expect(request.headers()["content-type"]).toContain(
+        "multipart/form-data; boundary=",
+      );
+      uploads++;
+      guest.image_uploads_remaining--;
+      return send(
+        {
+          id: `018f1234-0000-7000-8000-${String(uploads + 100).padStart(12, "0")}`,
+          status: "ready",
+        },
+        201,
+      );
+    }
+    if (/^\/images\/[^/]+\/content$/.test(path))
+      return route.fulfill({
+        status: 200,
+        contentType: "image/png",
+        body: Buffer.from(
+          "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Wl6G9sAAAAASUVORK5CYII=",
+          "base64",
+        ),
+      });
     if (path === "/auth/register") return send({ message: "Created" }, 201);
     if (path === "/auth/forgot-password")
       return send({ message: "If eligible" }, 202);
@@ -116,7 +140,7 @@ async function fixture(
           sequence_number: history.length + 1,
           role: "user",
           content: body.content,
-          image_id: null,
+          image_id: body.image_id || null,
           product_refs: null,
         };
         const assistant = {
@@ -124,6 +148,8 @@ async function fixture(
           id: `message-${history.length + 2}`,
           sequence_number: history.length + 2,
           role: "assistant",
+          image_id: null,
+          model_name: body.image_id ? "vision_catalog" : undefined,
           content: options.content || "พบสินค้าจาก catalog",
           product_refs: options.products || [
             {
@@ -152,7 +178,7 @@ async function fixture(
     }
     return send(c);
   });
-  return { posts: () => posts, sentIds: () => sentIds };
+  return { posts: () => posts, sentIds: () => sentIds, uploads: () => uploads };
 }
 async function openList(page: Page) {
   if (await page.getByRole("button", { name: "☰ แชตของคุณ" }).isVisible())
@@ -466,4 +492,78 @@ test("product cards keep variants, sources and details visually separate", async
     path: `../.local/chat-cards-${info.project.name}.png`,
     fullPage: true,
   });
+});
+
+test("attach image with default prompt, preserve upload on retry and reload private preview", async ({
+  page,
+}) => {
+  const state = await fixture(page, true);
+  await page.goto("/chat");
+  const file = {
+    name: "pen.png",
+    mimeType: "image/png",
+    buffer: Buffer.from(
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Wl6G9sAAAAASUVORK5CYII=",
+      "base64",
+    ),
+  };
+  await page.getByLabel("เลือกรูปเครื่องเขียน").setInputFiles(file);
+  await expect(page.getByAltText("รูปที่เลือกแนบ")).toBeVisible();
+  expect(state.uploads()).toBe(0);
+  expect(state.posts()).toBe(0);
+  await page.getByRole("button", { name: "ส่งข้อความ", exact: true }).click();
+  await expect(page).toHaveURL(/\/chat\/[\w-]+$/);
+  await expect(page.getByAltText("รูปที่เลือกแนบ")).toBeVisible();
+  await expect(
+    page.getByText("อัปโหลดแล้ว · ลองส่งใหม่ได้โดยไม่ใช้โควตารูปเพิ่ม"),
+  ).toBeVisible();
+  expect(state.uploads()).toBe(1);
+  await page.getByRole("button", { name: "ส่งข้อความ", exact: true }).click();
+  await expect(
+    page.getByLabel("แหล่งคำตอบ").filter({ hasText: "Vision" }),
+  ).toBeVisible();
+  await expect(page.getByAltText("รูปที่แนบกับข้อความ")).toBeVisible();
+  await expect(page.getByAltText("รูปที่เลือกแนบ")).toHaveCount(0);
+  expect(state.uploads()).toBe(1);
+  expect(state.sentIds()[0]).toBe(state.sentIds()[1]);
+  await expect(page.getByText("มีสินค้านี้ไหม", { exact: true })).toBeVisible();
+  await page.reload();
+  await expect(page.getByAltText("รูปที่แนบกับข้อความ")).toBeVisible();
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+});
+
+test("image selection validates files and removal does not create uploads", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  await page.goto("/chat");
+  await page
+    .getByLabel("เลือกรูปเครื่องเขียน")
+    .setInputFiles({
+      name: "bad.txt",
+      mimeType: "text/plain",
+      buffer: Buffer.from("not a photo"),
+    });
+  await expect(
+    page.getByRole("alert").filter({ hasText: "รองรับเฉพาะรูป" }),
+  ).toBeVisible();
+  await page
+    .getByLabel("เลือกรูปเครื่องเขียน")
+    .setInputFiles({
+      name: "pen.png",
+      mimeType: "image/png",
+      buffer: Buffer.from("png"),
+    });
+  await expect(page.getByAltText("รูปที่เลือกแนบ")).toHaveCount(1);
+  await page.getByRole("button", { name: "นำรูปที่แนบออก" }).click();
+  await expect(page.getByAltText("รูปที่เลือกแนบ")).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "ส่งข้อความ", exact: true }),
+  ).toBeDisabled();
+  expect(state.uploads()).toBe(0);
+  expect(state.posts()).toBe(0);
 });

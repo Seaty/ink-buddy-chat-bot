@@ -44,7 +44,7 @@ def test_openapi_marks_all_scaffolds():
         for method, operation in item.items()
         if method in {"get", "post", "patch", "delete"}
     ]
-    assert len(operations) == 32
+    assert len(operations) == 33
     scaffolds = [
         operation
         for operation in operations
