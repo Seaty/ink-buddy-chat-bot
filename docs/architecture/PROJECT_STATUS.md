@@ -1,5 +1,9 @@
 # Ink Buddy — สถานะปัจจุบัน 2026-10-14
 
+## Chat UI presentation — 2026-10-15 · feature/chat-ui
+
+เพิ่ม loading animation, แสดงคำตอบใหม่ทีละคำภาษาไทย, เลื่อนตามพร้อมพักเมื่อเลื่อนขึ้นอ่าน/ปุ่มกลับล่าสุด, skip และ reduced-motion. ปรับการ์ดสินค้าแยกข้อมูลราคา/สี/variants/source และพับรายละเอียดรอง ใช้สีเดิม เป็น presentation หลัง REST response ไม่ใช่ backend streaming. Frontend unit 29, browser API mocks 24 และ TypeScript ผ่าน ดู [UI process](CHAT_UI_PRESENTATION.md)
+
 ## Natural response tone — 2026-10-15
 
 ปรับ Text RAG ให้ตอบตรงคำถามด้วยภาษาสนทนา ลดการทวนรายละเอียดและข้อความภายในระบบ ไม่แปะคำเตือนไม่ใช่ข้อมูลสดทุกคำตอบ ยังคงข้อมูลอ้างอิงและ output guardrails เดิม ทดสอบ intent/adapter/rendering 27 และ PostgreSQL disposable 68 ผ่าน ดู [โทนคำตอบ](RAG_RESPONSE_TONE.md) มีผลกับคำตอบใหม่หลัง restart เท่านั้น

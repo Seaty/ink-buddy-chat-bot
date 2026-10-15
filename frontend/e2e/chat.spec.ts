@@ -1,6 +1,15 @@
 import { test, expect, type Page } from "@playwright/test";
+import type { ProductReference } from "../src/lib/types";
 
-async function fixture(page: Page, failMessageOnce = false) {
+async function fixture(
+  page: Page,
+  failMessageOnce = false,
+  options: {
+    content?: string;
+    delayMs?: number;
+    products?: ProductReference[];
+  } = {},
+) {
   let loggedIn = false;
   let claimed = false;
   let sequence = 0;
@@ -94,6 +103,8 @@ async function fixture(page: Page, failMessageOnce = false) {
       if (method === "POST") {
         const body = request.postDataJSON();
         sentIds.push(body.client_request_id);
+        if (options.delayMs)
+          await new Promise((resolve) => setTimeout(resolve, options.delayMs));
         if (failMessageOnce) {
           failMessageOnce = false;
           return fail(503);
@@ -113,8 +124,8 @@ async function fixture(page: Page, failMessageOnce = false) {
           id: `message-${history.length + 2}`,
           sequence_number: history.length + 2,
           role: "assistant",
-          content: "พบสินค้าจาก catalog",
-          product_refs: [
+          content: options.content || "พบสินค้าจาก catalog",
+          product_refs: options.products || [
             {
               id: "product-1",
               sku: "PEN",
@@ -313,4 +324,146 @@ test("failed first send retains draft, request ID and created chat for retry", a
   ).toBeVisible();
   expect(state.posts()).toBe(1);
   expect(state.sentIds()[0]).toBe(state.sentIds()[1]);
+});
+
+test("pending animation, word reveal, follow scroll and reading older text", async ({
+  page,
+}, info) => {
+  const content = Array.from(
+    { length: 120 },
+    (_, i) =>
+      `ตัวเลือกที่ ${i + 1} ปากกาหมึกน้ำเงินราคา 50 บาท เหมาะสำหรับจดโน้ต`,
+  ).join("\n");
+  const state = await fixture(page, false, { content, delayMs: 600 });
+  await page.goto("/chat");
+  await page.getByLabel("ร่างคำถามของคุณ").fill("แนะนำปากกาหน่อย");
+  await page.getByRole("button", { name: "ส่งข้อความ", exact: true }).click();
+  await expect(page.getByLabel("กำลังรอคำตอบ")).toBeVisible();
+  await expect(
+    page.getByText("กำลังค้นข้อมูลและเตรียมคำตอบ", { exact: true }),
+  ).toBeVisible();
+  await expect(page.locator("[data-revealing='true']")).toBeVisible();
+  await expect(page.getByLabel("กำลังรอคำตอบ")).toHaveCount(0);
+  await expect
+    .poll(() => page.evaluate(() => window.scrollY), { timeout: 6000 })
+    .toBeGreaterThan(300);
+  await page.mouse.wheel(0, -1200);
+  await expect(
+    page.getByRole("button", { name: "กลับไปข้อความล่าสุด" }),
+  ).toBeVisible();
+  const before = await page.evaluate(() => ({
+    y: scrollY,
+    height: document.documentElement.scrollHeight,
+  }));
+  await expect
+    .poll(() => page.evaluate(() => document.documentElement.scrollHeight))
+    .toBeGreaterThan(before.height + 80);
+  expect(
+    Math.abs((await page.evaluate(() => scrollY)) - before.y),
+  ).toBeLessThan(80);
+  await page.getByRole("button", { name: "กลับไปข้อความล่าสุด" }).click();
+  await expect(
+    page.getByRole("button", { name: "กลับไปข้อความล่าสุด" }),
+  ).toHaveCount(0);
+  await page.getByRole("button", { name: "แสดงคำตอบทั้งหมด" }).click();
+  await expect(page.getByLabel("สินค้าที่เกี่ยวข้อง")).toBeVisible();
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => document.documentElement.scrollHeight - innerHeight - scrollY,
+      ),
+    )
+    .toBeLessThan(120);
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  expect(state.posts()).toBe(1);
+  await page.screenshot({
+    path: `../.local/chat-ui-${info.project.name}.png`,
+    fullPage: true,
+  });
+  await page.reload();
+  await expect(page.getByLabel("สินค้าที่เกี่ยวข้อง")).toBeVisible();
+  await expect(page.locator("[data-revealing='true']")).toHaveCount(0);
+});
+
+test("reduced motion displays the answer immediately", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await fixture(page);
+  await page.goto("/chat");
+  await page.getByLabel("ร่างคำถามของคุณ").fill("ปากกาเจล");
+  await page.getByRole("button", { name: "ส่งข้อความ", exact: true }).click();
+  await expect(page.getByLabel("สินค้าที่เกี่ยวข้อง")).toBeVisible();
+  await expect(page.locator("[data-revealing='true']")).toHaveCount(0);
+});
+
+test("product cards keep variants, sources and details visually separate", async ({
+  page,
+}, info) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  const pen = {
+    id: "blue",
+    sku: "BL77-BLUE",
+    name: "Pentel Energel BL77 หมึกสีน้ำเงิน",
+    price: "50.00",
+    currency: "THB",
+    availability: null,
+    source_ref: "https://example.test/catalog",
+    price_source_ref: "https://example.test/price",
+    ink_color: "น้ำเงิน",
+    selling_unit: "ด้าม",
+    price_basis: "excludes_vat",
+    price_verification: "user_assumed_for_coursework_not_verified",
+  };
+  await fixture(page, false, {
+    content:
+      "ลองดูสองรุ่นนี้ครับ\n• Pentel Energel BL77 — 50 บาท / ด้าม\n• Pentel Feel-it — 10 บาท / ด้าม\nBL77 มีสีแดงให้เลือกด้วยครับ",
+    products: [
+      {
+        ...pen,
+        variants: [
+          {
+            ...pen,
+            id: "red",
+            name: "Pentel Energel BL77 หมึกสีแดง",
+            ink_color: "แดง",
+          },
+        ],
+      },
+      {
+        ...pen,
+        id: "feel-it",
+        name: "Pentel Feel-it หมึกน้ำเงิน ด้ามสีส้ม",
+        price: "10.00",
+        body_color: "ส้ม",
+        variants: [],
+      },
+    ],
+  });
+  await page.goto("/chat");
+  await page
+    .getByLabel("ร่างคำถามของคุณ")
+    .fill("ปากกาหมึกน้ำเงิน มีสีอื่นด้วยไหม");
+  await page.getByRole("button", { name: "ส่งข้อความ", exact: true }).click();
+  await expect(page).toHaveURL(/\/chat\/[\w-]+$/);
+  await expect(page.getByLabel("สีอื่นของรุ่นเดียวกัน")).toBeVisible();
+  await page.locator(".product-collection").scrollIntoViewIfNeeded();
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  await expect(page.getByRole("link", { name: "แหล่งข้อมูลราคา" })).toHaveCount(
+    3,
+  );
+  await page.locator(".product-details summary").first().click();
+  await expect(
+    page.getByText("ฐานภาษีเป็นสมมติฐานสำหรับส่งงาน").first(),
+  ).toBeVisible();
+  await page.screenshot({
+    path: `../.local/chat-cards-${info.project.name}.png`,
+    fullPage: true,
+  });
 });

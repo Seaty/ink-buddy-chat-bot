@@ -13,7 +13,12 @@ import type {
 import { Dialog } from "@/components/ui/dialog";
 import { Composer } from "./composer";
 import { AnswerSource } from "./answer-source";
-import { ProductReferenceCard } from "./product-reference";
+import {
+  AssistantMessage,
+  beginAnswerReveal,
+  ThinkingIndicator,
+} from "./assistant-message";
+import { useChatScroll } from "./use-chat-scroll";
 
 type Edit = { kind: "rename" | "delete"; chat: ChatSession };
 function unique<T extends { id: string }>(items: T[]) {
@@ -47,6 +52,10 @@ export function ChatWorkspace({ sessionId }: { sessionId?: string }) {
   const [claimBusy, setClaimBusy] = useState(false);
   const scope = useRef("");
   scope.current = `${auth.revision}:${sessionId || "home"}`;
+  const scroll = useChatScroll(
+    scope.current,
+    messages.items.length > 0 || sending,
+  );
   useEffect(() => {
     let active = true;
     setList({ items: [], next_cursor: null });
@@ -111,6 +120,7 @@ export function ChatWorkspace({ sessionId }: { sessionId?: string }) {
     sendLock.current = true;
     setSending(true);
     setPendingText(content);
+    scroll.latest();
     setActionError("");
     auth.setMessageError(key, "");
     const revision = auth.revision;
@@ -140,6 +150,7 @@ export function ChatWorkspace({ sessionId }: { sessionId?: string }) {
       if (scope.current !== snapshot || auth.revision !== revision) return;
       auth.setDraft(draftKey, "");
       auth.clearAttempt(draftKey);
+      beginAnswerReveal(result.assistant_message.id);
       setMessages((old) => ({
         ...old,
         items: unique([
@@ -148,7 +159,14 @@ export function ChatWorkspace({ sessionId }: { sessionId?: string }) {
           result.assistant_message,
         ]).sort((a, b) => a.sequence_number - b.sequence_number),
       }));
-      setVersion((v) => v + 1);
+      // Refresh only the list: reloading detail here would unmount the reply
+      // and interrupt its progressive reveal.
+      void api
+        .request<Page<ChatSession>>("/chat-sessions")
+        .then((data) => {
+          if (scope.current === snapshot) setList(data);
+        })
+        .catch(() => {});
     } catch (e) {
       if (scope.current === snapshot) {
         setActionError(errorText(e));
@@ -201,6 +219,7 @@ export function ChatWorkspace({ sessionId }: { sessionId?: string }) {
     }
   }
   async function older() {
+    scroll.pause();
     setBusy(true);
     const snapshot = scope.current;
     try {
@@ -476,62 +495,93 @@ export function ChatWorkspace({ sessionId }: { sessionId?: string }) {
             </section>
           ) : (
             <>
-              {!messages.items.length ? (
-                <section className="welcome">
-                  <span className="welcome-icon">✎</span>
-                  <p className="eyebrow">เพื่อนช่วยเลือกเครื่องเขียน</p>
-                  <h1>
-                    {chat?.title || "วันนี้อยากรู้เรื่องเครื่องเขียนอะไร?"}
-                  </h1>
-                  <p className="muted">
-                    เริ่มจากคำถามแนะนำ หรือร่างคำถามในแบบของคุณ
-                  </p>
-                  {!sessionId && (
-                    <button
-                      onClick={create}
-                      disabled={busy}
-                      className="start-chat"
-                    >
-                      สร้างแชตเพื่อเก็บไว้เป็นหมวดหมู่ →
-                    </button>
-                  )}
-                </section>
-              ) : (
-                <section aria-label="ประวัติข้อความ" className="messages">
-                  {messages.next_cursor && (
-                    <button onClick={older} disabled={busy}>
-                      โหลดข้อความเก่ากว่า
-                    </button>
-                  )}
-                  {messages.items.map((m) => (
-                    <article key={m.id} className={`message ${m.role}`}>
-                      <div className="flex items-center gap-2">
-                        <small>{m.role === "user" ? "คุณ" : "Ink Buddy"}</small>
-                        {m.role === "assistant" && <AnswerSource model={m.model_name} />}
+              <div ref={scroll.thread} className="chat-thread">
+                {!messages.items.length && !sending ? (
+                  <section className="welcome">
+                    <span className="welcome-icon">✎</span>
+                    <p className="eyebrow">เพื่อนช่วยเลือกเครื่องเขียน</p>
+                    <h1>
+                      {chat?.title || "วันนี้อยากรู้เรื่องเครื่องเขียนอะไร?"}
+                    </h1>
+                    <p className="muted">
+                      เริ่มจากคำถามแนะนำ หรือร่างคำถามในแบบของคุณ
+                    </p>
+                    {!sessionId && (
+                      <button
+                        onClick={create}
+                        disabled={busy}
+                        className="start-chat"
+                      >
+                        สร้างแชตเพื่อเก็บไว้เป็นหมวดหมู่ →
+                      </button>
+                    )}
+                  </section>
+                ) : (
+                  <section aria-label="ประวัติข้อความ" className="messages">
+                    {messages.next_cursor && (
+                      <button onClick={older} disabled={busy}>
+                        โหลดข้อความเก่ากว่า
+                      </button>
+                    )}
+                    {messages.items.map((m) => (
+                      <article key={m.id} className={`message ${m.role}`}>
+                        <div className="message-author">
+                          <span
+                            className={`message-avatar ${m.role}`}
+                            aria-hidden="true"
+                          >
+                            {m.role === "user" ? "ค" : "✦"}
+                          </span>
+                          <small>
+                            {m.role === "user" ? "คุณ" : "Ink Buddy"}
+                          </small>
+                          {m.role === "assistant" && (
+                            <AnswerSource model={m.model_name} />
+                          )}
+                        </div>
+                        {m.role === "assistant" ? (
+                          <AssistantMessage message={m} />
+                        ) : (
+                          <p className="answer-text">{m.content}</p>
+                        )}
+                        {m.image_id && (
+                          <p className="muted text-sm">
+                            มีรูปภาพแนบในข้อความนี้
+                          </p>
+                        )}
+                      </article>
+                    ))}
+                  </section>
+                )}
+                {sending && (
+                  <section className="pending-turn" aria-label="กำลังรอคำตอบ">
+                    <article className="message user pending-user">
+                      <div className="message-author">
+                        <span
+                          className="message-avatar user"
+                          aria-hidden="true"
+                        >
+                          ค
+                        </span>
+                        <small>คุณ</small>
                       </div>
-                      <p>{m.content}</p>
-                      {m.product_refs?.map((p) => (
-                        <ProductReferenceCard key={p.id} product={p} />
-                      ))}
-                      {m.image_id && (
-                        <p className="muted text-sm">มีรูปภาพแนบในข้อความนี้</p>
-                      )}
+                      <p className="answer-text">{pendingText}</p>
                     </article>
-                  ))}
-                </section>
-              )}
-              {sending && (
-                <section role="status">
-                  <p>{pendingText}</p>
-                  <p>กำลังค้นข้อมูลและเตรียมคำตอบ</p>
-                </section>
+                    <ThinkingIndicator />
+                  </section>
+                )}
+              </div>
+              {scroll.away && messages.items.length > 0 && (
+                <button className="jump-latest" onClick={scroll.latest}>
+                  ↓ กลับไปข้อความล่าสุด
+                </button>
               )}
               <Composer
                 key={sessionId || "home"}
                 draftKey={sessionId || "home"}
                 onSend={send}
                 busy={sending || busy}
-                showPrompts={!messages.items.length}
+                showPrompts={!messages.items.length && !sending}
               />
             </>
           )}
