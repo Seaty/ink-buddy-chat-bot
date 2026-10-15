@@ -1,8 +1,14 @@
 # Ink Buddy Database Schema
 
+## product_refs snapshot — 2026-10-14
+
+chat_messages.product_refs JSONB เก็บ ProductReference หลักพร้อม optional price_source_ref/price_basis/price_verification/selling_unit/pack_quantity/ink_color/body_color และ variants สูงสุด 5 (ProductFactReference ไม่ซ้อน variants). ใช้ snapshot เดิมที่ตอบเพื่อให้ ordinal อ้างลำดับจริง; ประวัติเก่าอ่าน defaults ต่อได้ ไม่ backfill คำตอบเดิม
+
+ไม่มีตาราง/column/index/migration ใหม่ในรอบ Conversational RAG. ราคาปัจจุบันอยู่ products.price/currency และ metadata ที่ใช้ส่งงานอยู่ attributes.price_* ดู [Process 7](../docs/architecture/RAG_CONVERSATION_PROCESS.md)
+
 เอกสารนี้อธิบาย schema เริ่มต้นใน [`ddl/001_init.sql`](ddl/001_init.sql) สำหรับแชตบอตสินค้าเครื่องเขียน ผู้ใช้แนบได้เฉพาะรูปภาพ ไม่มีตารางหรือ API สำหรับอัปโหลดเอกสาร PDF/DOCX
 
-## สถานะโครงสร้าง (2026-10-03)
+## สถานะโครงสร้าง (2026-10-13)
 
 DDL snapshot ปัจจุบันมี **14 ตาราง** รวม Guest sessions และ Image RAG แล้ว Auth/Guest ใช้งานจริงแล้ว ฐาน local ใน Podman apply migration 003–006 แล้วพร้อม backup ใน .local/backups; ฐานเครื่องอื่นต้องตรวจและ apply migration ตาม schema ที่มี
 
@@ -48,7 +54,7 @@ Compose ใน `docker/compose.yaml` ใช้ named volume `postgres_data` เ�
 
 สคริปต์ใช้ transaction เดียว: ถ้าคำสั่งล้มเหลว schema ที่สร้างใน transaction จะ rollback สคริปต์นี้ออกแบบสำหรับฐานข้อมูลใหม่และ **ไม่ใช่ migration ที่รันซ้ำ** เมื่อมีข้อมูลแล้วให้สร้างไฟล์ migration ใหม่แทน การกำหนด `updated_at` ให้เปลี่ยนเมื่อแก้ข้อมูลเป็นหน้าที่ของแอปพลิเคชันหรือ migration เพิ่มเติม; schema นี้ตั้งค่า default เฉพาะตอน insert
 
-`vector(1024)` ยึด dense embedding ของ BGE-M3 รุ่นที่เลือก หากเปลี่ยน embedding model หรือ dimension ต้องออกแบบ migration/re-embedding; ห้ามปะปนเวกเตอร์ต่างรุ่นในผลค้นโดยไม่กรอง `model_name`
+`vector(1024)` ปัจจุบันใช้ Qwen3 Embedding 4B ผ่าน OpenRouter (`qwen/qwen3-embedding-4b`) BGE-M3 เป็นแผนเดิม หากเปลี่ยนโมเดลต้อง re-embed โดยแยก model_name; หากเปลี่ยน dimension ต้อง migration เพิ่ม ห้ามปะปนเวกเตอร์ต่างรุ่นในผลค้นโดยไม่กรอง `model_name`
 
 ## ความสัมพันธ์หลัก
 
@@ -105,7 +111,7 @@ ER แสดงความสัมพันธ์ SKU ของ image embeddin
 
 ### `product_embeddings`
 
-เก็บข้อความ normalized ที่ใช้สร้าง embedding (`source_text`), ชื่อโมเดล และเวกเตอร์ BGE-M3 `vector(1024)` หนึ่งสินค้าและหนึ่งโมเดลมี embedding ได้หนึ่งรายการ ถ้ารายละเอียดสินค้าเปลี่ยนต้องสร้าง embedding ใหม่ก่อนใช้ค้น ผลค้นแบบ cosine ต้องกรองโมเดลที่ตรงกับ query embedding เสมอ
+เก็บข้อความ normalized ที่ใช้สร้าง embedding (`source_text`), ชื่อโมเดล และ text vector(1024) ปัจจุบันจาก Qwen3 Embedding 4B หนึ่งสินค้าและหนึ่งโมเดลมี embedding ได้หนึ่งรายการ ถ้าข้อความต้นทางสินค้าเปลี่ยนต้องสร้าง embedding ใหม่ก่อนใช้ค้น ผลค้นแบบ cosine ต้องกรองโมเดลที่ตรงกับ query embedding เสมอ การปรับการแสดงหลักฐานคำตอบไม่ได้เปลี่ยน source_text และไม่ต้อง reindex
 
 ### `image_uploads`
 
@@ -155,7 +161,7 @@ ER แสดงความสัมพันธ์ SKU ของ image embeddin
 1. ใช้ SQL filters กับ SKU, ประเภท, ยี่ห้อ และราคาเมื่อผู้ใช้ระบุเงื่อนไขชัดเจน
 2. ใช้ trigram index กับชื่อสินค้า และ vector cosine กับคำถามที่อธิบายความต้องการ
 3. Image RAG ปัจจุบันใช้ Qwen3-VL-Embedding-2B/vector(2048) และ Qwen3-VL ผ่าน Ollama เมื่อจำเป็นต้องวิเคราะห์ภาพ; metadata API อ่านจาก products โดย lookup SKU
-4. BGE-M3/vector(1024) เป็น **text embedding** แยกตารางจาก image embedding ไม่สามารถปะปน vector spaces ได้
+4. Qwen3 Embedding 4B/vector(1024) เป็น **text embedding ปัจจุบัน** แยกตารางจาก image embedding ไม่สามารถปะปน vector spaces ได้ BGE-M3 เป็นแผนเดิม
 
 ## เรื่องที่ยังต้องกำหนด
 

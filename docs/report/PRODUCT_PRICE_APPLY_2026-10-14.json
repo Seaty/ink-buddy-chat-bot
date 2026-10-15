@@ -1,0 +1,142 @@
+{
+  "applied_on": "2026-10-14",
+  "authorization": "User approved all available proposed prices as excludes-VAT coursework demo",
+  "new_prices": 18,
+  "catalog_products": 67,
+  "missing_prices": 0,
+  "price_tax_basis": "excludes_vat",
+  "vat_conversion_performed": false,
+  "existing_49_price_amounts_unchanged": true,
+  "embedding_source_changed": false,
+  "provider_calls": 0,
+  "backup_path": ".local\\backups\\prices_before_demo_20261014T122004Z.json",
+  "products": [
+    {
+      "sku": "b2s_1091933",
+      "old_price": null,
+      "new_price": "590.00",
+      "currency": "THB",
+      "tax_basis_verification": "user_assumed_for_coursework_not_verified"
+    },
+    {
+      "sku": "officework_0205-0007",
+      "old_price": null,
+      "new_price": "50.00",
+      "currency": "THB",
+      "tax_basis_verification": "source_explicitly_excludes_vat"
+    },
+    {
+      "sku": "officework_0205-0008",
+      "old_price": null,
+      "new_price": "50.00",
+      "currency": "THB",
+      "tax_basis_verification": "source_explicitly_excludes_vat"
+    },
+    {
+      "sku": "officework_0205-0009",
+      "old_price": null,
+      "new_price": "50.00",
+      "currency": "THB",
+      "tax_basis_verification": "source_explicitly_excludes_vat"
+    },
+    {
+      "sku": "officework_0205-0015",
+      "old_price": null,
+      "new_price": "55.00",
+      "currency": "THB",
+      "tax_basis_verification": "source_explicitly_excludes_vat"
+    },
+    {
+      "sku": "officework_0205-0016",
+      "old_price": null,
+      "new_price": "51.00",
+      "currency": "THB",
+      "tax_basis_verification": "source_explicitly_excludes_vat"
+    },
+    {
+      "sku": "officework_0119-0024",
+      "old_price": null,
+      "new_price": "53.00",
+      "currency": "THB",
+      "tax_basis_verification": "source_explicitly_excludes_vat"
+    },
+    {
+      "sku": "officework_0119-0025",
+      "old_price": null,
+      "new_price": "53.00",
+      "currency": "THB",
+      "tax_basis_verification": "source_explicitly_excludes_vat"
+    },
+    {
+      "sku": "officework_0119-0045",
+      "old_price": null,
+      "new_price": "50.00",
+      "currency": "THB",
+      "tax_basis_verification": "source_explicitly_excludes_vat"
+    },
+    {
+      "sku": "officework_0119-0066",
+      "old_price": null,
+      "new_price": "53.00",
+      "currency": "THB",
+      "tax_basis_verification": "source_explicitly_excludes_vat"
+    },
+    {
+      "sku": "officework_0119-0090",
+      "old_price": null,
+      "new_price": "50.00",
+      "currency": "THB",
+      "tax_basis_verification": "source_explicitly_excludes_vat"
+    },
+    {
+      "sku": "officework_0210-0001",
+      "old_price": null,
+      "new_price": "36.00",
+      "currency": "THB",
+      "tax_basis_verification": "source_explicitly_excludes_vat"
+    },
+    {
+      "sku": "officework_0210-0002",
+      "old_price": null,
+      "new_price": "39.00",
+      "currency": "THB",
+      "tax_basis_verification": "source_explicitly_excludes_vat"
+    },
+    {
+      "sku": "officework_0210-0003",
+      "old_price": null,
+      "new_price": "39.00",
+      "currency": "THB",
+      "tax_basis_verification": "source_explicitly_excludes_vat"
+    },
+    {
+      "sku": "officework_0210-0004",
+      "old_price": null,
+      "new_price": "36.00",
+      "currency": "THB",
+      "tax_basis_verification": "source_explicitly_excludes_vat"
+    },
+    {
+      "sku": "officework_0210-0005",
+      "old_price": null,
+      "new_price": "39.00",
+      "currency": "THB",
+      "tax_basis_verification": "source_explicitly_excludes_vat"
+    },
+    {
+      "sku": "officemate_YA32995",
+      "old_price": null,
+      "new_price": "180.00",
+      "currency": "THB",
+      "tax_basis_verification": "user_assumed_for_coursework_not_verified"
+    },
+    {
+      "sku": "officemate_5001001",
+      "old_price": null,
+      "new_price": "25.00",
+      "currency": "THB",
+      "tax_basis_verification": "user_assumed_for_coursework_not_verified"
+    }
+  ],
+  "limitation": "52 tax bases are demo assumptions, not source verification. 3 new prices retain variant/unit/tax evidence limitations."
+}

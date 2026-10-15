@@ -1,4 +1,4 @@
-"""Admin endpoints for the image index. Off unless VISION_ADMIN_ENABLED=true (no admin auth yet)."""
+"""Admin-only indexing endpoints, each protected by its own feature flag."""
 
 from __future__ import annotations
 
@@ -16,6 +16,27 @@ from app.services.vision_service import VisionService, get_vision_service
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
+from app.db.database import get_engine
+from app.schemas.admin import TextValidateRequest, TextIndexRequest, TextValidateResponse, TextIndexResponse
+from app.services.product.text_index import TextIndexService
+
+def text_index_service(settings: Settings = Depends(get_settings)):
+    if not settings.text_index_admin_enabled:
+        raise ApiError(404, "NOT_FOUND", "not found")
+    return TextIndexService(get_engine(), settings)
+
+@router.post('/text-index/validate', response_model=TextValidateResponse,
+             responses={s: {'model': ErrorResponse} for s in (401,403,404,422)})
+@access_policy('admin')
+def validate_text_catalog(body: TextValidateRequest, service=Depends(text_index_service)):
+    return service.validate(body)
+
+@router.post('/text-index', response_model=TextIndexResponse,
+             responses={s: {'model': ErrorResponse} for s in (401,403,404,409,422)})
+@access_policy('admin')
+def index_text_catalog(body: TextIndexRequest, service=Depends(text_index_service)):
+    return service.index(body)
+
 
 @router.post(
     "/image-index",
@@ -30,7 +51,7 @@ async def rebuild_image_index(
 ) -> IndexCatalogResponse:
     """(Re)build catalog image embeddings; unchanged items are skipped.
 
-    TODO: require an admin user once core/security.py exists.
+    Requires an authenticated admin and the image-index feature flag.
     """
     if not settings.vision_admin_enabled:
         raise ApiError(404, "NOT_FOUND", "not found")

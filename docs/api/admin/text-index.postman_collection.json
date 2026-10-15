@@ -1,0 +1,246 @@
+{
+  "info": {
+    "name": "Ink Buddy Text Catalog Index",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1 Login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Login',()=>pm.response.to.have.status(200)); if(pm.response.code===200)pm.environment.set('access_token',pm.response.json().access_token);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "auth": {
+          "type": "noauth"
+        },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Origin",
+            "value": "http://localhost:3000"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\": \"{{admin_email}}\", \"password\": \"{{admin_password}}\"}"
+        },
+        "url": "{{base_url}}/auth/login"
+      }
+    },
+    {
+      "name": "2 Validate catalog",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Report is valid',()=>{pm.response.to.have.status(200);const r=pm.response.json();pm.expect(r.examined).to.be.a('number');});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Origin",
+            "value": "http://localhost:3000"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{}"
+        },
+        "url": "{{base_url}}/admin/text-index/validate"
+      }
+    },
+    {
+      "name": "3 Validate selected product",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Report is valid',()=>{pm.response.to.have.status(200);const r=pm.response.json();pm.expect(r.examined).to.be.a('number');});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Origin",
+            "value": "http://localhost:3000"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"product_ids\": [\"{{product_id}}\"]}"
+        },
+        "url": "{{base_url}}/admin/text-index/validate"
+      }
+    },
+    {
+      "name": "4 Index one product",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Report is valid',()=>{pm.response.to.have.status(200);const r=pm.response.json();pm.expect(r.examined).to.be.a('number');}); pm.test('Indexed without failures',()=>pm.expect(pm.response.json().failed).to.eql(0));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Origin",
+            "value": "http://localhost:3000"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"product_ids\": [\"{{product_id}}\"], \"limit\": 1}"
+        },
+        "url": "{{base_url}}/admin/text-index"
+      }
+    },
+    {
+      "name": "5 Replay unchanged product",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Report is valid',()=>{pm.response.to.have.status(200);const r=pm.response.json();pm.expect(r.examined).to.be.a('number');}); pm.test('No re-embedding',()=>{pm.expect(pm.response.json().unchanged).to.eql(1);pm.expect(pm.response.json().indexed).to.eql(0);});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Origin",
+            "value": "http://localhost:3000"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"product_ids\": [\"{{product_id}}\"], \"limit\": 1}"
+        },
+        "url": "{{base_url}}/admin/text-index"
+      }
+    },
+    {
+      "name": "6 Missing credential",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Unauthorized',()=>pm.response.to.have.status(401));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "auth": {
+          "type": "noauth"
+        },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Origin",
+            "value": "http://localhost:3000"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{}"
+        },
+        "url": "{{base_url}}/admin/text-index/validate"
+      }
+    }
+  ]
+}

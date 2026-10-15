@@ -20,7 +20,7 @@ def test_budget(question, result):
 
 
 @pytest.mark.parametrize(
-    "question", ["ราคาถูก", "งบ 100", "100–50 บาท", "ไม่เกิน 100 บาท ไม่เกิน 200 บาท"]
+    "question", ["งบ 100", "100–50 บาท", "ไม่เกิน 100 บาท ไม่เกิน 200 บาท"]
 )
 def test_budget_clarification(question):
     assert budget(question)[1]

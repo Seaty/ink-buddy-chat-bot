@@ -6,6 +6,7 @@ from decimal import Decimal
 from sqlalchemy import text
 
 from app.ai.rag.indexing_service import CATEGORY_TH
+from app.services.product.retrieval_policy import matched_brands
 
 FIELDS = "id,sku,name,category,brand,description,attributes,price,currency,availability,source_ref"
 
@@ -19,11 +20,11 @@ def budget(question):
     if ranges:
         low, high = map(Decimal, ranges[0])
         if low > high:
-            return None, "กรุณาระบุงบขั้นต่ำไม่เกินงบสูงสุด"
+            return None, "กรุณาระบุงบขั้นต่ำไม่เกินงบสูงสุด เช่น 50–100 บาท"
         return (low, high), None
     if caps:
         return (Decimal(0), Decimal(caps[0])), None
-    if re.search(r"บาท|งบ|ราคา(?:ถูก|ต่ำ|สูง)|ไม่เกิน|สูงสุด", question):
+    if re.search(r"บาท|งบ|ไม่เกิน|สูงสุด", question):
         return None, "กรุณาระบุงบให้ชัดเจน เช่น ไม่เกิน 100 บาท หรือ 50–100 บาท"
     return None, None
 
@@ -36,7 +37,7 @@ class CatalogTextSearch:
     def __init__(self, db):
         self.db = db
 
-    def search(self, question):
+    def search(self, question, limit=5, category_filter=None, brand_filter=None, requires_price=False):
         limits, clarification = budget(question)
         if clarification:
             return [], clarification
@@ -47,6 +48,8 @@ class CatalogTextSearch:
         ]
         if not categories and "ปากกา" in question:
             categories = ["ballpoint_pen", "gel_pen", "marker", "whiteboard_marker"]
+        if category_filter:
+            categories = [category_filter]
         clean = re.sub(
             r"[0-9]+(?:\.[0-9]+)?\s*(?:[-–]\s*[0-9]+)?\s*บาท", "", question.lower()
         )
@@ -102,22 +105,24 @@ class CatalogTextSearch:
             .scalars()
             .all()
         )
-        matched = [b for b in brands if b.lower() in question.lower()]
+        matched = [brand_filter] if brand_filter else matched_brands(brands,question)
         if matched:
             brand_terms = []
             for i, b in enumerate(matched):
                 params[f"brand{i}"] = b
                 brand_terms.append(f":brand{i}")
             where += f" AND brand IN ({','.join(brand_terms)})"
+        if requires_price:
+            where += " AND price IS NOT NULL AND currency='THB'"
         if limits:
             where += " AND price IS NOT NULL AND currency='THB' AND price BETWEEN :low AND :high"
             params.update(low=limits[0], high=limits[1])
         rows = (
             self.db.execute(
                 text(
-                    f"SELECT {FIELDS} FROM products WHERE {where} ORDER BY ({'+'.join(scores)}) DESC,id ASC LIMIT 5"
+                    f"SELECT {FIELDS} FROM products WHERE {where} ORDER BY ({'+'.join(scores)}) DESC,id ASC LIMIT :result_limit"
                 ),
-                params,
+                {**params, 'result_limit': limit},
             )
             .mappings()
             .all()

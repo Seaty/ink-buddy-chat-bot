@@ -1,0 +1,897 @@
+{
+  "audited_at": "2026-10-14T12:20:22.316897+00:00",
+  "products": 67,
+  "embedding_model": "qwen/qwen3-embedding-4b",
+  "provider_calls": 0,
+  "writes": 0,
+  "source_urls_checked": "syntax only; no live reachability or retailer fact verification",
+  "catalog_sha256": "e3e7e7357eb4e2b1102f60fa49a10d4e37b3c266d024c73bc9dab6d7b3d8ede5",
+  "issue_counts": {
+    "description:MISSING_VALUE": 50,
+    "unit:STRUCTURED_UNIT_NOT_PROVIDED": 50,
+    "description:RETAILER_PERFORMANCE_CLAIM_NOT_INDEPENDENTLY_VERIFIED": 15,
+    "description:POSSIBLE_COLOR_WORDING_CONFLICT_REQUIRES_REVIEW": 5
+  },
+  "cases": [
+    {
+      "sku": "b2s_1092466",
+      "name": "ปากกาลูกลื่น Monami รุ่น ฟลิป สีเขียวพาสเทล ขนาด 0.7 มม.",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_1092374",
+      "name": "ปากกาลูกลื่น PENTEL รุ่น Feel-it ขนาด 0.7 มม.ด้ามส้มหมึกน้ำเงิน",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_1091933",
+      "name": "PENTEL ปากกาเจล รุ่น Energel Hexagon BL667 สีน้ำเงิน ขนาด 0.7 มม.",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_1003680",
+      "name": "ปากกาเน้นข้อความ 2 หัว (ชุด5สี) จาวา Duplex",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_1009200",
+      "name": "ปากกาเน้นข้อความ โมนามิ x2218049900 604 คละสี (4ด้าม)",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_1092448",
+      "name": "ปากกาเจล Uni รุ่น UMN-S-38 สีม่วง ขนาด 0.38 มม.",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_1092492",
+      "name": "ปากกามาร์คเกอร์ PENTEL  Permanent แบบ2หัว สีแดง",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_1008913",
+      "name": "ปากกามาร์คเกอร์ Accu Liner 0.7มม.นง. โมนามิ X10401202X0",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_1000785",
+      "name": "HORSE ปากกามาร์คเกอร์ รุ่น 2 หัว คละสี (แพ็ค 3 ด้าม)",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_1092007",
+      "name": "ปากกาไวท์บอร์ด FABER CASTELL สีแดง",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_1000920",
+      "name": "HORSE ปากกาไวท์บอร์ด รุ่น H-22 สีน้ำเงิน ขนาด 2 มม. (แพ็ค 3 ด้าม)",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_1005836",
+      "name": "ปากกาไวท์บอร์ด 15386A 2 มม. ส้ม โมนามิ PI-220",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_1009802",
+      "name": "ชุดดินสอกด 0.5มม. ฟ้า (แพ็ค2ชิ้น) เพนเทล AX105-CWBP",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_1091236",
+      "name": "เครื่องเหลาดินสอปรับได้  ELM S-221-BK",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_1010208",
+      "name": "ชุดดินสอกด 0.5 มม. Rotring Tikky สีดำ (2ชิ้น/แพ็ค)",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_1093329",
+      "name": "ME.STYLE  กบเหลาดินสอ 1 รู ลายสตอเบอร์ รุ่น STRAWBERRY",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_1005909",
+      "name": "กบเหลาดินสอ Clock Clock คละสี มาเพ็ด SH017610",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_1093288",
+      "name": "กระเป๋าดินสอ 21 x 14ซม. BELLA 1-A",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_1007615",
+      "name": "กระเป๋าดินสอ คละสี อี-ไฟล์ CPK32",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_K092470",
+      "name": "ยางลบพร้อมแปรง Montmarte 2 แท่ง",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_1093326",
+      "name": "กระเป๋าดินสอ 1 ME.STYLE STRAWBERRY 20.5x6 ซม.",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_1006045",
+      "name": "เทปลบคำผิด 5มมx6ม. คละสี ฟาสเตอร์ C-649",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_1091150",
+      "name": "เทปลบคำผิด พลัส รุ่น WH-1205 สีขาว",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_1008290",
+      "name": "ยางลบดินสอ (2 ก้อน/แพ็ค) เพนเทล Hi-Polymer ZES-08",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_5096875",
+      "name": "กระดาษโน้ตกาวในตัว ME.STYLE BELLA 2-B",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_5096597",
+      "name": "สมุดบันทึก MAYFLOWERN รุ่น NH-C.11 สีดำ",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_5096405",
+      "name": "สมุดโน๊ต Ropamoda  120แกรม 0739024แผ่น A4",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_5096930",
+      "name": "ME.STYLE ชุดกระดาษโน้ตกาวในตัว รุ่น STRAWBERRY 2-B สีขาว-ชมพู",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_1092396",
+      "name": "ไม้บรรทัดฟุตเหล็ก INCA ขนาด 18 นิ้ว",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_5096929",
+      "name": "ME.STYLE ชุดกระดาษโน้ตกาวในตัว รุ่น STRAWBERRY 1-B สีชมพู",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_1091301",
+      "name": "ไม้บรรทัดพลาสติก พี.เค. สีใส 12นิ้ว #022",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_K090974",
+      "name": "วงเวียน MAPED GRAPHIC",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_K090972",
+      "name": "ชุดวงเวียน MAPED 3 ชิ้นโลหะพิเศษ",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_2072020",
+      "name": "กรรไกร 8 นิ้ว สก๊อตช์ Precision Ultra Edge 1468TUNS",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_2071790",
+      "name": "SCOTCH กรรไกร รุ่น Precision 1448 สีแดง-เทา 8 นิ้ว",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_K090929",
+      "name": "ชุดวงเวียนพลาสติก RADIUS สีฟ้า",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_2003391",
+      "name": "มีดคัตเตอร์อเนกประสงค์ ขาว SDI 0443C",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_2002894",
+      "name": "มีดคัตเตอร์ ไทเทเนียม 3M Size L Scotch XP002015285",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_2003432",
+      "name": "มีดคัตเตอร์ 45L ดำ สก๊อตช์ XP002024089",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_K091913",
+      "name": "MONT MARTE กาวน้ำ ขนาด 147 มล.",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_3090269",
+      "name": "กาวแท่ง เอลเมอร์  เนื้อกาวขาว 8กรัม",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_3011150",
+      "name": "กาวแท่ง 7.08 กรัม ขาว สก๊อตช์ 6008",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_3101210",
+      "name": "SCOTCH เทปใส รุ่น 500 ขนาด 1/2 นิ้ว x 36 หลา แกน 1 นิ้ว (แพ็ค 9 ม้วน)",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_3090256",
+      "name": "SCOTCH เทปใส รุ่น 500 แกน 1 นิ้ว ขนาด 1\" x 36 หลา แพ็ค 7 ม้วน",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_3101160",
+      "name": "SCOTCH เทปใส รุ่น 500 แกน 1 นิ้ว ขนาด 3/4 นิ้ว x 36 หลา (แพ็ค 6 ม้วน)",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_6092770",
+      "name": "แฟ้มซองพลาสติก ไบน์เดอร์แม็กซ์ BB-4002 สีคละสี F4 (12ซอง/แพ็ค)",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_K091420",
+      "name": "สีไม้ระบายน้ำ FABER CASTELL  48 สี",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_K091454",
+      "name": "สีไม้ MAPED รุ่น COLOR'PEPS 12 สี",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_6092689",
+      "name": "แฟ้มซองพลาสติกผูกเชือก A4 ONE สีขาวใส ขนาด 26 x 33 ซม. (6 ซอง/แพ็ค)",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "b2s_6005239",
+      "name": "ELEPHANT แฟ้มสันกว้าง รุ่น 2100F ขนาด F4 สัน 3 นิ้ว สีพีช (ชมพูพาสเทล)",
+      "issues": [
+        {
+          "field": "description",
+          "code": "MISSING_VALUE"
+        },
+        {
+          "field": "unit",
+          "code": "STRUCTURED_UNIT_NOT_PROVIDED"
+        }
+      ]
+    },
+    {
+      "sku": "officework_0205-0007",
+      "name": "ปากกาหมึกเจล เพนเทล เอ็นเนอร์เจล BL77 สีแดง",
+      "issues": [
+        {
+          "field": "description",
+          "code": "RETAILER_PERFORMANCE_CLAIM_NOT_INDEPENDENTLY_VERIFIED"
+        }
+      ]
+    },
+    {
+      "sku": "officework_0205-0008",
+      "name": "ปากกาหมึกเจล เพนเทล เอ็นเนอร์เจล BL77 สีดำ",
+      "issues": [
+        {
+          "field": "description",
+          "code": "RETAILER_PERFORMANCE_CLAIM_NOT_INDEPENDENTLY_VERIFIED"
+        }
+      ]
+    },
+    {
+      "sku": "officework_0205-0009",
+      "name": "ปากกาหมึกเจล เพนเทล เอ็นเนอร์เจล BL77 สีนํ้าเงิน",
+      "issues": [
+        {
+          "field": "description",
+          "code": "RETAILER_PERFORMANCE_CLAIM_NOT_INDEPENDENTLY_VERIFIED"
+        }
+      ]
+    },
+    {
+      "sku": "officework_0205-0015",
+      "name": "ปากกาหมึกเจล เพนเทล เอ็นเนอร์เจล BL-57 สีน้ำเงิน",
+      "issues": [
+        {
+          "field": "description",
+          "code": "RETAILER_PERFORMANCE_CLAIM_NOT_INDEPENDENTLY_VERIFIED"
+        }
+      ]
+    },
+    {
+      "sku": "officework_0205-0016",
+      "name": "ปากกาหมึกเจล เพนเทล เอ็นเนอร์เจล BLN75 (0.5 มม.) สีแดง",
+      "issues": [
+        {
+          "field": "description",
+          "code": "RETAILER_PERFORMANCE_CLAIM_NOT_INDEPENDENTLY_VERIFIED"
+        }
+      ]
+    },
+    {
+      "sku": "officework_0119-0024",
+      "name": "สมุดโน้ตสันลวด ตราช้าง WPPB-444 B5 70g/60ผ. สีฟ้า",
+      "issues": [
+        {
+          "field": "description",
+          "code": "POSSIBLE_COLOR_WORDING_CONFLICT_REQUIRES_REVIEW"
+        },
+        {
+          "field": "description",
+          "code": "RETAILER_PERFORMANCE_CLAIM_NOT_INDEPENDENTLY_VERIFIED"
+        }
+      ]
+    },
+    {
+      "sku": "officework_0119-0025",
+      "name": "สมุดโน้ตสันลวด ตราช้าง WPPV-444 B5 70g/60ผ. สีม่วง",
+      "issues": [
+        {
+          "field": "description",
+          "code": "POSSIBLE_COLOR_WORDING_CONFLICT_REQUIRES_REVIEW"
+        },
+        {
+          "field": "description",
+          "code": "RETAILER_PERFORMANCE_CLAIM_NOT_INDEPENDENTLY_VERIFIED"
+        }
+      ]
+    },
+    {
+      "sku": "officework_0119-0045",
+      "name": "สมุดสันลวด ตราช้าง NW-101 B5 70แกรม 60ผ.",
+      "issues": [
+        {
+          "field": "description",
+          "code": "POSSIBLE_COLOR_WORDING_CONFLICT_REQUIRES_REVIEW"
+        },
+        {
+          "field": "description",
+          "code": "RETAILER_PERFORMANCE_CLAIM_NOT_INDEPENDENTLY_VERIFIED"
+        }
+      ]
+    },
+    {
+      "sku": "officework_0119-0066",
+      "name": "สมุดโน้ตสันลวด ตราช้าง WPPG-444 B5 70g/60ผ. สีเขียว",
+      "issues": [
+        {
+          "field": "description",
+          "code": "POSSIBLE_COLOR_WORDING_CONFLICT_REQUIRES_REVIEW"
+        },
+        {
+          "field": "description",
+          "code": "RETAILER_PERFORMANCE_CLAIM_NOT_INDEPENDENTLY_VERIFIED"
+        }
+      ]
+    },
+    {
+      "sku": "officework_0119-0090",
+      "name": "สมุดโน้ตสันลวด ตราช้าง W-003GY B5 70g สีเทา",
+      "issues": [
+        {
+          "field": "description",
+          "code": "POSSIBLE_COLOR_WORDING_CONFLICT_REQUIRES_REVIEW"
+        },
+        {
+          "field": "description",
+          "code": "RETAILER_PERFORMANCE_CLAIM_NOT_INDEPENDENTLY_VERIFIED"
+        }
+      ]
+    },
+    {
+      "sku": "officework_0210-0001",
+      "name": "ปากกาเน้นข้อความ สตาบิโลบอส สีเหลือง",
+      "issues": [
+        {
+          "field": "description",
+          "code": "RETAILER_PERFORMANCE_CLAIM_NOT_INDEPENDENTLY_VERIFIED"
+        }
+      ]
+    },
+    {
+      "sku": "officework_0210-0002",
+      "name": "ปากกาเน้นข้อความ สตาบิโลบอส สีเขียว",
+      "issues": [
+        {
+          "field": "description",
+          "code": "RETAILER_PERFORMANCE_CLAIM_NOT_INDEPENDENTLY_VERIFIED"
+        }
+      ]
+    },
+    {
+      "sku": "officework_0210-0003",
+      "name": "ปากกาเน้นข้อความ สตาบิโลบอส สีชมพู",
+      "issues": [
+        {
+          "field": "description",
+          "code": "RETAILER_PERFORMANCE_CLAIM_NOT_INDEPENDENTLY_VERIFIED"
+        }
+      ]
+    },
+    {
+      "sku": "officework_0210-0004",
+      "name": "ปากกาเน้นข้อความ สตาบิโลบอส สีฟ้า",
+      "issues": [
+        {
+          "field": "description",
+          "code": "RETAILER_PERFORMANCE_CLAIM_NOT_INDEPENDENTLY_VERIFIED"
+        }
+      ]
+    },
+    {
+      "sku": "officework_0210-0005",
+      "name": "ปากกาเน้นข้อความ สตาบิโลบอส สีส้ม",
+      "issues": [
+        {
+          "field": "description",
+          "code": "RETAILER_PERFORMANCE_CLAIM_NOT_INDEPENDENTLY_VERIFIED"
+        }
+      ]
+    },
+    {
+      "sku": "officemate_YA32995",
+      "name": "RADIUS ปากกาเจล รุ่น O-SECOND-CLEAR สีน้ำเงิน 0.5MM แพ็ค 12 ด้าม",
+      "issues": []
+    },
+    {
+      "sku": "officemate_5001001",
+      "name": "DOUBLE A สมุดรายงาน A4 80แกรม (25แผ่น) เส้น 2 หน้า",
+      "issues": []
+    }
+  ]
+}

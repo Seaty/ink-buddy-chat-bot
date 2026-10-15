@@ -1,0 +1,195 @@
+{
+  "audited_at": "2026-10-13T13:17:24.656799+00:00",
+  "review_type": "automated_not_independent_human_review",
+  "source_sha256": "842e73e9f2e549a74576867c99ece4cc46c160ef12748c85ffedbad7a292770c",
+  "provider_calls": 0,
+  "limitation": "DB consistency only. Does not verify retailer pages, complete relevance, product quality or human satisfaction.",
+  "passed": 12,
+  "total": 12,
+  "cases": [
+    {
+      "id": "a01",
+      "reviewer": "automated_catalog_audit",
+      "human_score": null,
+      "passed": true,
+      "checked_bullets": 2,
+      "failures": [],
+      "catalog_checked_at": "current database at audit time; original full snapshot was not saved",
+      "product_facts": [
+        {
+          "sku": "officework_0210-0001",
+          "name": "ปากกาเน้นข้อความ สตาบิโลบอส สีเหลือง",
+          "category": "highlighter",
+          "brand": "STABILO",
+          "price": null,
+          "currency": "THB",
+          "source_ref": "https://officework.co.th/product-detail.html?pid=0210-0001"
+        }
+      ]
+    },
+    {
+      "id": "a02",
+      "reviewer": "automated_catalog_audit",
+      "human_score": null,
+      "passed": true,
+      "checked_bullets": 1,
+      "failures": [],
+      "catalog_checked_at": "current database at audit time; original full snapshot was not saved",
+      "product_facts": [
+        {
+          "sku": "b2s_1092396",
+          "name": "ไม้บรรทัดฟุตเหล็ก INCA ขนาด 18 นิ้ว",
+          "category": "ruler",
+          "brand": "INCA",
+          "price": "91.00",
+          "currency": "THB",
+          "source_ref": "https://www.b2s.co.th/product/ไม้บรรทัดฟุตเหล็ก-inca-ขนาด-18-นิ้ว-p.1092396"
+        }
+      ]
+    },
+    {
+      "id": "a03",
+      "reviewer": "automated_catalog_audit",
+      "human_score": null,
+      "passed": true,
+      "checked_bullets": 1,
+      "failures": [],
+      "catalog_checked_at": "current database at audit time; original full snapshot was not saved",
+      "product_facts": [
+        {
+          "sku": "b2s_1091150",
+          "name": "เทปลบคำผิด พลัส รุ่น WH-1205 สีขาว",
+          "category": "correction_tape",
+          "brand": "Plus",
+          "price": "49.00",
+          "currency": "THB",
+          "source_ref": "https://www.b2s.co.th/product/เทปลบคำผิด-พลัส-รุ่น-wh-1205-สีขาว-p.1091150"
+        }
+      ]
+    },
+    {
+      "id": "a04",
+      "reviewer": "automated_catalog_audit",
+      "human_score": null,
+      "passed": true,
+      "checked_bullets": 1,
+      "failures": [],
+      "catalog_checked_at": "current database at audit time; original full snapshot was not saved",
+      "product_facts": [
+        {
+          "sku": "b2s_1008290",
+          "name": "ยางลบดินสอ (2 ก้อน/แพ็ค) เพนเทล Hi-Polymer ZES-08",
+          "category": "eraser",
+          "brand": "Pentel",
+          "price": "40.00",
+          "currency": "THB",
+          "source_ref": "https://www.b2s.co.th/product/ยางลบดินสอ-2-ก้อน-แพ็ค-เพนเทล-hi-polymer-zes-08-p.1008290"
+        }
+      ]
+    },
+    {
+      "id": "a05",
+      "reviewer": "automated_catalog_audit",
+      "human_score": null,
+      "passed": true,
+      "checked_bullets": 2,
+      "failures": [],
+      "catalog_checked_at": "current database at audit time; original full snapshot was not saved",
+      "product_facts": [
+        {
+          "sku": "officework_0119-0066",
+          "name": "สมุดโน้ตสันลวด ตราช้าง WPPG-444 B5 70g/60ผ. สีเขียว",
+          "category": "notebook",
+          "brand": "Elephant",
+          "price": null,
+          "currency": "THB",
+          "source_ref": "https://officework.co.th/product-detail.html?pid=0119-0066"
+        }
+      ]
+    },
+    {
+      "id": "a06",
+      "reviewer": "automated_catalog_audit",
+      "human_score": null,
+      "passed": true,
+      "checked_bullets": 1,
+      "failures": [],
+      "catalog_checked_at": "current database at audit time; original full snapshot was not saved",
+      "product_facts": [
+        {
+          "sku": "b2s_1092448",
+          "name": "ปากกาเจล Uni รุ่น UMN-S-38 สีม่วง ขนาด 0.38 มม.",
+          "category": "gel_pen",
+          "brand": "Uni",
+          "price": "42.00",
+          "currency": "THB",
+          "source_ref": "https://www.b2s.co.th/product/ปากกาเจล-uni-รุ่น-umn-s-38-สีม่วง-ขนาด-0-38-มม-p.1092448"
+        }
+      ]
+    },
+    {
+      "id": "a07",
+      "reviewer": "automated_catalog_audit",
+      "human_score": null,
+      "passed": true,
+      "checked_bullets": 2,
+      "failures": [],
+      "catalog_checked_at": "current database at audit time; original full snapshot was not saved",
+      "product_facts": [
+        {
+          "sku": "b2s_1092466",
+          "name": "ปากกาลูกลื่น Monami รุ่น ฟลิป สีเขียวพาสเทล ขนาด 0.7 มม.",
+          "category": "ballpoint_pen",
+          "brand": "Monami",
+          "price": "79.00",
+          "currency": "THB",
+          "source_ref": "https://www.b2s.co.th/product/ปากกาลูกลื่น-monami-รุ่น-ฟลิป-สีเขียวพาสเทล-ขนาด-0-7-มม-p.1092466"
+        },
+        {
+          "sku": "b2s_1092374",
+          "name": "ปากกาลูกลื่น PENTEL รุ่น Feel-it ขนาด 0.7 มม.ด้ามส้มหมึกน้ำเงิน",
+          "category": "ballpoint_pen",
+          "brand": "Pentel",
+          "price": "10.00",
+          "currency": "THB",
+          "source_ref": "https://www.b2s.co.th/product/ปากกาลูกลื่น-pentel-รุ่น-feel-it-ขนาด-0-7-มม-ด้ามส้มหมึกน้ำเงิน-p.1092374"
+        }
+      ]
+    },
+    {
+      "id": "a08",
+      "reviewer": "automated_catalog_audit",
+      "human_score": null,
+      "passed": true,
+      "audit_scope": "policy result/no-LLM verified from original report; wording not human-rated"
+    },
+    {
+      "id": "a09",
+      "reviewer": "automated_catalog_audit",
+      "human_score": null,
+      "passed": true,
+      "audit_scope": "policy result/no-LLM verified from original report; wording not human-rated"
+    },
+    {
+      "id": "a10",
+      "reviewer": "automated_catalog_audit",
+      "human_score": null,
+      "passed": true,
+      "audit_scope": "policy result/no-LLM verified from original report; wording not human-rated"
+    },
+    {
+      "id": "a11",
+      "reviewer": "automated_catalog_audit",
+      "human_score": null,
+      "passed": true,
+      "audit_scope": "policy result/no-LLM verified from original report; wording not human-rated"
+    },
+    {
+      "id": "a12",
+      "reviewer": "automated_catalog_audit",
+      "human_score": null,
+      "passed": true,
+      "audit_scope": "policy result/no-LLM verified from original report; wording not human-rated"
+    }
+  ]
+}

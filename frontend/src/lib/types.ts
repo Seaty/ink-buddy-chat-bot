@@ -26,12 +26,21 @@ export type ProductReference = {
   currency: string | null;
   availability: string | null;
   source_ref: string | null;
+  price_source_ref?: string | null;
+  price_basis?: string | null;
+  price_verification?: string | null;
+  selling_unit?: string | null;
+  pack_quantity?: number | null;
+  ink_color?: string | null;
+  body_color?: string | null;
+  variants?: ProductReference[];
 };
 export type SendMessageResult = {
   user_message: Message;
   assistant_message: Message;
 };
 export type Message = {
+  model_name?: string | null;
   id: string;
   session_id: string;
   sequence_number: number;

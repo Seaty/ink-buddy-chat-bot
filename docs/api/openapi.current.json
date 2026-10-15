@@ -54,7 +54,7 @@
             }
           },
           "422": {
-            "description": "Unprocessable Entity",
+            "description": "Unprocessable Content",
             "content": {
               "application/json": {
                 "schema": {
@@ -117,7 +117,7 @@
             }
           },
           "422": {
-            "description": "Unprocessable Entity",
+            "description": "Unprocessable Content",
             "content": {
               "application/json": {
                 "schema": {
@@ -177,7 +177,7 @@
             }
           },
           "422": {
-            "description": "Unprocessable Entity",
+            "description": "Unprocessable Content",
             "content": {
               "application/json": {
                 "schema": {
@@ -244,7 +244,7 @@
             }
           },
           "422": {
-            "description": "Unprocessable Entity",
+            "description": "Unprocessable Content",
             "content": {
               "application/json": {
                 "schema": {
@@ -317,7 +317,7 @@
             }
           },
           "422": {
-            "description": "Unprocessable Entity",
+            "description": "Unprocessable Content",
             "content": {
               "application/json": {
                 "schema": {
@@ -384,7 +384,7 @@
             }
           },
           "422": {
-            "description": "Unprocessable Entity",
+            "description": "Unprocessable Content",
             "content": {
               "application/json": {
                 "schema": {
@@ -1489,7 +1489,7 @@
             }
           },
           "413": {
-            "description": "Request Entity Too Large",
+            "description": "Content Too Large",
             "content": {
               "application/json": {
                 "schema": {
@@ -1509,7 +1509,7 @@
             }
           },
           "422": {
-            "description": "Unprocessable Entity",
+            "description": "Unprocessable Content",
             "content": {
               "application/json": {
                 "schema": {
@@ -1599,7 +1599,7 @@
                 }
               }
             },
-            "description": "Unprocessable Entity"
+            "description": "Unprocessable Content"
           },
           "503": {
             "content": {
@@ -1692,7 +1692,7 @@
                 }
               }
             },
-            "description": "Unprocessable Entity"
+            "description": "Unprocessable Content"
           },
           "503": {
             "content": {
@@ -1875,6 +1875,107 @@
         ]
       }
     },
+    "/api/v1/product-search/by-text": {
+      "post": {
+        "tags": [
+          "product",
+          "product search"
+        ],
+        "summary": "Search By Text",
+        "operationId": "search_by_text_api_v1_product_search_by_text_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextSearchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TextSearchResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-access-policy": "guest_or_user",
+        "security": [
+          {
+            "UserBearer": []
+          },
+          {
+            "GuestCookie": []
+          }
+        ]
+      }
+    },
     "/api/v1/product-search/by-image": {
       "post": {
         "tags": [
@@ -1926,7 +2027,7 @@
             }
           },
           "422": {
-            "description": "Unprocessable Entity",
+            "description": "Unprocessable Content",
             "content": {
               "application/json": {
                 "schema": {
@@ -2204,13 +2305,177 @@
         ]
       }
     },
+    "/api/v1/admin/text-index/validate": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Validate Text Catalog",
+        "operationId": "validate_text_catalog_api_v1_admin_text_index_validate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextValidateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TextValidateResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-access-policy": "admin",
+        "security": [
+          {
+            "UserBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/text-index": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Index Text Catalog",
+        "operationId": "index_text_catalog_api_v1_admin_text_index_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextIndexRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TextIndexResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-access-policy": "admin",
+        "security": [
+          {
+            "UserBearer": []
+          }
+        ]
+      }
+    },
     "/api/v1/admin/image-index": {
       "post": {
         "tags": [
           "admin"
         ],
         "summary": "Rebuild Image Index",
-        "description": "(Re)build catalog image embeddings; unchanged items are skipped.\n\nTODO: require an admin user once core/security.py exists.",
+        "description": "(Re)build catalog image embeddings; unchanged items are skipped.\n\nRequires an authenticated admin and the image-index feature flag.",
         "operationId": "rebuild_image_index_api_v1_admin_image_index_post",
         "responses": {
           "200": {
@@ -2234,7 +2499,7 @@
             }
           },
           "422": {
-            "description": "Unprocessable Entity",
+            "description": "Unprocessable Content",
             "content": {
               "application/json": {
                 "schema": {
@@ -2830,6 +3095,18 @@
       },
       "MessageResponse": {
         "properties": {
+          "model_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Name"
+          },
           "id": {
             "type": "string",
             "format": "uuid",
@@ -2913,6 +3190,159 @@
           "text"
         ],
         "title": "OcrSegmentOut"
+      },
+      "ProductFactReference": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "sku": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sku"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "price": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price"
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency"
+          },
+          "availability": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Availability"
+          },
+          "source_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Ref"
+          },
+          "price_source_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price Source Ref"
+          },
+          "price_basis": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price Basis"
+          },
+          "price_verification": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price Verification"
+          },
+          "selling_unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selling Unit"
+          },
+          "pack_quantity": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pack Quantity"
+          },
+          "ink_color": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ink Color"
+          },
+          "body_color": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Body Color"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "ProductFactReference"
       },
       "ProductListResponse": {
         "properties": {
@@ -3142,6 +3572,92 @@
               }
             ],
             "title": "Source Ref"
+          },
+          "price_source_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price Source Ref"
+          },
+          "price_basis": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price Basis"
+          },
+          "price_verification": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price Verification"
+          },
+          "selling_unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selling Unit"
+          },
+          "pack_quantity": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pack Quantity"
+          },
+          "ink_color": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ink Color"
+          },
+          "body_color": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Body Color"
+          },
+          "variants": {
+            "items": {
+              "$ref": "#/components/schemas/ProductFactReference"
+            },
+            "type": "array",
+            "maxItems": 5,
+            "title": "Variants"
           }
         },
         "type": "object",
@@ -3576,6 +4092,372 @@
           "updated_at"
         ],
         "title": "SessionResponse"
+      },
+      "TextIndexRequest": {
+        "properties": {
+          "product_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "type": "array",
+                "maxItems": 100,
+                "minItems": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Ids"
+          },
+          "limit": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "title": "Limit",
+            "default": 5
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "TextIndexRequest"
+      },
+      "TextIndexResponse": {
+        "properties": {
+          "examined": {
+            "type": "integer",
+            "title": "Examined",
+            "default": 0
+          },
+          "indexed": {
+            "type": "integer",
+            "title": "Indexed",
+            "default": 0
+          },
+          "unchanged": {
+            "type": "integer",
+            "title": "Unchanged",
+            "default": 0
+          },
+          "invalid": {
+            "type": "integer",
+            "title": "Invalid",
+            "default": 0
+          },
+          "failed": {
+            "type": "integer",
+            "title": "Failed",
+            "default": 0
+          },
+          "remaining": {
+            "type": "integer",
+            "title": "Remaining",
+            "default": 0
+          },
+          "warnings": {
+            "items": {
+              "$ref": "#/components/schemas/TextIssue"
+            },
+            "type": "array",
+            "title": "Warnings"
+          },
+          "errors": {
+            "items": {
+              "$ref": "#/components/schemas/TextIssue"
+            },
+            "type": "array",
+            "title": "Errors"
+          },
+          "seconds": {
+            "type": "number",
+            "title": "Seconds",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "title": "TextIndexResponse"
+      },
+      "TextIssue": {
+        "properties": {
+          "product_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Product Id"
+          },
+          "field": {
+            "type": "string",
+            "title": "Field"
+          },
+          "code": {
+            "type": "string",
+            "title": "Code"
+          }
+        },
+        "type": "object",
+        "required": [
+          "product_id",
+          "field",
+          "code"
+        ],
+        "title": "TextIssue"
+      },
+      "TextSearchHit": {
+        "properties": {
+          "product": {
+            "$ref": "#/components/schemas/ProductResponse"
+          },
+          "score": {
+            "type": "number",
+            "title": "Score",
+            "description": "Reciprocal rank fusion score, not probability"
+          },
+          "semantic_similarity": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Semantic Similarity"
+          },
+          "keyword_rank": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Keyword Rank"
+          },
+          "semantic_rank": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Semantic Rank"
+          }
+        },
+        "type": "object",
+        "required": [
+          "product",
+          "score"
+        ],
+        "title": "TextSearchHit"
+      },
+      "TextSearchRequest": {
+        "properties": {
+          "query": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Query"
+          },
+          "limit": {
+            "type": "integer",
+            "maximum": 10.0,
+            "minimum": 1.0,
+            "title": "Limit",
+            "default": 5
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category"
+          },
+          "brand": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brand"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "query"
+        ],
+        "title": "TextSearchRequest"
+      },
+      "TextSearchResponse": {
+        "properties": {
+          "guardrail_status": {
+            "type": "string",
+            "enum": [
+              "allowed",
+              "blocked",
+              "needs_clarification",
+              "no_match"
+            ],
+            "title": "Guardrail Status",
+            "default": "allowed"
+          },
+          "guardrail_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Guardrail Reason"
+          },
+          "policy_version": {
+            "type": "string",
+            "title": "Policy Version",
+            "default": "catalog-scope-v1"
+          },
+          "relevance_rejected": {
+            "type": "integer",
+            "title": "Relevance Rejected",
+            "default": 0
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/TextSearchHit"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "clarification": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Clarification"
+          },
+          "embedding_model": {
+            "type": "string",
+            "title": "Embedding Model"
+          },
+          "method": {
+            "type": "string",
+            "const": "hybrid_rrf",
+            "title": "Method",
+            "default": "hybrid_rrf"
+          },
+          "index_status": {
+            "type": "string",
+            "enum": [
+              "ready",
+              "partial",
+              "missing",
+              "not_checked"
+            ],
+            "title": "Index Status"
+          },
+          "stale_skipped": {
+            "type": "integer",
+            "title": "Stale Skipped",
+            "default": 0
+          },
+          "timings_ms": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Timings Ms"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "embedding_model",
+          "index_status"
+        ],
+        "title": "TextSearchResponse"
+      },
+      "TextValidateRequest": {
+        "properties": {
+          "product_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "type": "array",
+                "maxItems": 100,
+                "minItems": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Ids"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "TextValidateRequest"
+      },
+      "TextValidateResponse": {
+        "properties": {
+          "examined": {
+            "type": "integer",
+            "title": "Examined"
+          },
+          "valid": {
+            "type": "integer",
+            "title": "Valid"
+          },
+          "invalid": {
+            "type": "integer",
+            "title": "Invalid"
+          },
+          "errors": {
+            "items": {
+              "$ref": "#/components/schemas/TextIssue"
+            },
+            "type": "array",
+            "title": "Errors"
+          },
+          "warnings": {
+            "items": {
+              "$ref": "#/components/schemas/TextIssue"
+            },
+            "type": "array",
+            "title": "Warnings"
+          }
+        },
+        "type": "object",
+        "required": [
+          "examined",
+          "valid",
+          "invalid",
+          "errors",
+          "warnings"
+        ],
+        "title": "TextValidateResponse"
       },
       "TokenResponse": {
         "properties": {

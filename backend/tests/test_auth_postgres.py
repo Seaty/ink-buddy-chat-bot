@@ -1312,6 +1312,109 @@ def message_setup(setup):
     return principal, chat.id, raw, product
 
 
+def test_conversational_rag_price_context_variants_and_replay(setup):
+    import json
+    from app.core.identifiers import uuid7
+    from app.schemas.session import SendMessageRequest
+    from app.services.session.message_service import MessageService
+    from app.services.session.openrouter_adapter import OpenRouterCatalogAdapter
+    principal,sid,_,_=message_setup(setup)
+    settings=setup.settings.model_copy(update={'chat_adapter':'openrouter_catalog'})
+    ids={}
+    with setup.sessions() as db:
+        db.execute(text('DELETE FROM products'))
+        for label,name,price,attrs in [
+            ('blue1','ปากกาเจล รุ่น B1 หมึกสีน้ำเงิน',10,{'unit':'ด้าม','model_family':'B1'}),
+            ('blue2','ปากกาเจล รุ่น B2 หมึกสีน้ำเงิน',20,{'unit':'ด้าม','model_family':'B2','price_source_ref':'https://example.test/price','price_tax_basis':'excludes_vat'}),
+            ('blue3','ปากกาเจล รุ่น B3 หมึกสีน้ำเงิน',30,{'unit':'ด้าม','model_family':'B3'}),
+            ('red2','ปากกาเจล รุ่น B2 หมึกสีแดง',20,{'unit':'ด้าม','model_family':'B2'}),
+            ('purple','ปากกาเจล รุ่น B4 หมึกสีม่วง',1,{'unit':'ด้าม'}),
+            ('unknown','ปากกาเจล รุ่น B5 หมึกสีน้ำเงิน',None,{'unit':'ด้าม'}),
+            ('pack','ปากกาเจล รุ่น B6 หมึกสีน้ำเงิน แพ็ค 12',5,{'price_selling_unit':'แพ็ค 12 ด้าม'})]:
+            ids[label]=db.execute(text("INSERT INTO products(name,category,brand,price,currency,attributes) VALUES(:name,'gel_pen','Test',:price,'THB',CAST(:attrs AS jsonb)) RETURNING id"),{'name':name,'price':price,'attrs':json.dumps(attrs)}).scalar_one()
+        db.commit()
+    class Client:
+        calls=0
+        def chat(self,model,messages,**kwargs):
+            self.calls+=1
+            catalog=json.loads(messages[1]['content'])['catalog']
+            recommendations=[{'product_id':p['product_id'],'evidence_ids':[next(iter(p['evidence']))]} for p in reversed(catalog)]
+            return {'model':'qwen/qwen3-14b','done_reason':'stop','message':{'content':json.dumps({'recommendations':recommendations})}}
+    client=Client();adapter=OpenRouterCatalogAdapter(settings,client=client)
+    def send(content,rid=None):
+        with setup.sessions() as db:return MessageService(db,settings,adapter).send(principal,sid,SendMessageRequest(content=content,client_request_id=rid or uuid7()))
+    rid=uuid7();first=send('ปากกาหมึกน้ำเงิน สามรุ่นถูกที่สุด และมีสีอื่นไหม',rid)
+    refs=first.assistant_message.product_refs
+    assert [r.id for r in refs]==[ids['blue1'],ids['blue2'],ids['blue3']]
+    assert [r.price for r in refs]==[10,20,30]
+    assert [r.id for r in refs[1].variants]==[ids['red2']]
+    assert refs[1].price_source_ref=='https://example.test/price'
+    assert first.assistant_message.content.index('ปากกาเจล รุ่น B1')<first.assistant_message.content.index('รุ่นนี้มี')
+    assert send('ปากกาหมึกน้ำเงิน สามรุ่นถูกที่สุด และมีสีอื่นไหม',rid)==first and client.calls==1
+    second=send('ตัวที่สองราคาเท่าไร')
+    assert [r.id for r in second.assistant_message.product_refs]==[ids['blue2']]
+    assert '20 บาท' in second.assistant_message.content
+    third=send('รุ่นนี้มีสีแดงไหม')
+    assert [r.id for r in third.assistant_message.product_refs[0].variants]==[ids['red2']]
+    pack=send('ปากกาหมึกน้ำเงิน ขอหนึ่งรุ่นถูกที่สุดต่อแพ็ค')
+    assert pack.assistant_message.product_refs[0].id==ids['pack']
+    assert pack.assistant_message.product_refs[0].pack_quantity==12
+    descending=send('ปากกาหมึกน้ำเงิน สามรุ่นแพงที่สุด')
+    assert [r.price for r in descending.assistant_message.product_refs]==[30,20,10]
+    shortage=send('ปากกาหมึกน้ำเงิน สามรุ่นถูกที่สุด ไม่เกิน 15 บาท')
+    assert [r.id for r in shortage.assistant_message.product_refs]==[ids['blue1']]
+    assert 'พบเพียง 1 รายการ' in shortage.assistant_message.content
+    with setup.sessions() as db:
+        assert db.execute(text('SELECT count(*) FROM chat_messages')).scalar_one()==12
+
+
+def test_price_filter_runs_before_keyword_candidate_limit(setup):
+    from app.services.product.text_search import CatalogTextSearch
+    with setup.sessions() as db:
+        db.execute(text("INSERT INTO products(name,category,price,currency) SELECT 'ปากกาเจลไม่มีราคา','gel_pen',NULL,'THB' FROM generate_series(1,25)"))
+        db.execute(text("INSERT INTO products(name,category,price,currency) VALUES('ปากกาเจลมีราคา','gel_pen',25,'THB')"))
+        db.commit()
+        rows,_=CatalogTextSearch(db).search('ปากกาเจลราคาเท่าไร',limit=5,requires_price=True)
+        assert len(rows)==1 and rows[0]['price']==25
+
+@pytest.mark.parametrize('invalid',[False,True])
+def test_rag_message_api_controlled_evidence_and_replay(setup,invalid):
+    import json
+    from fastapi import Depends
+    from app.api.v1.session.routes import message_service
+    from app.services.session.message_service import MessageService
+    from app.services.session.openrouter_adapter import OpenRouterCatalogAdapter
+    from app.core.identifiers import uuid7
+    principal,sid,raw,pid=message_setup(setup)
+    settings=setup.settings.model_copy(update={'chat_adapter':'openrouter_catalog'})
+    class Client:
+        calls=0
+        def chat(self,model,messages,**kwargs):
+            self.calls+=1
+            context=json.loads(messages[1]['content'])['catalog'][0]
+            evidence=list(context['evidence'])[0]
+            content={'recommendations':[{'product_id':context['product_id'],'evidence_ids':['foreign_evidence' if invalid else evidence]}]}
+            return {'model':'qwen/qwen3-14b','done_reason':'stop','message':{'content':json.dumps(content)}}
+    fake=Client()
+    def service(db=Depends(get_db)):
+        return MessageService(db,settings,OpenRouterCatalogAdapter(settings,client=fake))
+    setup.app.dependency_overrides[message_service]=service
+    payload={'content':'ปากกาเจล ไม่เกิน 100 บาท','client_request_id':str(uuid7())}
+    with TestClient(setup.app) as client:
+        client.cookies.set(GUEST_COOKIE,raw)
+        result=client.post(f'/api/v1/chat-sessions/{sid}/messages',json=payload,headers=ORIGIN)
+        if invalid:
+            assert result.status_code==502 and result.json()['error']['code']=='INVALID_ANSWER'
+        else:
+            assert result.status_code==201,result.text
+            assert result.json()['assistant_message']['model_name']=='qwen/qwen3-14b'
+            assert result.json()['assistant_message']['product_refs'][0]['id']==str(pid)
+            replay=client.post(f'/api/v1/chat-sessions/{sid}/messages',json=payload,headers=ORIGIN)
+            assert replay.json()==result.json() and fake.calls==1
+    with setup.sessions() as db:
+        assert db.execute(text('SELECT count(*) FROM chat_messages WHERE session_id=:sid'),{'sid':sid}).scalar_one()==(0 if invalid else 2)
+
+
 def test_message_api_replay_validation_ownership(setup):
     from app.core.identifiers import uuid7
 
@@ -1381,10 +1484,12 @@ def test_message_search_budget_unknown_price_and_sql(setup):
         assert not search.search("ปากกาเจลไม่เกิน 10 บาท")[0]
         assert len(search.search("Ink")[0]) == 1
         assert not search.search("'; DROP TABLE products; --")[0]
-        assert search.search("สมุดราคาถูก")[1]
+        assert not search.search("สมุดราคาถูก")[1]
 
 
-def test_message_concurrency_and_duplicate(setup):
+@pytest.mark.parametrize("adapter_mode", ["catalog_template", "openrouter_catalog"])
+def test_message_concurrency_and_duplicate(setup, adapter_mode):
+    setup.settings=setup.settings.model_copy(update={"chat_adapter":adapter_mode})
     from threading import Barrier
 
     from app.core.identifiers import uuid7
@@ -1432,7 +1537,9 @@ def test_message_concurrency_and_duplicate(setup):
 @pytest.mark.parametrize(
     "event", ["claim", "delete", "expire", "failure", "invalid", "timeout"]
 )
-def test_message_failure_and_owner_change_leave_no_history(setup, event):
+@pytest.mark.parametrize("adapter_mode", ["catalog_template", "openrouter_catalog"])
+def test_message_failure_and_owner_change_leave_no_history(setup, event, adapter_mode):
+    setup.settings=setup.settings.model_copy(update={"chat_adapter":adapter_mode})
     import time
 
     from app.core.identifiers import uuid7
@@ -1491,10 +1598,13 @@ def test_message_failure_and_owner_change_leave_no_history(setup, event):
         assert db.execute(text("SELECT COUNT(*) FROM chat_messages")).scalar_one() == 0
 
 
-def test_message_pair_rolls_back_on_insert_failure(setup, monkeypatch):
+@pytest.mark.parametrize("adapter_mode", ["catalog_template", "openrouter_catalog"])
+def test_message_pair_rolls_back_on_insert_failure(setup, monkeypatch, adapter_mode):
+    setup.settings=setup.settings.model_copy(update={"chat_adapter":adapter_mode})
     from app.core.identifiers import uuid7
     from app.schemas.session import SendMessageRequest
     from app.services.session.message_service import MessageService
+    from app.services.session.adapter import CatalogTemplateAdapter
 
     principal, sid, _, _ = message_setup(setup)
     with setup.sessions() as db:
@@ -1507,7 +1617,7 @@ def test_message_pair_rolls_back_on_insert_failure(setup, monkeypatch):
 
         monkeypatch.setattr(db, "execute", fail)
         with pytest.raises(ApiError) as error:
-            MessageService(db, setup.settings).send(
+            MessageService(db, setup.settings, CatalogTemplateAdapter()).send(
                 principal,
                 sid,
                 SendMessageRequest(content="ปากกาเจล", client_request_id=uuid7()),
@@ -1543,7 +1653,9 @@ def test_message_migration_repeat_safe(setup):
 
 
 @pytest.mark.parametrize("event", ["logout", "access_expiry", "inactive"])
-def test_message_user_credential_rechecked_after_answer(setup, event):
+@pytest.mark.parametrize("adapter_mode", ["catalog_template", "openrouter_catalog"])
+def test_message_user_credential_rechecked_after_answer(setup, event, adapter_mode):
+    setup.settings=setup.settings.model_copy(update={"chat_adapter":adapter_mode})
     import time
     from dataclasses import replace
 
@@ -1565,6 +1677,10 @@ def test_message_user_credential_rechecked_after_answer(setup, event):
                 principal, access_expires_at=utcnow() + timedelta(seconds=0.1)
             )
         chat = ChatSessionService(db).create(principal, None)
+
+        # Ensure this revocation race enters inference, not an empty-catalog policy.
+        db.execute(text("INSERT INTO products(name,category,price,currency) VALUES('ปากกาเจล race','gel_pen',50,'THB')"))
+        db.commit()
 
     class Adapter(CatalogTemplateAdapter):
         def answer(self, request):

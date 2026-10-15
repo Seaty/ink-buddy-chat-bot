@@ -1,0 +1,29 @@
+{
+  "status": "passed",
+  "tested_at": "2026-10-14T13:41:53.717Z",
+  "frontend_url": "http://localhost:3000",
+  "results": [
+    {
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "checks": [
+        "guest_send",
+        "product_refs",
+        "idempotent_replay",
+        "history_two_rows_after_replay",
+        "reload_history",
+        "register_login",
+        "guest_claim",
+        "user_send",
+        "no_match_policy_badge",
+        "no_horizontal_overflow"
+      ]
+    }
+  ],
+  "mode": "real_openrouter_rag",
+  "api_transport": "browser route forwards to real isolated HTTP API; no response mocks",
+  "catalog": "synthetic fixture in disposable PostgreSQL; not production catalog"
+}

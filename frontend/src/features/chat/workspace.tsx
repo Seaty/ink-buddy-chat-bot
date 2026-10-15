@@ -12,6 +12,8 @@ import type {
 } from "@/lib/types";
 import { Dialog } from "@/components/ui/dialog";
 import { Composer } from "./composer";
+import { AnswerSource } from "./answer-source";
+import { ProductReferenceCard } from "./product-reference";
 
 type Edit = { kind: "rename" | "delete"; chat: ChatSession };
 function unique<T extends { id: string }>(items: T[]) {
@@ -503,30 +505,13 @@ export function ChatWorkspace({ sessionId }: { sessionId?: string }) {
                   )}
                   {messages.items.map((m) => (
                     <article key={m.id} className={`message ${m.role}`}>
-                      <small>{m.role === "user" ? "คุณ" : "Ink Buddy"}</small>
+                      <div className="flex items-center gap-2">
+                        <small>{m.role === "user" ? "คุณ" : "Ink Buddy"}</small>
+                        {m.role === "assistant" && <AnswerSource model={m.model_name} />}
+                      </div>
                       <p>{m.content}</p>
                       {m.product_refs?.map((p) => (
-                        <div key={p.id} className="card">
-                          <strong>{p.name}</strong>
-                          <p>
-                            {p.price !== null
-                              ? `${p.price} ${p.currency || ""}`
-                              : "ไม่มีข้อมูลราคา"}
-                          </p>
-                          {p.availability && (
-                            <p>สถานะตาม catalog: {p.availability}</p>
-                          )}
-                          {p.source_ref &&
-                            /^https?:\/\//i.test(p.source_ref) && (
-                              <a
-                                href={p.source_ref}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                              >
-                                แหล่งข้อมูลสินค้า
-                              </a>
-                            )}
-                        </div>
+                        <ProductReferenceCard key={p.id} product={p} />
                       ))}
                       {m.image_id && (
                         <p className="muted text-sm">มีรูปภาพแนบในข้อความนี้</p>

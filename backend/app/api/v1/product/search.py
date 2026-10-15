@@ -18,6 +18,25 @@ from app.services.vision_service import VisionService, get_vision_service
 
 router = APIRouter(prefix="/product-search", tags=["product search"])
 
+from app.core.config import Settings, get_settings
+from app.core.errors import ApiError
+from app.db.database import get_engine
+from app.schemas.text_retrieval import TextSearchRequest, TextSearchResponse
+from app.services.product.text_retrieval import TextRetrievalService
+
+def get_text_retrieval(settings: Settings = Depends(get_settings)):
+    if not settings.text_search_enabled:
+        raise ApiError(404,'NOT_FOUND','not found')
+    return TextRetrievalService(get_engine(),settings)
+
+@router.post('/by-text', response_model=TextSearchResponse,
+    responses={s:{'model':ErrorResponse} for s in (401,403,404,422,429,503)})
+@access_policy('guest_or_user')
+@limiter.limit('20/minute')
+async def search_by_text(request: Request, response: Response, body: TextSearchRequest,
+    principal: Principal = Depends(get_principal), service=Depends(get_text_retrieval)):
+    return await run_in_threadpool(service.search,body)
+
 
 @router.post(
     "/by-image",

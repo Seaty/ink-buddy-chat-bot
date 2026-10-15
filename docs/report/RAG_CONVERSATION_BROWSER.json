@@ -1,0 +1,68 @@
+{
+  "status": "passed",
+  "tested_at": "2026-10-14T13:28:50.636Z",
+  "mode": "real_openrouter_conversational_rag",
+  "api_transport": "forwarded real HTTP; no response mocks",
+  "catalog": "synthetic disposable PostgreSQL",
+  "results": [
+    {
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "checks": [
+        "three_ranked_blue_products",
+        "exclude_null_pack_and_purple",
+        "same_family_red_variant",
+        "separate_price_source",
+        "ordinal_followup",
+        "replay",
+        "six_history_rows",
+        "policy_no_match",
+        "reload_nested_references",
+        "no_horizontal_overflow"
+      ]
+    },
+    {
+      "viewport": {
+        "name": "tablet",
+        "width": 820,
+        "height": 1180
+      },
+      "checks": [
+        "three_ranked_blue_products",
+        "exclude_null_pack_and_purple",
+        "same_family_red_variant",
+        "separate_price_source",
+        "ordinal_followup",
+        "replay",
+        "six_history_rows",
+        "policy_no_match",
+        "reload_nested_references",
+        "no_horizontal_overflow"
+      ]
+    },
+    {
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "checks": [
+        "three_ranked_blue_products",
+        "exclude_null_pack_and_purple",
+        "same_family_red_variant",
+        "separate_price_source",
+        "ordinal_followup",
+        "replay",
+        "six_history_rows",
+        "policy_no_match",
+        "reload_nested_references",
+        "no_horizontal_overflow"
+      ]
+    }
+  ],
+  "frontend_url": "http://localhost:3002",
+  "frontend_runtime": "Podman standalone container ink-buddy-frontend:rag-uat"
+}

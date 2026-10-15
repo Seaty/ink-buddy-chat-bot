@@ -32,7 +32,9 @@ _DONE_REASON = {"length": "length", "stop": "stop", "tool_calls": "stop", "conte
 
 
 class OpenRouterError(LLMError):
-    pass
+    def __init__(self, message, status_code=None):
+        super().__init__(message)
+        self.status_code = status_code
 
 
 class OpenRouterClient:
@@ -53,7 +55,7 @@ class OpenRouterClient:
         timeout = timeout_s or DEFAULT_TIMEOUT_S
         self._http = httpx.Client(
             base_url=self.base_url,
-            timeout=httpx.Timeout(timeout, connect=10.0),
+            timeout=httpx.Timeout(timeout, connect=min(10.0, timeout)),
             headers={"Authorization": f"Bearer {api_key or ''}", "X-Title": app_title},
         )
 
@@ -96,6 +98,7 @@ class OpenRouterClient:
             "done_reason": _DONE_REASON.get(finish, finish),
             "prompt_eval_count": usage.get("prompt_tokens"),
             "eval_count": usage.get("completion_tokens"),
+            "usage_cost": usage.get("cost"),
             "provider": data.get("provider"),
         }
 
@@ -127,7 +130,7 @@ class OpenRouterClient:
                 r = self._http.post("/chat/completions", json=body)
             except httpx.TimeoutException as e:
                 raise OpenRouterError(
-                    f"{model} did not answer within {self._http.timeout.read:.0f}s (OPENROUTER_TIMEOUT_S)"
+                    f"{model} did not answer within {self._http.timeout.read:.0f}s (OPENROUTER_TIMEOUT_S)", 504
                 ) from e
             except httpx.HTTPError as e:
                 raise OpenRouterError(f"cannot reach OpenRouter at {self.base_url}: {type(e).__name__}") from e
@@ -136,7 +139,7 @@ class OpenRouterClient:
             if r.status_code in RETRY_STATUSES and attempt < self.retries:
                 time.sleep(_retry_after(r))
                 continue
-            raise OpenRouterError(_status_message(r, model))
+            raise OpenRouterError(_status_message(r, model), r.status_code)
         raise AssertionError("unreachable")
 
     def close(self) -> None:

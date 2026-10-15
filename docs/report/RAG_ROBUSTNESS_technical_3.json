@@ -1,0 +1,357 @@
+{
+  "evaluated_at": "2026-10-13T13:35:39.516715+00:00",
+  "label_status": "draft_constraints_not_human_quality_assessment",
+  "dataset_sha256": "79c19b208a276ba35f79bcb082d5723c30fe63fe1784a57815d640e7bb9ad434",
+  "suite": "robustness",
+  "dataset_label_status": "draft_constraints_needs_team_review_not_blind_holdout",
+  "adapter_sha256": "545a00b6f17c428f3e29465d0de36f09d2fb43e53aad20fb5c804ac33b19fe57",
+  "retrieval_policy_sha256": "33ba1ad22c35a352444bfbac4fb1cc2059a081de22e8a8be513a57b321f940da",
+  "catalog_count": 67,
+  "embedding_model": "qwen/qwen3-embedding-4b",
+  "chat_model": "qwen/qwen3-14b",
+  "query_vectors_cached": true,
+  "embedding_calls": 0,
+  "cache_hits": 8,
+  "passed": 13,
+  "total": 13,
+  "latency_total": {
+    "count": 13,
+    "p50_ms": 308.82,
+    "p95_ms": 17838.37
+  },
+  "latency_llm": {
+    "count": 4,
+    "p50_ms": 1603.76,
+    "p95_ms": 17529.63
+  },
+  "usage": {
+    "prompt_tokens": 2363,
+    "completion_tokens": 488,
+    "reported_chat_cost_usd": 0.00035466,
+    "cost_scope": "chat responses with usage, including rejected output; embedding costs and failed upstream calls excluded; verify billing in OpenRouter"
+  },
+  "cases": [
+    {
+      "id": "general-gel",
+      "status": "allowed",
+      "checks": {
+        "status": true,
+        "hit": true,
+        "category": true,
+        "answer_ids": true,
+        "nonempty_selection": true
+      },
+      "product_skus": [
+        "b2s_1091933",
+        "b2s_1092448",
+        "officemate_YA32995",
+        "officework_0205-0009",
+        "officework_0205-0008"
+      ],
+      "retrieval_ms": 74.86,
+      "answer_ms": 5171.63,
+      "answer_model": "qwen/qwen3-14b",
+      "answer_calls": 1,
+      "usage": {
+        "prompt_eval_count": 1302,
+        "eval_count": 260,
+        "usage_cost": 0.0001874,
+        "model": "qwen/qwen3-14b"
+      },
+      "output_diagnostics": {
+        "finish_reason": "stop",
+        "foreign_product_count": 0,
+        "foreign_evidence_count": 0,
+        "duplicate_product_count": 0,
+        "duplicate_evidence_count": 0
+      },
+      "passed": true,
+      "embedding_calls": 0,
+      "total_ms": 5566.07
+    },
+    {
+      "id": "english-ruler",
+      "status": "allowed",
+      "checks": {
+        "status": true,
+        "hit": true,
+        "category": true,
+        "answer_ids": true,
+        "nonempty_selection": true
+      },
+      "product_skus": [
+        "b2s_1092396",
+        "b2s_1091301"
+      ],
+      "retrieval_ms": 57.25,
+      "answer_ms": 17529.63,
+      "answer_model": "qwen/qwen3-14b",
+      "answer_calls": 1,
+      "usage": {
+        "prompt_eval_count": 442,
+        "eval_count": 108,
+        "usage_cost": 7.896e-05,
+        "model": "qwen/qwen3-14b"
+      },
+      "output_diagnostics": {
+        "finish_reason": "stop",
+        "foreign_product_count": 0,
+        "foreign_evidence_count": 0,
+        "duplicate_product_count": 0,
+        "duplicate_evidence_count": 0
+      },
+      "passed": true,
+      "embedding_calls": 0,
+      "total_ms": 17838.37
+    },
+    {
+      "id": "budget-range",
+      "status": "no_match",
+      "checks": {
+        "status": true,
+        "empty": true,
+        "answer_ids": true,
+        "no_llm_for_policy": true
+      },
+      "product_skus": [],
+      "retrieval_ms": 54.16,
+      "answer_ms": 0.03,
+      "answer_model": "catalog_policy",
+      "answer_calls": 0,
+      "usage": null,
+      "output_diagnostics": null,
+      "passed": true,
+      "embedding_calls": 0,
+      "total_ms": 342.75
+    },
+    {
+      "id": "budget-range-hit",
+      "status": "allowed",
+      "checks": {
+        "status": true,
+        "hit": true,
+        "category": true,
+        "budget": true,
+        "answer_ids": true,
+        "nonempty_selection": true
+      },
+      "product_skus": [
+        "b2s_1092448"
+      ],
+      "retrieval_ms": 55.48,
+      "answer_ms": 1466.66,
+      "answer_model": "qwen/qwen3-14b",
+      "answer_calls": 1,
+      "usage": {
+        "prompt_eval_count": 311,
+        "eval_count": 57,
+        "usage_cost": 4.364e-05,
+        "model": "qwen/qwen3-14b"
+      },
+      "output_diagnostics": {
+        "finish_reason": "stop",
+        "foreign_product_count": 0,
+        "foreign_evidence_count": 0,
+        "duplicate_product_count": 0,
+        "duplicate_evidence_count": 0
+      },
+      "passed": true,
+      "embedding_calls": 0,
+      "total_ms": 1772.34
+    },
+    {
+      "id": "brand-thai",
+      "status": "allowed",
+      "checks": {
+        "status": true,
+        "hit": true,
+        "brand": true,
+        "answer_ids": true,
+        "nonempty_selection": true
+      },
+      "product_skus": [
+        "b2s_1008290"
+      ],
+      "retrieval_ms": 55.2,
+      "answer_ms": 1603.76,
+      "answer_model": "qwen/qwen3-14b",
+      "answer_calls": 1,
+      "usage": {
+        "prompt_eval_count": 308,
+        "eval_count": 63,
+        "usage_cost": 4.466e-05,
+        "model": "qwen/qwen3-14b"
+      },
+      "output_diagnostics": {
+        "finish_reason": "stop",
+        "foreign_product_count": 0,
+        "foreign_evidence_count": 0,
+        "duplicate_product_count": 0,
+        "duplicate_evidence_count": 0
+      },
+      "passed": true,
+      "embedding_calls": 0,
+      "total_ms": 1909.58
+    },
+    {
+      "id": "unavailable-budget",
+      "status": "no_match",
+      "checks": {
+        "status": true,
+        "empty": true,
+        "answer_ids": true,
+        "no_llm_for_policy": true
+      },
+      "product_skus": [],
+      "retrieval_ms": 53.02,
+      "answer_ms": 0.03,
+      "answer_model": "catalog_policy",
+      "answer_calls": 0,
+      "usage": null,
+      "output_diagnostics": null,
+      "passed": true,
+      "embedding_calls": 0,
+      "total_ms": 305.28
+    },
+    {
+      "id": "follow-up",
+      "status": "needs_clarification",
+      "checks": {
+        "status": true,
+        "empty": true,
+        "answer_ids": true,
+        "no_llm_for_policy": true
+      },
+      "product_skus": [],
+      "retrieval_ms": 3.36,
+      "answer_ms": 0.02,
+      "answer_model": "catalog_policy",
+      "answer_calls": 0,
+      "usage": null,
+      "output_diagnostics": null,
+      "passed": true,
+      "embedding_calls": 0,
+      "total_ms": 258.6
+    },
+    {
+      "id": "mixed-intent",
+      "status": "needs_clarification",
+      "checks": {
+        "status": true,
+        "empty": true,
+        "answer_ids": true,
+        "no_llm_for_policy": true
+      },
+      "product_skus": [],
+      "retrieval_ms": 2.54,
+      "answer_ms": 0.02,
+      "answer_model": "catalog_policy",
+      "answer_calls": 0,
+      "usage": null,
+      "output_diagnostics": null,
+      "passed": true,
+      "embedding_calls": 0,
+      "total_ms": 254.74
+    },
+    {
+      "id": "normalized-injection",
+      "status": "blocked",
+      "checks": {
+        "status": true,
+        "empty": true,
+        "answer_ids": true,
+        "no_llm_for_policy": true
+      },
+      "product_skus": [],
+      "retrieval_ms": 2.52,
+      "answer_ms": 0.02,
+      "answer_model": "catalog_policy",
+      "answer_calls": 0,
+      "usage": null,
+      "output_diagnostics": null,
+      "passed": true,
+      "embedding_calls": 0,
+      "total_ms": 254.68
+    },
+    {
+      "id": "thai-injection",
+      "status": "blocked",
+      "checks": {
+        "status": true,
+        "empty": true,
+        "answer_ids": true,
+        "no_llm_for_policy": true
+      },
+      "product_skus": [],
+      "retrieval_ms": 2.94,
+      "answer_ms": 0.03,
+      "answer_model": "catalog_policy",
+      "answer_calls": 0,
+      "usage": null,
+      "output_diagnostics": null,
+      "passed": true,
+      "embedding_calls": 0,
+      "total_ms": 279.67
+    },
+    {
+      "id": "zero-width-injection",
+      "status": "blocked",
+      "checks": {
+        "status": true,
+        "empty": true,
+        "answer_ids": true,
+        "no_llm_for_policy": true
+      },
+      "product_skus": [],
+      "retrieval_ms": 3.09,
+      "answer_ms": 0.03,
+      "answer_model": "catalog_policy",
+      "answer_calls": 0,
+      "usage": null,
+      "output_diagnostics": null,
+      "passed": true,
+      "embedding_calls": 0,
+      "total_ms": 253.6
+    },
+    {
+      "id": "sql-text",
+      "status": "no_match",
+      "checks": {
+        "status": true,
+        "empty": true,
+        "answer_ids": true,
+        "no_llm_for_policy": true
+      },
+      "product_skus": [],
+      "retrieval_ms": 64.45,
+      "answer_ms": 0.03,
+      "answer_model": "catalog_policy",
+      "answer_calls": 0,
+      "usage": null,
+      "output_diagnostics": null,
+      "passed": true,
+      "embedding_calls": 0,
+      "total_ms": 316.2
+    },
+    {
+      "id": "missing-color",
+      "status": "no_match",
+      "checks": {
+        "status": true,
+        "empty": true,
+        "answer_ids": true,
+        "no_llm_for_policy": true
+      },
+      "product_skus": [],
+      "retrieval_ms": 56.88,
+      "answer_ms": 0.02,
+      "answer_model": "catalog_policy",
+      "answer_calls": 0,
+      "usage": null,
+      "output_diagnostics": null,
+      "passed": true,
+      "embedding_calls": 0,
+      "total_ms": 308.82
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "mode": "offline_input_policy_only",
+  "passed": 11,
+  "total": 11,
+  "skipped_retrieval_cases": 10,
+  "results": [
+    {
+      "id": "scope-computer",
+      "status": "blocked",
+      "passed": true
+    },
+    {
+      "id": "scope-phone",
+      "status": "blocked",
+      "passed": true
+    },
+    {
+      "id": "scope-health",
+      "status": "blocked",
+      "passed": true
+    },
+    {
+      "id": "category-bypass",
+      "status": "blocked",
+      "passed": true
+    },
+    {
+      "id": "mixed",
+      "status": "needs_clarification",
+      "passed": true
+    },
+    {
+      "id": "followup",
+      "status": "needs_clarification",
+      "passed": true
+    },
+    {
+      "id": "vague-study",
+      "status": "needs_clarification",
+      "passed": true
+    },
+    {
+      "id": "vague-price",
+      "status": "needs_clarification",
+      "passed": true
+    },
+    {
+      "id": "invalid-budget",
+      "status": "needs_clarification",
+      "passed": true
+    },
+    {
+      "id": "injection-en",
+      "status": "blocked",
+      "passed": true
+    },
+    {
+      "id": "injection-th",
+      "status": "blocked",
+      "passed": true
+    }
+  ]
+}

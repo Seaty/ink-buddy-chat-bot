@@ -52,7 +52,7 @@ class SendMessageRequest(BaseModel):
         return value
 
 
-class ProductReference(BaseModel):
+class ProductFactReference(BaseModel):
     id: UUID
     sku: str | None = None
     name: str
@@ -60,9 +60,21 @@ class ProductReference(BaseModel):
     currency: str | None = None
     availability: str | None = None
     source_ref: str | None = None
+    price_source_ref: str | None = None
+    price_basis: str | None = None
+    price_verification: str | None = None
+    selling_unit: str | None = None
+    pack_quantity: int | None = Field(default=None,ge=1)
+    ink_color: str | None = None
+    body_color: str | None = None
+
+
+class ProductReference(ProductFactReference):
+    variants: list[ProductFactReference] = Field(default_factory=list,max_length=5)
 
 
 class MessageResponse(BaseModel):
+    model_name: str | None = Field(default=None,max_length=100)
     id: UUID
     session_id: UUID
     sequence_number: int = Field(gt=0)

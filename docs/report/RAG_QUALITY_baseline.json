@@ -1,0 +1,600 @@
+{
+  "label": "baseline",
+  "threshold": 0.35,
+  "gold_status": "draft_catalog_facts_not_independent_human_labels",
+  "embedding_calls": 21,
+  "cache_hits": 0,
+  "summary": {
+    "development": {
+      "cases": 12,
+      "positive_cases": 10,
+      "decision_accuracy": 0.9166666666666666,
+      "recall_at_5": 0.9,
+      "precision_at_5": 0.2,
+      "precision_returned": 0.8,
+      "hit_rate_at_5": 0.9,
+      "mrr": 0.9,
+      "ndcg_at_5": 0.9,
+      "negative_false_positive_rate": 0.0
+    },
+    "holdout": {
+      "cases": 12,
+      "positive_cases": 9,
+      "decision_accuracy": 1.0,
+      "recall_at_5": 1.0,
+      "precision_at_5": 0.2,
+      "precision_returned": 0.7314814814814814,
+      "hit_rate_at_5": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_5": 1.0,
+      "negative_false_positive_rate": 0.0
+    }
+  },
+  "cases": [
+    {
+      "id": "d01",
+      "split": "development",
+      "gold_skus": [
+        "b2s_1092448"
+      ],
+      "predicted_skus": [
+        "b2s_1092448"
+      ],
+      "guardrail_status": "allowed",
+      "expected_status": [
+        "allowed"
+      ],
+      "decision_correct": true,
+      "metrics": {
+        "recall_at_5": 1.0,
+        "precision_at_5": 0.2,
+        "precision_returned": 1.0,
+        "hit_rate_at_5": 1,
+        "mrr": 1.0,
+        "ndcg_at_5": 1.0
+      },
+      "duration_ms": 1800.04
+    },
+    {
+      "id": "d02",
+      "split": "development",
+      "gold_skus": [
+        "b2s_1092448"
+      ],
+      "predicted_skus": [
+        "b2s_1092448"
+      ],
+      "guardrail_status": "allowed",
+      "expected_status": [
+        "allowed"
+      ],
+      "decision_correct": true,
+      "metrics": {
+        "recall_at_5": 1.0,
+        "precision_at_5": 0.2,
+        "precision_returned": 1.0,
+        "hit_rate_at_5": 1,
+        "mrr": 1.0,
+        "ndcg_at_5": 1.0
+      },
+      "duration_ms": 832.63
+    },
+    {
+      "id": "d03",
+      "split": "development",
+      "gold_skus": [
+        "officework_0205-0007"
+      ],
+      "predicted_skus": [
+        "officework_0205-0007"
+      ],
+      "guardrail_status": "allowed",
+      "expected_status": [
+        "allowed"
+      ],
+      "decision_correct": true,
+      "metrics": {
+        "recall_at_5": 1.0,
+        "precision_at_5": 0.2,
+        "precision_returned": 1.0,
+        "hit_rate_at_5": 1,
+        "mrr": 1.0,
+        "ndcg_at_5": 1.0
+      },
+      "duration_ms": 1912.92
+    },
+    {
+      "id": "d04",
+      "split": "development",
+      "gold_skus": [
+        "officework_0119-0024"
+      ],
+      "predicted_skus": [
+        "officework_0119-0024"
+      ],
+      "guardrail_status": "allowed",
+      "expected_status": [
+        "allowed"
+      ],
+      "decision_correct": true,
+      "metrics": {
+        "recall_at_5": 1.0,
+        "precision_at_5": 0.2,
+        "precision_returned": 1.0,
+        "hit_rate_at_5": 1,
+        "mrr": 1.0,
+        "ndcg_at_5": 1.0
+      },
+      "duration_ms": 889.28
+    },
+    {
+      "id": "d05",
+      "split": "development",
+      "gold_skus": [
+        "officework_0210-0001"
+      ],
+      "predicted_skus": [
+        "officework_0210-0001"
+      ],
+      "guardrail_status": "allowed",
+      "expected_status": [
+        "allowed"
+      ],
+      "decision_correct": true,
+      "metrics": {
+        "recall_at_5": 1.0,
+        "precision_at_5": 0.2,
+        "precision_returned": 1.0,
+        "hit_rate_at_5": 1,
+        "mrr": 1.0,
+        "ndcg_at_5": 1.0
+      },
+      "duration_ms": 859.67
+    },
+    {
+      "id": "d06",
+      "split": "development",
+      "gold_skus": [
+        "b2s_K091420"
+      ],
+      "predicted_skus": [],
+      "guardrail_status": "needs_clarification",
+      "expected_status": [
+        "allowed"
+      ],
+      "decision_correct": false,
+      "metrics": {
+        "recall_at_5": 0.0,
+        "precision_at_5": 0.0,
+        "precision_returned": 0,
+        "hit_rate_at_5": 0,
+        "mrr": 0,
+        "ndcg_at_5": 0.0
+      },
+      "duration_ms": 3.92
+    },
+    {
+      "id": "d07",
+      "split": "development",
+      "gold_skus": [
+        "b2s_1092396"
+      ],
+      "predicted_skus": [
+        "b2s_1092396",
+        "b2s_1091301"
+      ],
+      "guardrail_status": "allowed",
+      "expected_status": [
+        "allowed"
+      ],
+      "decision_correct": true,
+      "metrics": {
+        "recall_at_5": 1.0,
+        "precision_at_5": 0.2,
+        "precision_returned": 0.5,
+        "hit_rate_at_5": 1,
+        "mrr": 1.0,
+        "ndcg_at_5": 1.0
+      },
+      "duration_ms": 846.46
+    },
+    {
+      "id": "d08",
+      "split": "development",
+      "gold_skus": [
+        "b2s_1091150"
+      ],
+      "predicted_skus": [
+        "b2s_1091150",
+        "b2s_1006045"
+      ],
+      "guardrail_status": "allowed",
+      "expected_status": [
+        "allowed"
+      ],
+      "decision_correct": true,
+      "metrics": {
+        "recall_at_5": 1.0,
+        "precision_at_5": 0.2,
+        "precision_returned": 0.5,
+        "hit_rate_at_5": 1,
+        "mrr": 1.0,
+        "ndcg_at_5": 1.0
+      },
+      "duration_ms": 1000.12
+    },
+    {
+      "id": "d09",
+      "split": "development",
+      "gold_skus": [
+        "b2s_2071790",
+        "b2s_2072020"
+      ],
+      "predicted_skus": [
+        "b2s_2072020",
+        "b2s_2071790"
+      ],
+      "guardrail_status": "allowed",
+      "expected_status": [
+        "allowed"
+      ],
+      "decision_correct": true,
+      "metrics": {
+        "recall_at_5": 1.0,
+        "precision_at_5": 0.4,
+        "precision_returned": 1.0,
+        "hit_rate_at_5": 1,
+        "mrr": 1.0,
+        "ndcg_at_5": 1.0
+      },
+      "duration_ms": 899.99
+    },
+    {
+      "id": "d10",
+      "split": "development",
+      "gold_skus": [
+        "b2s_1010208"
+      ],
+      "predicted_skus": [
+        "b2s_1010208"
+      ],
+      "guardrail_status": "allowed",
+      "expected_status": [
+        "allowed"
+      ],
+      "decision_correct": true,
+      "metrics": {
+        "recall_at_5": 1.0,
+        "precision_at_5": 0.2,
+        "precision_returned": 1.0,
+        "hit_rate_at_5": 1,
+        "mrr": 1.0,
+        "ndcg_at_5": 1.0
+      },
+      "duration_ms": 939.38
+    },
+    {
+      "id": "d11",
+      "split": "development",
+      "gold_skus": [],
+      "predicted_skus": [],
+      "guardrail_status": "no_match",
+      "expected_status": [
+        "no_match"
+      ],
+      "decision_correct": true,
+      "metrics": {
+        "recall_at_5": null,
+        "precision_at_5": 0.0,
+        "precision_returned": 0,
+        "hit_rate_at_5": 0,
+        "mrr": 0,
+        "ndcg_at_5": null
+      },
+      "duration_ms": 1052.85
+    },
+    {
+      "id": "d12",
+      "split": "development",
+      "gold_skus": [],
+      "predicted_skus": [],
+      "guardrail_status": "blocked",
+      "expected_status": [
+        "blocked"
+      ],
+      "decision_correct": true,
+      "metrics": {
+        "recall_at_5": null,
+        "precision_at_5": 0.0,
+        "precision_returned": 0,
+        "hit_rate_at_5": 0,
+        "mrr": 0,
+        "ndcg_at_5": null
+      },
+      "duration_ms": 2.16
+    },
+    {
+      "id": "h01",
+      "split": "holdout",
+      "gold_skus": [
+        "officework_0205-0008"
+      ],
+      "predicted_skus": [
+        "officework_0205-0008"
+      ],
+      "guardrail_status": "allowed",
+      "expected_status": [
+        "allowed"
+      ],
+      "decision_correct": true,
+      "metrics": {
+        "recall_at_5": 1.0,
+        "precision_at_5": 0.2,
+        "precision_returned": 1.0,
+        "hit_rate_at_5": 1,
+        "mrr": 1.0,
+        "ndcg_at_5": 1.0
+      },
+      "duration_ms": 1429.29
+    },
+    {
+      "id": "h02",
+      "split": "holdout",
+      "gold_skus": [
+        "officework_0119-0025"
+      ],
+      "predicted_skus": [
+        "officework_0119-0025"
+      ],
+      "guardrail_status": "allowed",
+      "expected_status": [
+        "allowed"
+      ],
+      "decision_correct": true,
+      "metrics": {
+        "recall_at_5": 1.0,
+        "precision_at_5": 0.2,
+        "precision_returned": 1.0,
+        "hit_rate_at_5": 1,
+        "mrr": 1.0,
+        "ndcg_at_5": 1.0
+      },
+      "duration_ms": 870.08
+    },
+    {
+      "id": "h03",
+      "split": "holdout",
+      "gold_skus": [
+        "officework_0210-0003"
+      ],
+      "predicted_skus": [
+        "officework_0210-0003"
+      ],
+      "guardrail_status": "allowed",
+      "expected_status": [
+        "allowed"
+      ],
+      "decision_correct": true,
+      "metrics": {
+        "recall_at_5": 1.0,
+        "precision_at_5": 0.2,
+        "precision_returned": 1.0,
+        "hit_rate_at_5": 1,
+        "mrr": 1.0,
+        "ndcg_at_5": 1.0
+      },
+      "duration_ms": 931.56
+    },
+    {
+      "id": "h04",
+      "split": "holdout",
+      "gold_skus": [
+        "b2s_K091454"
+      ],
+      "predicted_skus": [
+        "b2s_K091454",
+        "b2s_K090974",
+        "b2s_1005909",
+        "b2s_K090972"
+      ],
+      "guardrail_status": "allowed",
+      "expected_status": [
+        "allowed"
+      ],
+      "decision_correct": true,
+      "metrics": {
+        "recall_at_5": 1.0,
+        "precision_at_5": 0.2,
+        "precision_returned": 0.25,
+        "hit_rate_at_5": 1,
+        "mrr": 1.0,
+        "ndcg_at_5": 1.0
+      },
+      "duration_ms": 978.92
+    },
+    {
+      "id": "h05",
+      "split": "holdout",
+      "gold_skus": [
+        "b2s_1091301"
+      ],
+      "predicted_skus": [
+        "b2s_1091301",
+        "b2s_1092396"
+      ],
+      "guardrail_status": "allowed",
+      "expected_status": [
+        "allowed"
+      ],
+      "decision_correct": true,
+      "metrics": {
+        "recall_at_5": 1.0,
+        "precision_at_5": 0.2,
+        "precision_returned": 0.5,
+        "hit_rate_at_5": 1,
+        "mrr": 1.0,
+        "ndcg_at_5": 1.0
+      },
+      "duration_ms": 827.2
+    },
+    {
+      "id": "h06",
+      "split": "holdout",
+      "gold_skus": [
+        "b2s_1091150"
+      ],
+      "predicted_skus": [
+        "b2s_1091150",
+        "b2s_1006045"
+      ],
+      "guardrail_status": "allowed",
+      "expected_status": [
+        "allowed"
+      ],
+      "decision_correct": true,
+      "metrics": {
+        "recall_at_5": 1.0,
+        "precision_at_5": 0.2,
+        "precision_returned": 0.5,
+        "hit_rate_at_5": 1,
+        "mrr": 1.0,
+        "ndcg_at_5": 1.0
+      },
+      "duration_ms": 888.09
+    },
+    {
+      "id": "h07",
+      "split": "holdout",
+      "gold_skus": [
+        "b2s_1008290"
+      ],
+      "predicted_skus": [
+        "b2s_1008290"
+      ],
+      "guardrail_status": "allowed",
+      "expected_status": [
+        "allowed"
+      ],
+      "decision_correct": true,
+      "metrics": {
+        "recall_at_5": 1.0,
+        "precision_at_5": 0.2,
+        "precision_returned": 1.0,
+        "hit_rate_at_5": 1,
+        "mrr": 1.0,
+        "ndcg_at_5": 1.0
+      },
+      "duration_ms": 835.5
+    },
+    {
+      "id": "h08",
+      "split": "holdout",
+      "gold_skus": [
+        "b2s_3090269"
+      ],
+      "predicted_skus": [
+        "b2s_3090269",
+        "b2s_3011150",
+        "b2s_K091913"
+      ],
+      "guardrail_status": "allowed",
+      "expected_status": [
+        "allowed"
+      ],
+      "decision_correct": true,
+      "metrics": {
+        "recall_at_5": 1.0,
+        "precision_at_5": 0.2,
+        "precision_returned": 0.3333333333333333,
+        "hit_rate_at_5": 1,
+        "mrr": 1.0,
+        "ndcg_at_5": 1.0
+      },
+      "duration_ms": 1476.73
+    },
+    {
+      "id": "h09",
+      "split": "holdout",
+      "gold_skus": [
+        "officework_0119-0066"
+      ],
+      "predicted_skus": [
+        "officework_0119-0066"
+      ],
+      "guardrail_status": "allowed",
+      "expected_status": [
+        "allowed"
+      ],
+      "decision_correct": true,
+      "metrics": {
+        "recall_at_5": 1.0,
+        "precision_at_5": 0.2,
+        "precision_returned": 1.0,
+        "hit_rate_at_5": 1,
+        "mrr": 1.0,
+        "ndcg_at_5": 1.0
+      },
+      "duration_ms": 957.66
+    },
+    {
+      "id": "h10",
+      "split": "holdout",
+      "gold_skus": [],
+      "predicted_skus": [],
+      "guardrail_status": "no_match",
+      "expected_status": [
+        "no_match"
+      ],
+      "decision_correct": true,
+      "metrics": {
+        "recall_at_5": null,
+        "precision_at_5": 0.0,
+        "precision_returned": 0,
+        "hit_rate_at_5": 0,
+        "mrr": 0,
+        "ndcg_at_5": null
+      },
+      "duration_ms": 983.5
+    },
+    {
+      "id": "h11",
+      "split": "holdout",
+      "gold_skus": [],
+      "predicted_skus": [],
+      "guardrail_status": "no_match",
+      "expected_status": [
+        "no_match"
+      ],
+      "decision_correct": true,
+      "metrics": {
+        "recall_at_5": null,
+        "precision_at_5": 0.0,
+        "precision_returned": 0,
+        "hit_rate_at_5": 0,
+        "mrr": 0,
+        "ndcg_at_5": null
+      },
+      "duration_ms": 1042.11
+    },
+    {
+      "id": "h12",
+      "split": "holdout",
+      "gold_skus": [],
+      "predicted_skus": [],
+      "guardrail_status": "needs_clarification",
+      "expected_status": [
+        "needs_clarification"
+      ],
+      "decision_correct": true,
+      "metrics": {
+        "recall_at_5": null,
+        "precision_at_5": 0.0,
+        "precision_returned": 0,
+        "hit_rate_at_5": 0,
+        "mrr": 0,
+        "ndcg_at_5": null
+      },
+      "duration_ms": 2.52
+    }
+  ]
+}
