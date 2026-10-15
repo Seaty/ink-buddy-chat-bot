@@ -1,6 +1,8 @@
 # Run Ink Buddy PostgreSQL with Podman
 
-โฟลเดอร์นี้เก็บการตั้งค่า Podman Compose สำหรับ PostgreSQL + pgvector สำหรับการพัฒนาในเครื่อง รวม Frontend container แล้ว; Backend และ Ollama ยังรันบนเครื่อง
+โฟลเดอร์นี้เก็บการตั้งค่า Podman Compose สำหรับ PostgreSQL + pgvector สำหรับการพัฒนาในเครื่อง รวม Frontend container แล้ว; Backend รันบนเครื่อง Text RAG ใช้ OpenRouter ส่วน Vision runtime ใช้ configuration ของโมดูลเดิม
+
+Frontend มี healthcheck ใน Compose โดยตรง เพราะ Podman build รูปแบบ OCI อาจละ image HEALTHCHECK; standalone build ที่ต้องการ image healthcheck ให้ใช้ `podman build --format docker` ตรวจ HTTP `/login` ได้ด้วย การเพิ่ม Compose healthcheck ไม่ได้ apply กับ container ที่รันอยู่จนสร้าง service ใหม่
 
 ## เริ่มใช้งานบน Windows (PowerShell)
 

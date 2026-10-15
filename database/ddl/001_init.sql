@@ -263,7 +263,7 @@ CREATE TABLE product_embeddings (
 CREATE INDEX product_embeddings_cosine_hnsw_idx
     ON product_embeddings USING hnsw (embedding vector_cosine_ops);
 
--- Matches backend/app/models/product.py; a separate vector space from BGE-M3.
+-- Matches backend/app/models/product.py; a separate vector space from text embeddings (1024 dimensions).
 CREATE TABLE product_image_embeddings (
     id serial PRIMARY KEY,
     sku varchar(64) NOT NULL,

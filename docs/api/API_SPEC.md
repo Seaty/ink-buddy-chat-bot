@@ -1,10 +1,18 @@
 # Ink Buddy API Specification
 
-อัปเดต 2026-10-05 · อ้างอิง code และ openapi.current.json หลัง implementation Chat Session และ Register/Reset Password
+## Conversational RAG contract — 2026-10-14
+
+POST /api/v1/chat-sessions/{id}/messages รองรับคำถามต่อใน session เดิม, ordinal, จำนวน 1–5, ราคา/งบ และ variants แล้ว ราคาจัดอันดับใน PostgreSQL ไม่ใช้ LLM คำนวณ ค่าเริ่มต้นเลือกเฉพาะสินค้า THB ที่มีราคาเมื่อเป็น price intent และไม่เปรียบเทียบต่อแพ็คกับต่อด้ามเงียบ ๆ
+
+product_refs เพิ่ม optional price_source_ref, price_basis, price_verification, selling_unit, pack_quantity, ink_color, body_color และ variants: ProductFactReference[] สูงสุด 5 สีอื่นอยู่ใต้รุ่นหลักไม่เพิ่มจำนวน ranking ประวัติเก่าอ่านต่อได้
+
+ยังคง guest_or_user, Origin, ownership 404, revoke 401, atomic history, replay 201, concurrency 409 และ provider/output failure rollback; ไม่มี endpoint หรือ migration ใหม่ ดู [Process 7](../architecture/RAG_CONVERSATION_PROCESS.md) และ OpenAPI snapshot
+
+อัปเดต 2026-10-14 · อ้างอิง code และ openapi.current.json รวม Text Index, Hybrid Search และ RAG Chat
 
 ## 1. สถานะ
 
-**27 operations บน 21 paths: implement แล้ว 21 และ scaffold 6** Authentication, Guest lifecycle, Profile GET และ Guest image upload/search ใช้งานจริงแล้ว การจัดการแชตและอ่านประวัติ implement แล้ว; สินค้า/รูป detail-delete/readiness ที่ยังเป็น scaffold ตรวจสิทธิ์ก่อนตอบ 501 ไม่คืนข้อมูลสำเร็จปลอม ไม่มี document upload
+**32 operations บน 26 paths: implement แล้ว 26 และ scaffold 6** Authentication, Guest lifecycle, Profile GET และ Guest image upload/search ใช้งานจริงแล้ว การจัดการแชตและอ่านประวัติ implement แล้ว; สินค้า/รูป detail-delete/readiness ที่ยังเป็น scaffold ตรวจสิทธิ์ก่อนตอบ 501 ไม่คืนข้อมูลสำเร็จปลอม ไม่มี document upload
 
 ## 2. Contract กลางและ Authentication
 
@@ -961,3 +969,14 @@ Content-Type: application/json
 ## Password policy — 2026-10-05
 
 การตั้งรหัสผ่านใหม่ผ่าน Register/Reset/local script ต้องยาว 12–24 ตัวอักษร มี a–z, A–Z, 0–9 และอย่างน้อยหนึ่ง ASCII punctuation (เช่น !@#_-); ห้าม Unicode whitespace ทุกชนิด ไม่มีการ trim Password ภาษาอื่นยังใช้ร่วมได้แต่ไม่นับแทนกลุ่มภาษาอังกฤษหรืออักขระพิเศษ Frontend ตรวจและยืนยันสองช่อง Backend ตรวจซ้ำและตอบ 422 เมื่อไม่ผ่าน Login ยังคงรับ 1–1024 ตัวเพื่อรองรับบัญชีเดิม ไม่มีการแก้ password hash เดิมโดย migration
+
+## Admin Text Index
+See [Text Index API and Postman](admin/TEXT_INDEX_API.md). POST `/api/v1/admin/text-index/validate` and `/api/v1/admin/text-index` require Admin and TEXT_INDEX_ADMIN_ENABLED. Validation is free; indexing is paid, batch-atomic and skips unchanged catalog products.
+
+## Hybrid Text Search
+POST `/api/v1/product-search/by-text`: Guest/User, TEXT_SEARCH_ENABLED, paid query embedding, RRF-ranked products with catalog sources. See [API and Postman](product/TEXT_SEARCH_API.md). No LLM answer or message writes.
+
+Text search policy update: response adds guardrail_status/reason/policy_version/relevance_rejected, index_status not_checked. Scope refusals/clarifications return 200 empty items; upstream policy rejection returns 403 OPENROUTER_POLICY_REJECTED. See product/TEXT_SEARCH_API.md.
+
+## RAG Chat integration — 2026-10-13
+Existing POST messages supports CHAT_ADAPTER=openrouter_catalog with hybrid retrieval, policy responses and controlled Qwen3 14B evidence selection. Message/history response adds optional model_name. See [RAG Chat API/Postman](session/RAG_CHAT_API.md). Errors do not save messages; no provider retries/fallback.

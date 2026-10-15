@@ -1,0 +1,151 @@
+{
+  "status": "passed",
+  "catalog_count": 67,
+  "main_database_writes": false,
+  "history_source": "in-memory synthetic test conversation",
+  "results": [
+    {
+      "question": "ปากกาหมึกน้ำเงิน สามรุ่นถูกที่สุด และมีสีอื่นไหม",
+      "status": "passed",
+      "model": "qwen/qwen3-14b",
+      "duration_ms": 3742,
+      "references": [
+        {
+          "id": "01a12f8e-cc50-710e-a5f3-0e46a01894cc",
+          "sku": "b2s_1092374",
+          "name": "ปากกาลูกลื่น PENTEL รุ่น Feel-it ขนาด 0.7 มม.ด้ามส้มหมึกน้ำเงิน",
+          "price": "10.00",
+          "currency": "THB",
+          "availability": null,
+          "source_ref": "https://www.b2s.co.th/product/ปากกาลูกลื่น-pentel-รุ่น-feel-it-ขนาด-0-7-มม-ด้ามส้มหมึกน้ำเงิน-p.1092374",
+          "price_source_ref": "https://www.b2s.co.th/product/ปากกาลูกลื่น-pentel-รุ่น-feel-it-ขนาด-0-7-มม-ด้ามส้มหมึกน้ำเงิน-p.1092374",
+          "price_basis": "excludes_vat",
+          "price_verification": "user_assumed_for_coursework_not_verified",
+          "selling_unit": "รายการ catalog (หน่วยขายไม่ได้ยืนยัน)",
+          "pack_quantity": null,
+          "ink_color": "น้ำเงิน",
+          "body_color": "ส้ม",
+          "variants": []
+        },
+        {
+          "id": "01a13377-4b04-7966-ab8b-b0494d96e0a4",
+          "sku": "officework_0205-0009",
+          "name": "ปากกาหมึกเจล เพนเทล เอ็นเนอร์เจล BL77 สีนํ้าเงิน",
+          "price": "50.00",
+          "currency": "THB",
+          "availability": null,
+          "source_ref": "https://officework.co.th/product-detail.html?pid=0205-0009",
+          "price_source_ref": "https://officework.co.th/product-detail.html?pid=0205-0009",
+          "price_basis": "excludes_vat",
+          "price_verification": "source_explicitly_excludes_vat",
+          "selling_unit": "ด้าม",
+          "pack_quantity": 1,
+          "ink_color": "น้ำเงิน",
+          "body_color": null,
+          "variants": [
+            {
+              "id": "01a13377-4b01-7866-9f1f-ffec70cebc45",
+              "sku": "officework_0205-0007",
+              "name": "ปากกาหมึกเจล เพนเทล เอ็นเนอร์เจล BL77 สีแดง",
+              "price": "50.00",
+              "currency": "THB",
+              "availability": null,
+              "source_ref": "https://officework.co.th/product-detail.html?pid=0205-0007",
+              "price_source_ref": "https://officework.co.th/product-detail.html?pid=0205-0007",
+              "price_basis": "excludes_vat",
+              "price_verification": "source_explicitly_excludes_vat",
+              "selling_unit": "ด้าม",
+              "pack_quantity": 1,
+              "ink_color": "แดง",
+              "body_color": null
+            },
+            {
+              "id": "01a13377-4b03-7f84-a6ca-4e9bb382cc19",
+              "sku": "officework_0205-0008",
+              "name": "ปากกาหมึกเจล เพนเทล เอ็นเนอร์เจล BL77 สีดำ",
+              "price": "50.00",
+              "currency": "THB",
+              "availability": null,
+              "source_ref": "https://officework.co.th/product-detail.html?pid=0205-0008",
+              "price_source_ref": "https://officework.co.th/product-detail.html?pid=0205-0008",
+              "price_basis": "excludes_vat",
+              "price_verification": "source_explicitly_excludes_vat",
+              "selling_unit": "ด้าม",
+              "pack_quantity": 1,
+              "ink_color": "ดำ",
+              "body_color": null
+            }
+          ]
+        },
+        {
+          "id": "01a13377-4b06-7927-b125-5a3b7bba54b6",
+          "sku": "officework_0205-0015",
+          "name": "ปากกาหมึกเจล เพนเทล เอ็นเนอร์เจล BL-57 สีน้ำเงิน",
+          "price": "55.00",
+          "currency": "THB",
+          "availability": null,
+          "source_ref": "https://officework.co.th/product-detail.html?pid=0205-0015",
+          "price_source_ref": "https://officework.co.th/product-detail.html?pid=0205-0015",
+          "price_basis": "excludes_vat",
+          "price_verification": "source_explicitly_excludes_vat",
+          "selling_unit": "ด้าม",
+          "pack_quantity": 1,
+          "ink_color": "น้ำเงิน",
+          "body_color": null,
+          "variants": []
+        }
+      ]
+    },
+    {
+      "question": "ตัวที่สองราคาเท่าไร",
+      "status": "passed",
+      "model": "qwen/qwen3-14b",
+      "duration_ms": 2545,
+      "references": [
+        {
+          "id": "01a13377-4b04-7966-ab8b-b0494d96e0a4",
+          "sku": "officework_0205-0009",
+          "name": "ปากกาหมึกเจล เพนเทล เอ็นเนอร์เจล BL77 สีนํ้าเงิน",
+          "price": "50.00",
+          "currency": "THB",
+          "availability": null,
+          "source_ref": "https://officework.co.th/product-detail.html?pid=0205-0009",
+          "price_source_ref": "https://officework.co.th/product-detail.html?pid=0205-0009",
+          "price_basis": "excludes_vat",
+          "price_verification": "source_explicitly_excludes_vat",
+          "selling_unit": "ด้าม",
+          "pack_quantity": 1,
+          "ink_color": "น้ำเงิน",
+          "body_color": null,
+          "variants": []
+        }
+      ]
+    },
+    {
+      "question": "ปากกาหมึกน้ำเงิน ด้ามสีส้ม",
+      "status": "passed",
+      "model": "qwen/qwen3-14b",
+      "duration_ms": 3528,
+      "references": [
+        {
+          "id": "01a12f8e-cc50-710e-a5f3-0e46a01894cc",
+          "sku": "b2s_1092374",
+          "name": "ปากกาลูกลื่น PENTEL รุ่น Feel-it ขนาด 0.7 มม.ด้ามส้มหมึกน้ำเงิน",
+          "price": "10.00",
+          "currency": "THB",
+          "availability": null,
+          "source_ref": "https://www.b2s.co.th/product/ปากกาลูกลื่น-pentel-รุ่น-feel-it-ขนาด-0-7-มม-ด้ามส้มหมึกน้ำเงิน-p.1092374",
+          "price_source_ref": "https://www.b2s.co.th/product/ปากกาลูกลื่น-pentel-รุ่น-feel-it-ขนาด-0-7-มม-ด้ามส้มหมึกน้ำเงิน-p.1092374",
+          "price_basis": "excludes_vat",
+          "price_verification": "user_assumed_for_coursework_not_verified",
+          "selling_unit": "รายการ catalog (หน่วยขายไม่ได้ยืนยัน)",
+          "pack_quantity": null,
+          "ink_color": "น้ำเงิน",
+          "body_color": "ส้ม",
+          "variants": []
+        }
+      ]
+    }
+  ],
+  "fresh_chat_policy": "catalog_policy"
+}

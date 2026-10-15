@@ -1,0 +1,248 @@
+[
+  {
+    "query": "ปากกาเจล ไม่เกิน 100 บาท",
+    "response": {
+      "items": [
+        {
+          "product": {
+            "id": "01a12f8e-cc51-7edb-ac45-b4b08b6ebfa1",
+            "sku": "b2s_1092448",
+            "name": "ปากกาเจล Uni รุ่น UMN-S-38 สีม่วง ขนาด 0.38 มม.",
+            "category": "gel_pen",
+            "brand": "Uni",
+            "description": null,
+            "price": 42.0,
+            "currency": "THB",
+            "availability": null,
+            "source_ref": "https://www.b2s.co.th/product/ปากกาเจล-uni-รุ่น-umn-s-38-สีม่วง-ขนาด-0-38-มม-p.1092448"
+          },
+          "score": 0.03278688524590164,
+          "semantic_similarity": 0.4218715727329254,
+          "keyword_rank": 1,
+          "semantic_rank": 1
+        }
+      ],
+      "clarification": null,
+      "embedding_model": "qwen/qwen3-embedding-4b",
+      "method": "hybrid_rrf",
+      "index_status": "ready",
+      "stale_skipped": 0,
+      "timings_ms": {
+        "embedding": 1842.38,
+        "total": 2203.96
+      }
+    }
+  },
+  {
+    "query": "สมุดสำหรับจดเลกเชอร์",
+    "response": {
+      "items": [
+        {
+          "product": {
+            "id": "01a12f8e-cc58-7705-afbf-189a2ccc3b2a",
+            "sku": "b2s_5096597",
+            "name": "สมุดบันทึก MAYFLOWERN รุ่น NH-C.11 สีดำ",
+            "category": "notebook",
+            "brand": "Mayflower",
+            "description": null,
+            "price": 30.0,
+            "currency": "THB",
+            "availability": null,
+            "source_ref": "https://www.b2s.co.th/product/สมุดบันทึก-mayflowern-รุ่น-nh-c-11-สีดำ-p.5096597"
+          },
+          "score": 0.03252247488101534,
+          "semantic_similarity": 0.6771194934845018,
+          "keyword_rank": 2,
+          "semantic_rank": 1
+        },
+        {
+          "product": {
+            "id": "01a12f8e-cc58-7f26-98d8-8d81d9eb4797",
+            "sku": "b2s_5096405",
+            "name": "สมุดโน๊ต Ropamoda  120แกรม 0739024แผ่น A4",
+            "category": "notebook",
+            "brand": "Ropamoda",
+            "description": null,
+            "price": 195.0,
+            "currency": "THB",
+            "availability": null,
+            "source_ref": "https://www.b2s.co.th/product/สมุดโน๊ต-ropamoda-120แกรม-0739024แผ่น-a4-p.5096405"
+          },
+          "score": 0.03200204813108039,
+          "semantic_similarity": 0.6397861027590109,
+          "keyword_rank": 3,
+          "semantic_rank": 2
+        },
+        {
+          "product": {
+            "id": "01a13377-4b21-7f6f-88f0-6de62db48731",
+            "sku": "officemate_5001001",
+            "name": "DOUBLE A สมุดรายงาน A4 80แกรม (25แผ่น) เส้น 2 หน้า",
+            "category": "notebook",
+            "brand": "Double A",
+            "description": "DOUBLE A สมุดรายงาน A4 80แกรม (25แผ่น) เส้น 2 หน้า",
+            "price": null,
+            "currency": "THB",
+            "availability": null,
+            "source_ref": "https://www.ofm.co.th/product/double-a-%E0%B8%AA%E0%B8%A1%E0%B8%B8%E0%B8%94%E0%B8%A3%E0%B8%B2%E0%B8%A2%E0%B8%87%E0%B8%B2%E0%B8%99-a4-80%E0%B9%81%E0%B8%81%E0%B8%A3%E0%B8%A1-25%E0%B9%81%E0%B8%9C%E0%B9%88%E0%B8%99-%E0%B9%80%E0%B8%AA%E0%B9%89%E0%B8%99-2-%E0%B8%AB%E0%B8%99%E0%B9%89%E0%B8%B2-p.5001001"
+          },
+          "score": 0.03177805800756621,
+          "semantic_similarity": 0.6161492605387283,
+          "keyword_rank": 1,
+          "semantic_rank": 5
+        },
+        {
+          "product": {
+            "id": "01a13377-4b0c-753a-990a-e5bda5b9c1a5",
+            "sku": "officework_0119-0025",
+            "name": "สมุดโน้ตสันลวด ตราช้าง WPPV-444 B5 70g/60ผ. สีม่วง",
+            "category": "notebook",
+            "brand": "Elephant",
+            "description": "ความหนา 70 แกรม, ขนาด B5 จำนวน 60 แผ่น บรรจุ 10 เล่ม/แพ็ค สีม่วง เพิ่มเติม : เนื้อกระดาษ True Write สีขาว ปกพลาสติก PP มองสบายตา เข้าเล่มแบบริมลวด เปิดได้ 360 องศา สีกระดาษนวล ลดแสงสะท้อน ถนอมสายตา เหมาะสำหรับเขียนจดบันทึกงานต่างๆ",
+            "price": null,
+            "currency": "THB",
+            "availability": null,
+            "source_ref": "https://officework.co.th/product-detail.html?pid=0119-0025"
+          },
+          "score": 0.03125763125763126,
+          "semantic_similarity": 0.6243770866843565,
+          "keyword_rank": 5,
+          "semantic_rank": 3
+        },
+        {
+          "product": {
+            "id": "01a13377-4b0a-73e4-8b42-5d685a05d98b",
+            "sku": "officework_0119-0024",
+            "name": "สมุดโน้ตสันลวด ตราช้าง WPPB-444 B5 70g/60ผ. สีฟ้า",
+            "category": "notebook",
+            "brand": "Elephant",
+            "description": "ความหนา 70 แกรม, ขนาด B5 จำนวน 60 แผ่น บรรจุ 10 เล่ม/แพ็ค สีฟ้า เพิ่มเติม : เนื้อกระดาษ True Write สีขาว ปกพลาสติก PP มองสบายตา เข้าเล่มแบบริมลวด เปิดได้ 360 องศา สีกระดาษนวล ลดแสงสะท้อน ถนอมสายตา เหมาะสำหรับเขียนจดบันทึกงานต่างๆ",
+            "price": null,
+            "currency": "THB",
+            "availability": null,
+            "source_ref": "https://officework.co.th/product-detail.html?pid=0119-0024"
+          },
+          "score": 0.03125,
+          "semantic_similarity": 0.6217652333834918,
+          "keyword_rank": 4,
+          "semantic_rank": 4
+        }
+      ],
+      "clarification": null,
+      "embedding_model": "qwen/qwen3-embedding-4b",
+      "method": "hybrid_rrf",
+      "index_status": "ready",
+      "stale_skipped": 0,
+      "timings_ms": {
+        "embedding": 913.5,
+        "total": 1254.37
+      }
+    }
+  },
+  {
+    "query": "คอมพิวเตอร์เล่นเกม",
+    "response": {
+      "items": [
+        {
+          "product": {
+            "id": "01a12f8e-cc5a-7275-8250-49ebd0e3df83",
+            "sku": "b2s_K090974",
+            "name": "วงเวียน MAPED GRAPHIC",
+            "category": "compass",
+            "brand": "Maped",
+            "description": null,
+            "price": 62.0,
+            "currency": "THB",
+            "availability": null,
+            "source_ref": "https://www.b2s.co.th/product/วงเวียน-maped-graphic-p.K090974"
+          },
+          "score": 0.01639344262295082,
+          "semantic_similarity": 0.48380828000257814,
+          "keyword_rank": null,
+          "semantic_rank": 1
+        },
+        {
+          "product": {
+            "id": "01a12f8e-cc55-7eb0-99d4-36d5f205b51b",
+            "sku": "b2s_1005909",
+            "name": "กบเหลาดินสอ Clock Clock คละสี มาเพ็ด SH017610",
+            "category": "sharpener",
+            "brand": "Maped",
+            "description": null,
+            "price": 66.0,
+            "currency": "THB",
+            "availability": null,
+            "source_ref": "https://www.b2s.co.th/product/กบเหลาดินสอ-clock-clock-คละสี-มาเพ็ด-sh017610-p.1005909"
+          },
+          "score": 0.016129032258064516,
+          "semantic_similarity": 0.4595018351374971,
+          "keyword_rank": null,
+          "semantic_rank": 2
+        },
+        {
+          "product": {
+            "id": "01a12f8e-cc55-73e0-b013-40fec1210ae1",
+            "sku": "b2s_1093329",
+            "name": "ME.STYLE  กบเหลาดินสอ 1 รู ลายสตอเบอร์ รุ่น STRAWBERRY",
+            "category": "sharpener",
+            "brand": "ME.STYLE",
+            "description": null,
+            "price": 19.0,
+            "currency": "THB",
+            "availability": null,
+            "source_ref": "https://www.b2s.co.th/product/me-style-กบเหลาดินสอ-1-รู-ลายสตอเบอร์-รุ่น-strawberry-p.1093329"
+          },
+          "score": 0.015873015873015872,
+          "semantic_similarity": 0.4525914546738321,
+          "keyword_rank": null,
+          "semantic_rank": 3
+        },
+        {
+          "product": {
+            "id": "01a12f8e-cc56-781f-8245-f54cc3950198",
+            "sku": "b2s_K092470",
+            "name": "ยางลบพร้อมแปรง Montmarte 2 แท่ง",
+            "category": "eraser",
+            "brand": "Mont Marte",
+            "description": null,
+            "price": 84.0,
+            "currency": "THB",
+            "availability": null,
+            "source_ref": "https://www.b2s.co.th/product/ยางลบพร้อมแปรง-montmarte-2-แท่ง-p.K092470"
+          },
+          "score": 0.015625,
+          "semantic_similarity": 0.45179644227028215,
+          "keyword_rank": null,
+          "semantic_rank": 4
+        },
+        {
+          "product": {
+            "id": "01a12f8e-cc57-7b2c-932a-a9dd19a36392",
+            "sku": "b2s_1008290",
+            "name": "ยางลบดินสอ (2 ก้อน/แพ็ค) เพนเทล Hi-Polymer ZES-08",
+            "category": "eraser",
+            "brand": "Pentel",
+            "description": null,
+            "price": 40.0,
+            "currency": "THB",
+            "availability": null,
+            "source_ref": "https://www.b2s.co.th/product/ยางลบดินสอ-2-ก้อน-แพ็ค-เพนเทล-hi-polymer-zes-08-p.1008290"
+          },
+          "score": 0.015384615384615385,
+          "semantic_similarity": 0.44710183774210954,
+          "keyword_rank": null,
+          "semantic_rank": 5
+        }
+      ],
+      "clarification": null,
+      "embedding_model": "qwen/qwen3-embedding-4b",
+      "method": "hybrid_rrf",
+      "index_status": "ready",
+      "stale_skipped": 0,
+      "timings_ms": {
+        "embedding": 835.75,
+        "total": 1158.22
+      }
+    }
+  }
+]

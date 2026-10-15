@@ -1,0 +1,66 @@
+{
+  "evaluated_at": "2026-10-13T10:38:10.899893+00:00",
+  "label_status": "draft_constraints_not_human_quality_assessment",
+  "catalog_count": 67,
+  "embedding_model": "qwen/qwen3-embedding-4b",
+  "chat_model": "qwen/qwen3-14b",
+  "query_vectors_cached": true,
+  "embedding_calls": 0,
+  "cache_hits": 1,
+  "passed": 0,
+  "total": 1,
+  "latency_total": {
+    "count": 1,
+    "p50_ms": 11373.26,
+    "p95_ms": 11373.26
+  },
+  "latency_llm": {
+    "count": 1,
+    "p50_ms": 11005.77,
+    "p95_ms": 11005.77
+  },
+  "usage": {
+    "prompt_tokens": 1196,
+    "completion_tokens": 329,
+    "reported_chat_cost_usd": 0.00019198,
+    "cost_scope": "chat responses only; embedding costs and failed calls excluded; verify billing in OpenRouter"
+  },
+  "cases": [
+    {
+      "id": "general-gel",
+      "status": "allowed",
+      "checks": {
+        "status": true,
+        "hit": true,
+        "category": true
+      },
+      "product_skus": [
+        "b2s_1091933",
+        "b2s_1092448",
+        "officemate_YA32995",
+        "officework_0205-0009",
+        "officework_0205-0008"
+      ],
+      "retrieval_ms": 71.9,
+      "answer_ms": 11005.77,
+      "answer_calls": 1,
+      "usage": {
+        "prompt_eval_count": 1196,
+        "eval_count": 329,
+        "usage_cost": 0.00019198,
+        "model": "qwen/qwen3-14b"
+      },
+      "output_diagnostics": {
+        "finish_reason": "stop",
+        "foreign_product_count": 0,
+        "foreign_evidence_count": 1,
+        "duplicate_product_count": 0,
+        "duplicate_evidence_count": 0
+      },
+      "passed": false,
+      "error_code": "INVALID_ANSWER",
+      "embedding_calls": 0,
+      "total_ms": 11373.26
+    }
+  ]
+}

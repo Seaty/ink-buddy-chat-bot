@@ -1,5 +1,11 @@
 # Ink Buddy Frontend
 
+## Conversational RAG UAT — 2026-10-14
+
+ProductReferenceCard แสดงสีหมึก/ด้าม, หน่วยราคา, ฐาน VAT demo, แหล่งสินค้า/แหล่งราคาแยกกัน และ variants ใต้รุ่นหลัก. ป้าย AI/กฎระบบแยกจาก Ink Buddy ชัดเจน ใช้ React text และเฉพาะลิงก์ HTTP/HTTPS
+
+ทดสอบตาม [Process 7](../docs/architecture/RAG_CONVERSATION_PROCESS.md): ส่ง 3 รุ่นถูกที่สุด → ตัวที่สองราคาเท่าไร → สีอื่น → reload. UI/routing/auth/draft/retry เดิมคงไว้ ไม่มี upload UI ใหม่
+
 ## เริ่มใช้งาน
 
 ต้องมี Node.js >=20.9 และ pnpm 11.25.0 (packageManager ใน package.json) ใช้ Next.js App Router, React, TypeScript และ Tailwind CSS dependencies จริงอ้าง package.json/lockfile ไม่ใช่ library-guide เดิม
@@ -75,3 +81,10 @@ LLM response, streaming, upload UI, summary และ Product browsing ยัง
 pending text เป็น UI ชั่วคราวไม่ใช่ committed history Success บันทึกคู่และล้างร่าง Errorรักษาร่าง/แสดงข้อความ Retry ด้วยปุ่มส่ง ลิงก์สินค้าเฉพาะ HTTP(S) renderผ่าน React ไม่ใช้ raw HTML
 
 ผล: Frontend19 passed, browser15 passed (API mocks), typecheck/container build ผ่าน เพิ่ม real browser smoke ผ่าน APIจริง+PGชั่วคราว สำหรับ Guest/User/claim/reload/no-match จาก backend รัน `.\.venv\Scripts\python.exe -m scripts.test_chat_browser` ต้องมี Frontend container localhost:3000 และพอร์ต8001ว่าง runner forward HTTP API ไป isolated backend ไม่ mock response และลบ DB ทิ้งเมื่อจบ
+
+## RAG Chat sources
+Backend CHAT_ADAPTER=openrouter_catalog enables hybrid retrieval plus controlled OpenRouter Qwen3 14B selection. UI labels AI / Catalog Template / กฎระบบ via model_name, preserved in history. No client model choice. Error/retry/draft behavior is unchanged; source values are server-controlled. API/postman guide: ../docs/api/session/RAG_CHAT_API.md.
+
+## Real container RAG verification
+
+Backend runner supports `python -m scripts.test_chat_browser --rag --frontend-url http://localhost:3002 --viewports all` when a standalone frontend test container runs on 3002. It forwards browser API calls to a real backend on 8001 and creates/drops an isolated DB. No response mocks. Mobile 390×844, Tablet 820×1180 and Desktop 1440×900 cover Guest/User, claim, replay (history remains 2 rows), reload and no-match. Synthetic fixture data does not measure real catalog recommendation quality. See ../docs/architecture/RAG_TECHNICAL_COMPLETION_PROCESS.md.

@@ -42,8 +42,9 @@ def main():
             os.environ["INK_BUDDY_TEST_DATABASE_URL"] = url.render_as_string(
                 hide_password=False
             )
+            os.environ['TEXT_INDEX_TEST_URL']=os.environ['INK_BUDDY_TEST_DATABASE_URL']
             return pytest.main(
-                ["tests/test_auth_postgres.py", "-q", "--tb=line", "--show-capture=no"]
+                ["tests/test_auth_postgres.py", "tests/test_text_retrieval.py", "-q", "--tb=line", "--show-capture=no"]
             )
         finally:
             # Exact UUID-based name created above; never drop the application database.

@@ -1,0 +1,671 @@
+{
+  "policy_version": "catalog-scope-v1",
+  "passed": 21,
+  "total": 21,
+  "results": [
+    {
+      "id": "scope-computer",
+      "passed": true,
+      "response": {
+        "guardrail_status": "blocked",
+        "guardrail_reason": "OUT_OF_SCOPE",
+        "policy_version": "catalog-scope-v1",
+        "relevance_rejected": 0,
+        "items": [],
+        "clarification": "ระบบนี้ค้นหาเฉพาะสินค้าเครื่องเขียนใน catalog",
+        "embedding_model": "qwen/qwen3-embedding-4b",
+        "method": "hybrid_rrf",
+        "index_status": "not_checked",
+        "stale_skipped": 0,
+        "timings_ms": {}
+      }
+    },
+    {
+      "id": "scope-phone",
+      "passed": true,
+      "response": {
+        "guardrail_status": "blocked",
+        "guardrail_reason": "OUT_OF_SCOPE",
+        "policy_version": "catalog-scope-v1",
+        "relevance_rejected": 0,
+        "items": [],
+        "clarification": "ระบบนี้ค้นหาเฉพาะสินค้าเครื่องเขียนใน catalog",
+        "embedding_model": "qwen/qwen3-embedding-4b",
+        "method": "hybrid_rrf",
+        "index_status": "not_checked",
+        "stale_skipped": 0,
+        "timings_ms": {}
+      }
+    },
+    {
+      "id": "scope-health",
+      "passed": true,
+      "response": {
+        "guardrail_status": "blocked",
+        "guardrail_reason": "OUT_OF_SCOPE",
+        "policy_version": "catalog-scope-v1",
+        "relevance_rejected": 0,
+        "items": [],
+        "clarification": "ระบบนี้ค้นหาเฉพาะสินค้าเครื่องเขียนใน catalog",
+        "embedding_model": "qwen/qwen3-embedding-4b",
+        "method": "hybrid_rrf",
+        "index_status": "not_checked",
+        "stale_skipped": 0,
+        "timings_ms": {}
+      }
+    },
+    {
+      "id": "category-bypass",
+      "passed": true,
+      "response": {
+        "guardrail_status": "blocked",
+        "guardrail_reason": "OUT_OF_SCOPE",
+        "policy_version": "catalog-scope-v1",
+        "relevance_rejected": 0,
+        "items": [],
+        "clarification": "ระบบนี้ค้นหาเฉพาะสินค้าเครื่องเขียนใน catalog",
+        "embedding_model": "qwen/qwen3-embedding-4b",
+        "method": "hybrid_rrf",
+        "index_status": "not_checked",
+        "stale_skipped": 0,
+        "timings_ms": {}
+      }
+    },
+    {
+      "id": "mixed",
+      "passed": true,
+      "response": {
+        "guardrail_status": "needs_clarification",
+        "guardrail_reason": "MIXED_SCOPE",
+        "policy_version": "catalog-scope-v1",
+        "relevance_rejected": 0,
+        "items": [],
+        "clarification": "กรุณาระบุคำถามเฉพาะเครื่องเขียนหรือสินค้าที่ต้องการค้นหา",
+        "embedding_model": "qwen/qwen3-embedding-4b",
+        "method": "hybrid_rrf",
+        "index_status": "not_checked",
+        "stale_skipped": 0,
+        "timings_ms": {}
+      }
+    },
+    {
+      "id": "followup",
+      "passed": true,
+      "response": {
+        "guardrail_status": "needs_clarification",
+        "guardrail_reason": "INSUFFICIENT_CONTEXT",
+        "policy_version": "catalog-scope-v1",
+        "relevance_rejected": 0,
+        "items": [],
+        "clarification": "กรุณาระบุประเภท ยี่ห้อ หรือรุ่นเครื่องเขียน เช่น ปากกาเจล หรือสมุด",
+        "embedding_model": "qwen/qwen3-embedding-4b",
+        "method": "hybrid_rrf",
+        "index_status": "not_checked",
+        "stale_skipped": 0,
+        "timings_ms": {}
+      }
+    },
+    {
+      "id": "vague-study",
+      "passed": true,
+      "response": {
+        "guardrail_status": "needs_clarification",
+        "guardrail_reason": "INSUFFICIENT_CONTEXT",
+        "policy_version": "catalog-scope-v1",
+        "relevance_rejected": 0,
+        "items": [],
+        "clarification": "กรุณาระบุประเภท ยี่ห้อ หรือรุ่นเครื่องเขียน เช่น ปากกาเจล หรือสมุด",
+        "embedding_model": "qwen/qwen3-embedding-4b",
+        "method": "hybrid_rrf",
+        "index_status": "not_checked",
+        "stale_skipped": 0,
+        "timings_ms": {}
+      }
+    },
+    {
+      "id": "vague-price",
+      "passed": true,
+      "response": {
+        "guardrail_status": "needs_clarification",
+        "guardrail_reason": "AMBIGUOUS_BUDGET",
+        "policy_version": "catalog-scope-v1",
+        "relevance_rejected": 0,
+        "items": [],
+        "clarification": "กรุณาระบุงบให้ชัดเจน เช่น ไม่เกิน 100 บาท หรือ 50–100 บาท",
+        "embedding_model": "qwen/qwen3-embedding-4b",
+        "method": "hybrid_rrf",
+        "index_status": "not_checked",
+        "stale_skipped": 0,
+        "timings_ms": {}
+      }
+    },
+    {
+      "id": "invalid-budget",
+      "passed": true,
+      "response": {
+        "guardrail_status": "needs_clarification",
+        "guardrail_reason": "AMBIGUOUS_BUDGET",
+        "policy_version": "catalog-scope-v1",
+        "relevance_rejected": 0,
+        "items": [],
+        "clarification": "กรุณาระบุงบขั้นต่ำไม่เกินงบสูงสุด",
+        "embedding_model": "qwen/qwen3-embedding-4b",
+        "method": "hybrid_rrf",
+        "index_status": "not_checked",
+        "stale_skipped": 0,
+        "timings_ms": {}
+      }
+    },
+    {
+      "id": "gel-budget",
+      "passed": true,
+      "response": {
+        "guardrail_status": "allowed",
+        "guardrail_reason": "CATALOG_SCOPE",
+        "policy_version": "catalog-scope-v1",
+        "relevance_rejected": 0,
+        "items": [
+          {
+            "product": {
+              "id": "01a12f8e-cc51-7edb-ac45-b4b08b6ebfa1",
+              "sku": "b2s_1092448",
+              "name": "ปากกาเจล Uni รุ่น UMN-S-38 สีม่วง ขนาด 0.38 มม.",
+              "category": "gel_pen",
+              "brand": "Uni",
+              "description": null,
+              "price": 42.0,
+              "currency": "THB",
+              "availability": null,
+              "source_ref": "https://www.b2s.co.th/product/ปากกาเจล-uni-รุ่น-umn-s-38-สีม่วง-ขนาด-0-38-มม-p.1092448"
+            },
+            "score": 0.03278688524590164,
+            "semantic_similarity": 0.4218715727329254,
+            "keyword_rank": 1,
+            "semantic_rank": 1
+          }
+        ],
+        "clarification": null,
+        "embedding_model": "qwen/qwen3-embedding-4b",
+        "method": "hybrid_rrf",
+        "index_status": "ready",
+        "stale_skipped": 0,
+        "timings_ms": {
+          "embedding": 1225.37,
+          "total": 1556.6
+        }
+      }
+    },
+    {
+      "id": "notebook",
+      "passed": true,
+      "response": {
+        "guardrail_status": "allowed",
+        "guardrail_reason": "CATALOG_SCOPE",
+        "policy_version": "catalog-scope-v1",
+        "relevance_rejected": 0,
+        "items": [
+          {
+            "product": {
+              "id": "01a12f8e-cc58-7705-afbf-189a2ccc3b2a",
+              "sku": "b2s_5096597",
+              "name": "สมุดบันทึก MAYFLOWERN รุ่น NH-C.11 สีดำ",
+              "category": "notebook",
+              "brand": "Mayflower",
+              "description": null,
+              "price": 30.0,
+              "currency": "THB",
+              "availability": null,
+              "source_ref": "https://www.b2s.co.th/product/สมุดบันทึก-mayflowern-รุ่น-nh-c-11-สีดำ-p.5096597"
+            },
+            "score": 0.03252247488101534,
+            "semantic_similarity": 0.6776886774487104,
+            "keyword_rank": 2,
+            "semantic_rank": 1
+          },
+          {
+            "product": {
+              "id": "01a12f8e-cc58-7f26-98d8-8d81d9eb4797",
+              "sku": "b2s_5096405",
+              "name": "สมุดโน๊ต Ropamoda  120แกรม 0739024แผ่น A4",
+              "category": "notebook",
+              "brand": "Ropamoda",
+              "description": null,
+              "price": 195.0,
+              "currency": "THB",
+              "availability": null,
+              "source_ref": "https://www.b2s.co.th/product/สมุดโน๊ต-ropamoda-120แกรม-0739024แผ่น-a4-p.5096405"
+            },
+            "score": 0.03200204813108039,
+            "semantic_similarity": 0.6406106948852539,
+            "keyword_rank": 3,
+            "semantic_rank": 2
+          },
+          {
+            "product": {
+              "id": "01a13377-4b21-7f6f-88f0-6de62db48731",
+              "sku": "officemate_5001001",
+              "name": "DOUBLE A สมุดรายงาน A4 80แกรม (25แผ่น) เส้น 2 หน้า",
+              "category": "notebook",
+              "brand": "Double A",
+              "description": "DOUBLE A สมุดรายงาน A4 80แกรม (25แผ่น) เส้น 2 หน้า",
+              "price": null,
+              "currency": "THB",
+              "availability": null,
+              "source_ref": "https://www.ofm.co.th/product/double-a-%E0%B8%AA%E0%B8%A1%E0%B8%B8%E0%B8%94%E0%B8%A3%E0%B8%B2%E0%B8%A2%E0%B8%87%E0%B8%B2%E0%B8%99-a4-80%E0%B9%81%E0%B8%81%E0%B8%A3%E0%B8%A1-25%E0%B9%81%E0%B8%9C%E0%B9%88%E0%B8%99-%E0%B9%80%E0%B8%AA%E0%B9%89%E0%B8%99-2-%E0%B8%AB%E0%B8%99%E0%B9%89%E0%B8%B2-p.5001001"
+            },
+            "score": 0.03177805800756621,
+            "semantic_similarity": 0.6171018253029492,
+            "keyword_rank": 1,
+            "semantic_rank": 5
+          },
+          {
+            "product": {
+              "id": "01a13377-4b0c-753a-990a-e5bda5b9c1a5",
+              "sku": "officework_0119-0025",
+              "name": "สมุดโน้ตสันลวด ตราช้าง WPPV-444 B5 70g/60ผ. สีม่วง",
+              "category": "notebook",
+              "brand": "Elephant",
+              "description": "ความหนา 70 แกรม, ขนาด B5 จำนวน 60 แผ่น บรรจุ 10 เล่ม/แพ็ค สีม่วง เพิ่มเติม : เนื้อกระดาษ True Write สีขาว ปกพลาสติก PP มองสบายตา เข้าเล่มแบบริมลวด เปิดได้ 360 องศา สีกระดาษนวล ลดแสงสะท้อน ถนอมสายตา เหมาะสำหรับเขียนจดบันทึกงานต่างๆ",
+              "price": null,
+              "currency": "THB",
+              "availability": null,
+              "source_ref": "https://officework.co.th/product-detail.html?pid=0119-0025"
+            },
+            "score": 0.03125763125763126,
+            "semantic_similarity": 0.6251068487827103,
+            "keyword_rank": 5,
+            "semantic_rank": 3
+          },
+          {
+            "product": {
+              "id": "01a13377-4b0a-73e4-8b42-5d685a05d98b",
+              "sku": "officework_0119-0024",
+              "name": "สมุดโน้ตสันลวด ตราช้าง WPPB-444 B5 70g/60ผ. สีฟ้า",
+              "category": "notebook",
+              "brand": "Elephant",
+              "description": "ความหนา 70 แกรม, ขนาด B5 จำนวน 60 แผ่น บรรจุ 10 เล่ม/แพ็ค สีฟ้า เพิ่มเติม : เนื้อกระดาษ True Write สีขาว ปกพลาสติก PP มองสบายตา เข้าเล่มแบบริมลวด เปิดได้ 360 องศา สีกระดาษนวล ลดแสงสะท้อน ถนอมสายตา เหมาะสำหรับเขียนจดบันทึกงานต่างๆ",
+              "price": null,
+              "currency": "THB",
+              "availability": null,
+              "source_ref": "https://officework.co.th/product-detail.html?pid=0119-0024"
+            },
+            "score": 0.03125,
+            "semantic_similarity": 0.6225963830947876,
+            "keyword_rank": 4,
+            "semantic_rank": 4
+          }
+        ],
+        "clarification": null,
+        "embedding_model": "qwen/qwen3-embedding-4b",
+        "method": "hybrid_rrf",
+        "index_status": "ready",
+        "stale_skipped": 0,
+        "timings_ms": {
+          "embedding": 946.16,
+          "total": 1274.41
+        }
+      }
+    },
+    {
+      "id": "highlighter-alias",
+      "passed": true,
+      "response": {
+        "guardrail_status": "allowed",
+        "guardrail_reason": "CATALOG_SCOPE",
+        "policy_version": "catalog-scope-v1",
+        "relevance_rejected": 6,
+        "items": [
+          {
+            "product": {
+              "id": "01a13377-4b14-724b-bb81-0789d4b24aed",
+              "sku": "officework_0210-0001",
+              "name": "ปากกาเน้นข้อความ สตาบิโลบอส สีเหลือง",
+              "category": "highlighter",
+              "brand": "STABILO",
+              "description": "ขนาดเส้น 2-5 มม. จำนวน 1 ด้าม บรรจุ 10 ด้าม/กล่อง หมึกสีเหลือง เพิ่มเติม : ปากกาหัวตัด หัวคุณภาพดี ให้สีสด คมชัดไม่ซีดจางง่าย นำเข้าจากเยอรมัน ใช้ง่ายทั้งกระดาษทั่วไปและกระดาษแฟ็กซ์ ไม่แนะนำให้ใช้กับกระดาษที่มีสีเดียวกับตัวหมึก",
+              "price": null,
+              "currency": "THB",
+              "availability": null,
+              "source_ref": "https://officework.co.th/product-detail.html?pid=0210-0001"
+            },
+            "score": 0.03278688524590164,
+            "semantic_similarity": 0.6505069330485744,
+            "keyword_rank": 1,
+            "semantic_rank": 1
+          }
+        ],
+        "clarification": null,
+        "embedding_model": "qwen/qwen3-embedding-4b",
+        "method": "hybrid_rrf",
+        "index_status": "ready",
+        "stale_skipped": 0,
+        "timings_ms": {
+          "embedding": 1052.26,
+          "total": 1355.74
+        }
+      }
+    },
+    {
+      "id": "highlighter-alias2",
+      "passed": true,
+      "response": {
+        "guardrail_status": "allowed",
+        "guardrail_reason": "CATALOG_SCOPE",
+        "policy_version": "catalog-scope-v1",
+        "relevance_rejected": 6,
+        "items": [
+          {
+            "product": {
+              "id": "01a13377-4b18-7e3d-aaa4-996464038e0d",
+              "sku": "officework_0210-0003",
+              "name": "ปากกาเน้นข้อความ สตาบิโลบอส สีชมพู",
+              "category": "highlighter",
+              "brand": "STABILO",
+              "description": "ขนาดเส้น 2-5 มม. จำนวน 1 ด้าม บรรจุ 10 ด้าม/กล่อง หมึกสีชมพู เพิ่มเติม : ปากกาหัวตัด หัวคุณภาพดี ให้สีสด คมชัดไม่ซีดจางง่าย นำเข้าจากเยอรมัน ใช้ง่ายทั้งกระดาษทั่วไปและกระดาษแฟ็กซ์ ไม่แนะนำให้ใช้กับกระดาษที่มีสีเดียวกับตัวหมึก",
+              "price": null,
+              "currency": "THB",
+              "availability": null,
+              "source_ref": "https://officework.co.th/product-detail.html?pid=0210-0003"
+            },
+            "score": 0.03278688524590164,
+            "semantic_similarity": 0.708345574637985,
+            "keyword_rank": 1,
+            "semantic_rank": 1
+          }
+        ],
+        "clarification": null,
+        "embedding_model": "qwen/qwen3-embedding-4b",
+        "method": "hybrid_rrf",
+        "index_status": "ready",
+        "stale_skipped": 0,
+        "timings_ms": {
+          "embedding": 1269.34,
+          "total": 1597.12
+        }
+      }
+    },
+    {
+      "id": "unknown-model",
+      "passed": true,
+      "response": {
+        "guardrail_status": "no_match",
+        "guardrail_reason": "NO_GROUNDED_MATCH",
+        "policy_version": "catalog-scope-v1",
+        "relevance_rejected": 16,
+        "items": [],
+        "clarification": null,
+        "embedding_model": "qwen/qwen3-embedding-4b",
+        "method": "hybrid_rrf",
+        "index_status": "ready",
+        "stale_skipped": 0,
+        "timings_ms": {
+          "embedding": 862.61,
+          "total": 1201.25
+        }
+      }
+    },
+    {
+      "id": "known-model",
+      "passed": true,
+      "response": {
+        "guardrail_status": "allowed",
+        "guardrail_reason": "CATALOG_SCOPE",
+        "policy_version": "catalog-scope-v1",
+        "relevance_rejected": 15,
+        "items": [
+          {
+            "product": {
+              "id": "01a13377-4b01-7866-9f1f-ffec70cebc45",
+              "sku": "officework_0205-0007",
+              "name": "ปากกาหมึกเจล เพนเทล เอ็นเนอร์เจล BL77 สีแดง",
+              "category": "gel_pen",
+              "brand": "Pentel",
+              "description": "ขนาดหัวปากกา 0.7 มม. จำนวน 1 ด้าม บรรจุ 12 ด้าม/กล่อง หมึกสีแดง เพิ่มเติม : ปากกาหมึกเจล แบบกด น้ำหมึกสูตรเฉพาะของเพนเทล เขียนลื่น แห้งเร็ว หมึกกันน้ำ และไม่ลบเลือน ด้ามจับหุ้มด้วยยาง ทำให้จับถนัดไม่เมื่อยมือ เปลี่ยนไส้ได้เมื่อหมึกหมด รีฟิวล์ LR7",
+              "price": null,
+              "currency": "THB",
+              "availability": null,
+              "source_ref": "https://officework.co.th/product-detail.html?pid=0205-0007"
+            },
+            "score": 0.03278688524590164,
+            "semantic_similarity": 0.6052243709564209,
+            "keyword_rank": 1,
+            "semantic_rank": 1
+          }
+        ],
+        "clarification": null,
+        "embedding_model": "qwen/qwen3-embedding-4b",
+        "method": "hybrid_rrf",
+        "index_status": "ready",
+        "stale_skipped": 0,
+        "timings_ms": {
+          "embedding": 948.99,
+          "total": 1259.49
+        }
+      }
+    },
+    {
+      "id": "known-model-black",
+      "passed": true,
+      "response": {
+        "guardrail_status": "allowed",
+        "guardrail_reason": "CATALOG_SCOPE",
+        "policy_version": "catalog-scope-v1",
+        "relevance_rejected": 15,
+        "items": [
+          {
+            "product": {
+              "id": "01a13377-4b03-7f84-a6ca-4e9bb382cc19",
+              "sku": "officework_0205-0008",
+              "name": "ปากกาหมึกเจล เพนเทล เอ็นเนอร์เจล BL77 สีดำ",
+              "category": "gel_pen",
+              "brand": "Pentel",
+              "description": "ขนาดหัวปากกา 0.7 มม. จำนวน 1 ด้าม บรรจุ 12 ด้าม/กล่อง หมึกสีดำ เพิ่มเติม : ปากกาหมึกเจล แบบกด น้ำหมึกสูตรเฉพาะของเพนเทล เขียนลื่น แห้งเร็ว หมึกกันน้ำ และไม่ลบเลือน ด้ามจับหุ้มด้วยยาง ทำให้จับถนัดไม่เมื่อยมือ เปลี่ยนไส้ได้เมื่อหมึกหมด รีฟิวล์ LR7",
+              "price": null,
+              "currency": "THB",
+              "availability": null,
+              "source_ref": "https://officework.co.th/product-detail.html?pid=0205-0008"
+            },
+            "score": 0.03278688524590164,
+            "semantic_similarity": 0.5755212306976318,
+            "keyword_rank": 1,
+            "semantic_rank": 1
+          }
+        ],
+        "clarification": null,
+        "embedding_model": "qwen/qwen3-embedding-4b",
+        "method": "hybrid_rrf",
+        "index_status": "ready",
+        "stale_skipped": 0,
+        "timings_ms": {
+          "embedding": 907.32,
+          "total": 1223.66
+        }
+      }
+    },
+    {
+      "id": "empty-budget",
+      "passed": true,
+      "response": {
+        "guardrail_status": "no_match",
+        "guardrail_reason": "NO_GROUNDED_MATCH",
+        "policy_version": "catalog-scope-v1",
+        "relevance_rejected": 0,
+        "items": [],
+        "clarification": null,
+        "embedding_model": "qwen/qwen3-embedding-4b",
+        "method": "hybrid_rrf",
+        "index_status": "ready",
+        "stale_skipped": 0,
+        "timings_ms": {
+          "embedding": 1172.69,
+          "total": 1494.33
+        }
+      }
+    },
+    {
+      "id": "unknown-brand",
+      "passed": true,
+      "response": {
+        "guardrail_status": "no_match",
+        "guardrail_reason": "NO_GROUNDED_MATCH",
+        "policy_version": "catalog-scope-v1",
+        "relevance_rejected": 0,
+        "items": [],
+        "clarification": null,
+        "embedding_model": "qwen/qwen3-embedding-4b",
+        "method": "hybrid_rrf",
+        "index_status": "ready",
+        "stale_skipped": 0,
+        "timings_ms": {
+          "embedding": 960.35,
+          "total": 1271.32
+        }
+      }
+    },
+    {
+      "id": "sql-literal",
+      "passed": true,
+      "response": {
+        "guardrail_status": "allowed",
+        "guardrail_reason": "CATALOG_SCOPE",
+        "policy_version": "catalog-scope-v1",
+        "relevance_rejected": 0,
+        "items": [
+          {
+            "product": {
+              "id": "01a12f8e-cc50-7daa-a6c7-6c6748aeb66a",
+              "sku": "b2s_1091933",
+              "name": "PENTEL ปากกาเจล รุ่น Energel Hexagon BL667 สีน้ำเงิน ขนาด 0.7 มม.",
+              "category": "gel_pen",
+              "brand": "Pentel",
+              "description": null,
+              "price": null,
+              "currency": "THB",
+              "availability": null,
+              "source_ref": "https://www.b2s.co.th/product/pentel-ปากกาเจล-รุ่น-energel-hexagon-bl667-สีน้ำเงิน-ขนาด-0-7-มม-p.1091933"
+            },
+            "score": 0.03252247488101534,
+            "semantic_similarity": 0.5690370798110962,
+            "keyword_rank": 2,
+            "semantic_rank": 1
+          },
+          {
+            "product": {
+              "id": "01a13377-4b1f-7dfa-81d2-455ef98c491a",
+              "sku": "officemate_YA32995",
+              "name": "RADIUS ปากกาเจล รุ่น O-SECOND-CLEAR สีน้ำเงิน 0.5MM แพ็ค 12 ด้าม",
+              "category": "gel_pen",
+              "brand": "เรเดียส",
+              "description": "RADIUS ปากกาเจล รุ่น O-SECOND-CLEAR สีน้ำเงิน 0.5MM แพ็ค 12 ด้าม",
+              "price": null,
+              "currency": "THB",
+              "availability": null,
+              "source_ref": "https://www.ofm.co.th/product/radius-%E0%B8%9B%E0%B8%B2%E0%B8%81%E0%B8%81%E0%B8%B2%E0%B9%80%E0%B8%88%E0%B8%A5-%E0%B8%A3%E0%B8%B8%E0%B9%88%E0%B8%99-o-second-clear-%E0%B8%AA%E0%B8%B5%E0%B8%99%E0%B9%89%E0%B8%B3%E0%B9%80%E0%B8%87%E0%B8%B4%E0%B8%99-0-5mm-%E0%B9%81%E0%B8%9E%E0%B9%87%E0%B8%84-12-%E0%B8%94%E0%B9%89%E0%B8%B2%E0%B8%A1-p.YA32995"
+            },
+            "score": 0.03252247488101534,
+            "semantic_similarity": 0.554665300528128,
+            "keyword_rank": 1,
+            "semantic_rank": 2
+          },
+          {
+            "product": {
+              "id": "01a13377-4b03-7f84-a6ca-4e9bb382cc19",
+              "sku": "officework_0205-0008",
+              "name": "ปากกาหมึกเจล เพนเทล เอ็นเนอร์เจล BL77 สีดำ",
+              "category": "gel_pen",
+              "brand": "Pentel",
+              "description": "ขนาดหัวปากกา 0.7 มม. จำนวน 1 ด้าม บรรจุ 12 ด้าม/กล่อง หมึกสีดำ เพิ่มเติม : ปากกาหมึกเจล แบบกด น้ำหมึกสูตรเฉพาะของเพนเทล เขียนลื่น แห้งเร็ว หมึกกันน้ำ และไม่ลบเลือน ด้ามจับหุ้มด้วยยาง ทำให้จับถนัดไม่เมื่อยมือ เปลี่ยนไส้ได้เมื่อหมึกหมด รีฟิวล์ LR7",
+              "price": null,
+              "currency": "THB",
+              "availability": null,
+              "source_ref": "https://officework.co.th/product-detail.html?pid=0205-0008"
+            },
+            "score": 0.03125763125763126,
+            "semantic_similarity": 0.5373358130455017,
+            "keyword_rank": 5,
+            "semantic_rank": 3
+          },
+          {
+            "product": {
+              "id": "01a13377-4b01-7866-9f1f-ffec70cebc45",
+              "sku": "officework_0205-0007",
+              "name": "ปากกาหมึกเจล เพนเทล เอ็นเนอร์เจล BL77 สีแดง",
+              "category": "gel_pen",
+              "brand": "Pentel",
+              "description": "ขนาดหัวปากกา 0.7 มม. จำนวน 1 ด้าม บรรจุ 12 ด้าม/กล่อง หมึกสีแดง เพิ่มเติม : ปากกาหมึกเจล แบบกด น้ำหมึกสูตรเฉพาะของเพนเทล เขียนลื่น แห้งเร็ว หมึกกันน้ำ และไม่ลบเลือน ด้ามจับหุ้มด้วยยาง ทำให้จับถนัดไม่เมื่อยมือ เปลี่ยนไส้ได้เมื่อหมึกหมด รีฟิวล์ LR7",
+              "price": null,
+              "currency": "THB",
+              "availability": null,
+              "source_ref": "https://officework.co.th/product-detail.html?pid=0205-0007"
+            },
+            "score": 0.03125,
+            "semantic_similarity": 0.5272103548049927,
+            "keyword_rank": 4,
+            "semantic_rank": 4
+          },
+          {
+            "product": {
+              "id": "01a12f8e-cc51-7edb-ac45-b4b08b6ebfa1",
+              "sku": "b2s_1092448",
+              "name": "ปากกาเจล Uni รุ่น UMN-S-38 สีม่วง ขนาด 0.38 มม.",
+              "category": "gel_pen",
+              "brand": "Uni",
+              "description": null,
+              "price": 42.0,
+              "currency": "THB",
+              "availability": null,
+              "source_ref": "https://www.b2s.co.th/product/ปากกาเจล-uni-รุ่น-umn-s-38-สีม่วง-ขนาด-0-38-มม-p.1092448"
+            },
+            "score": 0.030798389007344232,
+            "semantic_similarity": 0.5217865109443665,
+            "keyword_rank": 3,
+            "semantic_rank": 7
+          }
+        ],
+        "clarification": null,
+        "embedding_model": "qwen/qwen3-embedding-4b",
+        "method": "hybrid_rrf",
+        "index_status": "ready",
+        "stale_skipped": 0,
+        "timings_ms": {
+          "embedding": 866.32,
+          "total": 1182.62
+        }
+      }
+    },
+    {
+      "id": "injection-en",
+      "passed": true,
+      "response": {
+        "guardrail_status": "blocked",
+        "guardrail_reason": "UNSAFE_QUERY",
+        "policy_version": "catalog-scope-v1",
+        "relevance_rejected": 0,
+        "items": [],
+        "clarification": "กรุณาถามเกี่ยวกับสินค้าโดยไม่ใส่คำสั่งเปลี่ยนกติกาของระบบ",
+        "embedding_model": "qwen/qwen3-embedding-4b",
+        "method": "hybrid_rrf",
+        "index_status": "not_checked",
+        "stale_skipped": 0,
+        "timings_ms": {}
+      }
+    },
+    {
+      "id": "injection-th",
+      "passed": true,
+      "response": {
+        "guardrail_status": "blocked",
+        "guardrail_reason": "UNSAFE_QUERY",
+        "policy_version": "catalog-scope-v1",
+        "relevance_rejected": 0,
+        "items": [],
+        "clarification": "กรุณาถามเกี่ยวกับสินค้าโดยไม่ใส่คำสั่งเปลี่ยนกติกาของระบบ",
+        "embedding_model": "qwen/qwen3-embedding-4b",
+        "method": "hybrid_rrf",
+        "index_status": "not_checked",
+        "stale_skipped": 0,
+        "timings_ms": {}
+      }
+    }
+  ]
+}

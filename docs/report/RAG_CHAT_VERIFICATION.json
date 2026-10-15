@@ -1,0 +1,24 @@
+{
+  "date": "2026-10-13",
+  "backend_focused_passed": 64,
+  "postgres_disposable_passed": 54,
+  "frontend_passed": 23,
+  "typescript": "passed",
+  "browser_api_mocks_passed": 15,
+  "real_browser_rag": "passed; Guest positive AI answer, claim, User positive AI answer, persisted history and no-match",
+  "live_adapter": {
+    "model": "qwen/qwen3-14b",
+    "product_references": 1,
+    "input_tokens": 247,
+    "output_tokens": 72
+  },
+  "local_chat_adapter": "openrouter_catalog",
+  "local_health_http": 200,
+  "frontend_http": 200,
+  "limitations": [
+    "No Vision model verification",
+    "No full backend regression rerun",
+    "No independent recommendation-quality benchmark",
+    "No production container rebuild"
+  ]
+}

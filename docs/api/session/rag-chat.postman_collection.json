@@ -1,0 +1,778 @@
+{
+  "info": {
+    "name": "Ink Buddy RAG Chat",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Guest flow",
+      "item": [
+        {
+          "name": "Create Guest",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth/guest-sessions",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Origin",
+                "value": "http://localhost:3000"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.expect([200,201]).to.include(pm.response.code);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create chat",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/chat-sessions",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Origin",
+                "value": "http://localhost:3000"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.response.to.have.status(201);pm.environment.set('session_id',pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Send RAG message",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/chat-sessions/{{session_id}}/messages",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Origin",
+                "value": "http://localhost:3000"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"content\": \"ปากกาเจล ไม่เกิน 100 บาท\", \"client_request_id\": \"{{client_request_id}}\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const raw=pm.variables.replaceIn('{{$randomUUID}}').replace(/-/g,'');const h=Date.now().toString(16).padStart(12,'0')+'7'+raw.slice(13,16)+raw[16]+raw.slice(17);pm.environment.set('client_request_id',[h.slice(0,8),h.slice(8,12),h.slice(12,16),h.slice(16,20),h.slice(20)].join('-'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.response.to.have.status(201);const r=pm.response.json();pm.expect(r.assistant_message.model_name).to.eql('qwen/qwen3-14b');pm.environment.set('assistant_message_id',r.assistant_message.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Replay same request",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/chat-sessions/{{session_id}}/messages",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Origin",
+                "value": "http://localhost:3000"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"content\": \"ปากกาเจล ไม่เกิน 100 บาท\", \"client_request_id\": \"{{client_request_id}}\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.response.to.have.status(201);pm.expect(pm.response.json().assistant_message.id).to.eql(pm.environment.get('assistant_message_id'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Scope refusal",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/chat-sessions/{{session_id}}/messages",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Origin",
+                "value": "http://localhost:3000"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"content\": \"คอมพิวเตอร์เล่นเกม\", \"client_request_id\": \"{{client_request_id}}\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const raw=pm.variables.replaceIn('{{$randomUUID}}').replace(/-/g,'');const h=Date.now().toString(16).padStart(12,'0')+'7'+raw.slice(13,16)+raw[16]+raw.slice(17);pm.environment.set('client_request_id',[h.slice(0,8),h.slice(8,12),h.slice(12,16),h.slice(16,20),h.slice(20)].join('-'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.response.to.have.status(201);const a=pm.response.json().assistant_message;pm.expect(a.model_name).to.eql('catalog_policy');pm.expect(a.product_refs).to.have.lengthOf(0);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "No match",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/chat-sessions/{{session_id}}/messages",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Origin",
+                "value": "http://localhost:3000"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"content\": \"ปากกาเจล ไม่เกิน 1 บาท\", \"client_request_id\": \"{{client_request_id}}\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const raw=pm.variables.replaceIn('{{$randomUUID}}').replace(/-/g,'');const h=Date.now().toString(16).padStart(12,'0')+'7'+raw.slice(13,16)+raw[16]+raw.slice(17);pm.environment.set('client_request_id',[h.slice(0,8),h.slice(8,12),h.slice(12,16),h.slice(16,20),h.slice(20)].join('-'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.response.to.have.status(201);const a=pm.response.json().assistant_message;pm.expect(a.model_name).to.eql('catalog_policy');pm.expect(a.product_refs).to.have.lengthOf(0);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Read persisted history",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/chat-sessions/{{session_id}}/messages",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Origin",
+                "value": "http://localhost:3000"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.response.to.have.status(200);pm.expect(pm.response.json().items.length).to.be.at.least(2);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "User flow",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth/login",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Origin",
+                "value": "http://localhost:3000"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{email}}\", \"password\": \"{{password}}\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.response.to.have.status(200);pm.environment.set('access_token',pm.response.json().access_token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create chat",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/chat-sessions",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Origin",
+                "value": "http://localhost:3000"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.response.to.have.status(201);pm.environment.set('session_id',pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Send RAG message",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/chat-sessions/{{session_id}}/messages",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Origin",
+                "value": "http://localhost:3000"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"content\": \"ปากกาเจล ไม่เกิน 100 บาท\", \"client_request_id\": \"{{client_request_id}}\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const raw=pm.variables.replaceIn('{{$randomUUID}}').replace(/-/g,'');const h=Date.now().toString(16).padStart(12,'0')+'7'+raw.slice(13,16)+raw[16]+raw.slice(17);pm.environment.set('client_request_id',[h.slice(0,8),h.slice(8,12),h.slice(12,16),h.slice(16,20),h.slice(20)].join('-'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.response.to.have.status(201);const r=pm.response.json();pm.expect(r.assistant_message.model_name).to.eql('qwen/qwen3-14b');pm.environment.set('assistant_message_id',r.assistant_message.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Replay same request",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/chat-sessions/{{session_id}}/messages",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Origin",
+                "value": "http://localhost:3000"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"content\": \"ปากกาเจล ไม่เกิน 100 บาท\", \"client_request_id\": \"{{client_request_id}}\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.response.to.have.status(201);pm.expect(pm.response.json().assistant_message.id).to.eql(pm.environment.get('assistant_message_id'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Scope refusal",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/chat-sessions/{{session_id}}/messages",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Origin",
+                "value": "http://localhost:3000"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"content\": \"คอมพิวเตอร์เล่นเกม\", \"client_request_id\": \"{{client_request_id}}\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const raw=pm.variables.replaceIn('{{$randomUUID}}').replace(/-/g,'');const h=Date.now().toString(16).padStart(12,'0')+'7'+raw.slice(13,16)+raw[16]+raw.slice(17);pm.environment.set('client_request_id',[h.slice(0,8),h.slice(8,12),h.slice(12,16),h.slice(16,20),h.slice(20)].join('-'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.response.to.have.status(201);const a=pm.response.json().assistant_message;pm.expect(a.model_name).to.eql('catalog_policy');pm.expect(a.product_refs).to.have.lengthOf(0);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "No match",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/chat-sessions/{{session_id}}/messages",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Origin",
+                "value": "http://localhost:3000"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"content\": \"ปากกาเจล ไม่เกิน 1 บาท\", \"client_request_id\": \"{{client_request_id}}\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const raw=pm.variables.replaceIn('{{$randomUUID}}').replace(/-/g,'');const h=Date.now().toString(16).padStart(12,'0')+'7'+raw.slice(13,16)+raw[16]+raw.slice(17);pm.environment.set('client_request_id',[h.slice(0,8),h.slice(8,12),h.slice(12,16),h.slice(16,20),h.slice(20)].join('-'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.response.to.have.status(201);const a=pm.response.json().assistant_message;pm.expect(a.model_name).to.eql('catalog_policy');pm.expect(a.product_refs).to.have.lengthOf(0);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Read persisted history",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/chat-sessions/{{session_id}}/messages",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Origin",
+                "value": "http://localhost:3000"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.response.to.have.status(200);pm.expect(pm.response.json().items.length).to.be.at.least(2);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Conversational price UAT",
+      "description": "Run Guest/create chat first. Current reviewed demo catalog expected; index before semantic queries. Paid OpenRouter calls. No secrets exported.",
+      "item": [
+        {
+          "name": "1. Three cheapest blue pens + colors",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/chat-sessions/{{session_id}}/messages",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Origin",
+                "value": "http://localhost:3000"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"content\": \"ปากกาหมึกน้ำเงิน สามรุ่นถูกที่สุด และมีสีอื่นไหม\", \"client_request_id\": \"{{client_request_id}}\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const raw=pm.variables.replaceIn('{{$randomUUID}}').replace(/-/g,'');const h=Date.now().toString(16).padStart(12,'0')+'7'+raw.slice(13,16)+raw[16]+raw.slice(17);pm.environment.set('client_request_id',[h.slice(0,8),h.slice(8,12),h.slice(12,16),h.slice(16,20),h.slice(20)].join('-'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.response.to.have.status(201);const refs=pm.response.json().assistant_message.product_refs||[];",
+                  "pm.expect(refs.length).to.be.within(1,3);pm.expect(refs.every(p=>p.price!==null&&p.currency==='THB'&&p.ink_color==='น้ำเงิน')).to.eql(true);const prices=refs.map(p=>Number(p.price));pm.expect(prices).to.eql([...prices].sort((a,b)=>a-b));if(refs.length>=2)pm.environment.set('uat_second_product_id',refs[1].id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2. Follow-up second product price",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/chat-sessions/{{session_id}}/messages",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Origin",
+                "value": "http://localhost:3000"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"content\": \"ตัวที่สองราคาเท่าไร\", \"client_request_id\": \"{{client_request_id}}\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const raw=pm.variables.replaceIn('{{$randomUUID}}').replace(/-/g,'');const h=Date.now().toString(16).padStart(12,'0')+'7'+raw.slice(13,16)+raw[16]+raw.slice(17);pm.environment.set('client_request_id',[h.slice(0,8),h.slice(8,12),h.slice(12,16),h.slice(16,20),h.slice(20)].join('-'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.response.to.have.status(201);const refs=pm.response.json().assistant_message.product_refs||[];",
+                  "pm.expect(refs.length).to.eql(1);pm.expect(refs[0].id).to.eql(pm.environment.get('uat_second_product_id'));pm.expect(refs[0].price).not.to.eql(null);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3. Same family red variant",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/chat-sessions/{{session_id}}/messages",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Origin",
+                "value": "http://localhost:3000"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"content\": \"รุ่นนี้มีสีแดงไหม\", \"client_request_id\": \"{{client_request_id}}\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const raw=pm.variables.replaceIn('{{$randomUUID}}').replace(/-/g,'');const h=Date.now().toString(16).padStart(12,'0')+'7'+raw.slice(13,16)+raw[16]+raw.slice(17);pm.environment.set('client_request_id',[h.slice(0,8),h.slice(8,12),h.slice(12,16),h.slice(16,20),h.slice(20)].join('-'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.response.to.have.status(201);const refs=pm.response.json().assistant_message.product_refs||[];",
+                  "pm.expect(refs.length).to.eql(1);pm.expect(refs[0].id).to.eql(pm.environment.get('uat_second_product_id'));pm.expect(Array.isArray(refs[0].variants)).to.eql(true);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "4. Change topic to notebooks",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/chat-sessions/{{session_id}}/messages",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Origin",
+                "value": "http://localhost:3000"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"content\": \"เปลี่ยนเป็นสมุด ไม่เกิน 50 บาท\", \"client_request_id\": \"{{client_request_id}}\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const raw=pm.variables.replaceIn('{{$randomUUID}}').replace(/-/g,'');const h=Date.now().toString(16).padStart(12,'0')+'7'+raw.slice(13,16)+raw[16]+raw.slice(17);pm.environment.set('client_request_id',[h.slice(0,8),h.slice(8,12),h.slice(12,16),h.slice(16,20),h.slice(20)].join('-'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.response.to.have.status(201);const refs=pm.response.json().assistant_message.product_refs||[];",
+                  "pm.expect(refs.every(p=>p.price!==null&&Number(p.price)<=50)).to.eql(true);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

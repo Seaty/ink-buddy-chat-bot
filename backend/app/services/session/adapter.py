@@ -11,6 +11,8 @@ class AnswerInput:
     history: tuple[dict, ...]
     products: tuple[dict, ...]
     clarification: str | None = None
+    require_all: bool = False
+    note: str = ''
 
 
 @dataclass(frozen=True)

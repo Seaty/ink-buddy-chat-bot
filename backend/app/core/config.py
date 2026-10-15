@@ -97,7 +97,16 @@ class Settings(BaseSettings):
                 "Multiple workers require shared AUTH_LIMITER_STORAGE_URI"
             )
 
-    chat_adapter: Literal["catalog_template"] = "catalog_template"
+    text_index_admin_enabled: bool = False
+    text_search_enabled: bool = False
+    text_search_min_similarity: float = Field(default=0.35, ge=-1, le=1)
+    text_embed_model: str = "qwen/qwen3-embedding-4b"
+    text_embed_dim: int = Field(default=1024, ge=32, le=2560)
+    text_embed_batch_size: int = Field(default=16, ge=1, le=64)
+    text_chat_model: str = "qwen/qwen3-14b"
+    text_chat_max_tokens: int = Field(default=512, ge=1, le=2048)
+
+    chat_adapter: Literal["catalog_template", "openrouter_catalog"] = "catalog_template"
     chat_timeout_seconds: float = Field(default=60.0, gt=0, le=300)
 
     ollama_base_url: str = "http://localhost:11434"

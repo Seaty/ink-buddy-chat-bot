@@ -1,0 +1,1060 @@
+{
+  "date": "2026-10-13",
+  "counts": {
+    "products": 67,
+    "images": 67,
+    "embeddings": 67
+  },
+  "validation": {
+    "examined": 67,
+    "valid": 67,
+    "invalid": 0,
+    "errors": [],
+    "warnings": [
+      {
+        "product_id": "01a12f8e-cc4b-79ce-8170-77dfe7fe1dcd",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc50-710e-a5f3-0e46a01894cc",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc50-7daa-a6c7-6c6748aeb66a",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc50-7daa-a6c7-6c6748aeb66a",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc51-799d-9a23-1e9b55f74697",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc51-7a8e-a8d4-5296b6056c42",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc51-7edb-ac45-b4b08b6ebfa1",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc52-770b-a733-a80fc19f7834",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc52-785b-ba48-1e929f952a69",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc52-7f23-8641-e85716f454ce",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc53-7338-9ba3-632166882e07",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc53-74a5-9166-a6baec09e16b",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc53-78f9-b783-6c00942fabae",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc54-707c-91ec-cbeeddbd9a27",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc54-7352-a051-2f36cec41bf1",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc54-7cbd-b805-45904516db52",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc55-73e0-b013-40fec1210ae1",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc55-7eb0-99d4-36d5f205b51b",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc55-7ed4-a0fe-dd85b2b27c5c",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc56-7399-9749-f88b5ca85813",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc56-781f-8245-f54cc3950198",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc56-7b35-8a32-18f9942da44d",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc57-73cd-aa54-709543221cf2",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc57-747d-a746-06d11a1b273e",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc57-7b2c-932a-a9dd19a36392",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc58-7594-a91a-e5cd70f20105",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc58-7705-afbf-189a2ccc3b2a",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc58-7f26-98d8-8d81d9eb4797",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc59-7a45-a865-bee7e013c38b",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc59-7e4d-b27b-195f890b3af6",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc59-7eac-9964-3dfdfe03a49e",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5a-70c7-a15d-74cb05e656a4",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5a-7275-8250-49ebd0e3df83",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5a-7963-8358-9784f84f54b9",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5b-7b1e-bb81-347c9f720496",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5b-7bca-a397-528fe4c90ab3",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5b-7e17-a084-0d1197660eb5",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5c-74b3-9247-7530f385c70b",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5c-7bc5-ade6-7b6ae4ce1270",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5c-7e20-8852-b989748cecab",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5d-754b-8ef5-7f93ae7e7d9c",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5d-7817-ae23-10c3e49c95cb",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5d-7a39-aff3-09293ae726d1",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5e-7112-9ef6-f322dafd1d0b",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5e-7bd0-8bdf-80b2ab05912a",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5e-7ff8-a029-6b376f3a0192",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5f-783b-92fe-44e201e359db",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5f-7c68-b305-a927d7241f7d",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5f-7c92-89bb-ab41bb78df17",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc60-7550-b215-c753734e1f34",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc60-7ec3-b5f4-a68c5789a02d",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b01-7866-9f1f-ffec70cebc45",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b03-7f84-a6ca-4e9bb382cc19",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b04-7966-ab8b-b0494d96e0a4",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b06-7927-b125-5a3b7bba54b6",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b08-7052-b1bd-7d426ed400d1",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b0a-73e4-8b42-5d685a05d98b",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b0c-753a-990a-e5bda5b9c1a5",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b0e-7a8d-ba91-bca903fc96b8",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b10-7d94-9046-c184caaf9554",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b12-7409-be27-615e3cdd883b",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b14-724b-bb81-0789d4b24aed",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b16-79a9-80bb-33cb3fee9f6b",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b18-7e3d-aaa4-996464038e0d",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b1a-7450-ab67-0030e4458ee6",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b1d-785d-9828-8bdcfc3cdfb8",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b1f-7dfa-81d2-455ef98c491a",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b21-7f6f-88f0-6de62db48731",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      }
+    ]
+  },
+  "index": {
+    "examined": 67,
+    "indexed": 67,
+    "unchanged": 0,
+    "invalid": 0,
+    "failed": 0,
+    "remaining": 0,
+    "warnings": [
+      {
+        "product_id": "01a12f8e-cc4b-79ce-8170-77dfe7fe1dcd",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc50-710e-a5f3-0e46a01894cc",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc50-7daa-a6c7-6c6748aeb66a",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc50-7daa-a6c7-6c6748aeb66a",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc51-799d-9a23-1e9b55f74697",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc51-7a8e-a8d4-5296b6056c42",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc51-7edb-ac45-b4b08b6ebfa1",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc52-770b-a733-a80fc19f7834",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc52-785b-ba48-1e929f952a69",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc52-7f23-8641-e85716f454ce",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc53-7338-9ba3-632166882e07",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc53-74a5-9166-a6baec09e16b",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc53-78f9-b783-6c00942fabae",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc54-707c-91ec-cbeeddbd9a27",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc54-7352-a051-2f36cec41bf1",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc54-7cbd-b805-45904516db52",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc55-73e0-b013-40fec1210ae1",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc55-7eb0-99d4-36d5f205b51b",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc55-7ed4-a0fe-dd85b2b27c5c",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc56-7399-9749-f88b5ca85813",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc56-781f-8245-f54cc3950198",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc56-7b35-8a32-18f9942da44d",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc57-73cd-aa54-709543221cf2",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc57-747d-a746-06d11a1b273e",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc57-7b2c-932a-a9dd19a36392",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc58-7594-a91a-e5cd70f20105",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc58-7705-afbf-189a2ccc3b2a",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc58-7f26-98d8-8d81d9eb4797",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc59-7a45-a865-bee7e013c38b",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc59-7e4d-b27b-195f890b3af6",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc59-7eac-9964-3dfdfe03a49e",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5a-70c7-a15d-74cb05e656a4",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5a-7275-8250-49ebd0e3df83",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5a-7963-8358-9784f84f54b9",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5b-7b1e-bb81-347c9f720496",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5b-7bca-a397-528fe4c90ab3",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5b-7e17-a084-0d1197660eb5",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5c-74b3-9247-7530f385c70b",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5c-7bc5-ade6-7b6ae4ce1270",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5c-7e20-8852-b989748cecab",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5d-754b-8ef5-7f93ae7e7d9c",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5d-7817-ae23-10c3e49c95cb",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5d-7a39-aff3-09293ae726d1",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5e-7112-9ef6-f322dafd1d0b",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5e-7bd0-8bdf-80b2ab05912a",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5e-7ff8-a029-6b376f3a0192",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5f-783b-92fe-44e201e359db",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5f-7c68-b305-a927d7241f7d",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5f-7c92-89bb-ab41bb78df17",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc60-7550-b215-c753734e1f34",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc60-7ec3-b5f4-a68c5789a02d",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b01-7866-9f1f-ffec70cebc45",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b03-7f84-a6ca-4e9bb382cc19",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b04-7966-ab8b-b0494d96e0a4",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b06-7927-b125-5a3b7bba54b6",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b08-7052-b1bd-7d426ed400d1",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b0a-73e4-8b42-5d685a05d98b",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b0c-753a-990a-e5bda5b9c1a5",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b0e-7a8d-ba91-bca903fc96b8",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b10-7d94-9046-c184caaf9554",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b12-7409-be27-615e3cdd883b",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b14-724b-bb81-0789d4b24aed",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b16-79a9-80bb-33cb3fee9f6b",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b18-7e3d-aaa4-996464038e0d",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b1a-7450-ab67-0030e4458ee6",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b1d-785d-9828-8bdcfc3cdfb8",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b1f-7dfa-81d2-455ef98c491a",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b21-7f6f-88f0-6de62db48731",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      }
+    ],
+    "errors": [],
+    "seconds": 11.721
+  },
+  "replay": {
+    "examined": 67,
+    "indexed": 0,
+    "unchanged": 67,
+    "invalid": 0,
+    "failed": 0,
+    "remaining": 0,
+    "warnings": [
+      {
+        "product_id": "01a12f8e-cc4b-79ce-8170-77dfe7fe1dcd",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc50-710e-a5f3-0e46a01894cc",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc50-7daa-a6c7-6c6748aeb66a",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc50-7daa-a6c7-6c6748aeb66a",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc51-799d-9a23-1e9b55f74697",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc51-7a8e-a8d4-5296b6056c42",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc51-7edb-ac45-b4b08b6ebfa1",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc52-770b-a733-a80fc19f7834",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc52-785b-ba48-1e929f952a69",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc52-7f23-8641-e85716f454ce",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc53-7338-9ba3-632166882e07",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc53-74a5-9166-a6baec09e16b",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc53-78f9-b783-6c00942fabae",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc54-707c-91ec-cbeeddbd9a27",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc54-7352-a051-2f36cec41bf1",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc54-7cbd-b805-45904516db52",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc55-73e0-b013-40fec1210ae1",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc55-7eb0-99d4-36d5f205b51b",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc55-7ed4-a0fe-dd85b2b27c5c",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc56-7399-9749-f88b5ca85813",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc56-781f-8245-f54cc3950198",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc56-7b35-8a32-18f9942da44d",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc57-73cd-aa54-709543221cf2",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc57-747d-a746-06d11a1b273e",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc57-7b2c-932a-a9dd19a36392",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc58-7594-a91a-e5cd70f20105",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc58-7705-afbf-189a2ccc3b2a",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc58-7f26-98d8-8d81d9eb4797",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc59-7a45-a865-bee7e013c38b",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc59-7e4d-b27b-195f890b3af6",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc59-7eac-9964-3dfdfe03a49e",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5a-70c7-a15d-74cb05e656a4",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5a-7275-8250-49ebd0e3df83",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5a-7963-8358-9784f84f54b9",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5b-7b1e-bb81-347c9f720496",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5b-7bca-a397-528fe4c90ab3",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5b-7e17-a084-0d1197660eb5",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5c-74b3-9247-7530f385c70b",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5c-7bc5-ade6-7b6ae4ce1270",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5c-7e20-8852-b989748cecab",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5d-754b-8ef5-7f93ae7e7d9c",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5d-7817-ae23-10c3e49c95cb",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5d-7a39-aff3-09293ae726d1",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5e-7112-9ef6-f322dafd1d0b",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5e-7bd0-8bdf-80b2ab05912a",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5e-7ff8-a029-6b376f3a0192",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5f-783b-92fe-44e201e359db",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5f-7c68-b305-a927d7241f7d",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc5f-7c92-89bb-ab41bb78df17",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc60-7550-b215-c753734e1f34",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a12f8e-cc60-7ec3-b5f4-a68c5789a02d",
+        "field": "description",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b01-7866-9f1f-ffec70cebc45",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b03-7f84-a6ca-4e9bb382cc19",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b04-7966-ab8b-b0494d96e0a4",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b06-7927-b125-5a3b7bba54b6",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b08-7052-b1bd-7d426ed400d1",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b0a-73e4-8b42-5d685a05d98b",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b0c-753a-990a-e5bda5b9c1a5",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b0e-7a8d-ba91-bca903fc96b8",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b10-7d94-9046-c184caaf9554",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b12-7409-be27-615e3cdd883b",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b14-724b-bb81-0789d4b24aed",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b16-79a9-80bb-33cb3fee9f6b",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b18-7e3d-aaa4-996464038e0d",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b1a-7450-ab67-0030e4458ee6",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b1d-785d-9828-8bdcfc3cdfb8",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b1f-7dfa-81d2-455ef98c491a",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      },
+      {
+        "product_id": "01a13377-4b21-7f6f-88f0-6de62db48731",
+        "field": "price",
+        "code": "MISSING_VALUE"
+      }
+    ],
+    "errors": [],
+    "seconds": 0.011
+  }
+}

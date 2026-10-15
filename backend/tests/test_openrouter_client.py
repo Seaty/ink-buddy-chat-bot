@@ -50,6 +50,18 @@ def sent(request: httpx.Request) -> dict:
     return json.loads(request.content)
 
 
+def test_reported_cost_is_preserved_without_estimation():
+    c, _ = client(ok({**OK, 'usage':{**OK['usage'],'cost':0.0001}}))
+    try:
+        result=c.chat('test-model',[{'role':'user','content':'test'}])
+        assert result['usage_cost']==0.0001
+    finally:c.close()
+    c, _ = client(ok())
+    try:
+        assert c.chat('test-model',[])['usage_cost'] is None
+    finally:c.close()
+
+
 # ---------------------------------------------------------------- request
 def test_request_translation():
     c, seen = client(ok())

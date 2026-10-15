@@ -1,0 +1,15 @@
+{
+  "benign_smoke": "embedding 1024 dimensions and nonempty chat passed separately",
+  "probes": [
+    {
+      "endpoint": "chat",
+      "blocked": true,
+      "http_status": 403
+    },
+    {
+      "endpoint": "embeddings",
+      "blocked": false,
+      "http_status": 200
+    }
+  ]
+}

@@ -1,0 +1,1817 @@
+{
+  "products": [
+    {
+      "sku": "b2s_1092466",
+      "name": "ปากกาลูกลื่น Monami รุ่น ฟลิป สีเขียวพาสเทล ขนาด 0.7 มม.",
+      "category": "ballpoint_pen",
+      "brand": "Monami",
+      "description": null,
+      "price": "79.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/ปากกาลูกลื่น-monami-รุ่น-ฟลิป-สีเขียวพาสเทล-ขนาด-0-7-มม-p.1092466",
+      "attributes": {
+        "category_th": "ปากกาลูกลื่น",
+        "source_price": "79.0",
+        "price_date": "2026-09-27",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/1092466.jpg",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/ballpoint_pen/monami_flip_07_pastel_green.jpg"
+      ]
+    },
+    {
+      "sku": "b2s_1092374",
+      "name": "ปากกาลูกลื่น PENTEL รุ่น Feel-it ขนาด 0.7 มม.ด้ามส้มหมึกน้ำเงิน",
+      "category": "ballpoint_pen",
+      "brand": "Pentel",
+      "description": null,
+      "price": "10.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/ปากกาลูกลื่น-pentel-รุ่น-feel-it-ขนาด-0-7-มม-ด้ามส้มหมึกน้ำเงิน-p.1092374",
+      "attributes": {
+        "category_th": "ปากกาลูกลื่น",
+        "source_price": "10.0",
+        "price_date": "2026-09-27",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/1092374.jpg",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/ballpoint_pen/pentel_feelit_07_orange_blue.jpg"
+      ]
+    },
+    {
+      "sku": "b2s_1091933",
+      "name": "PENTEL ปากกาเจล รุ่น Energel Hexagon BL667 สีน้ำเงิน ขนาด 0.7 มม.",
+      "category": "gel_pen",
+      "brand": "Pentel",
+      "description": null,
+      "price": "590.00",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/pentel-ปากกาเจล-รุ่น-energel-hexagon-bl667-สีน้ำเงิน-ขนาด-0-7-มม-p.1091933",
+      "attributes": {
+        "category_th": "ปากกาเจล",
+        "source_price": "590.0",
+        "price_date": "2026-09-27",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/1091933.jpg",
+        "catalog_note": "ราคา 590 น่าจะเป็นต่อกล่อง ควรตรวจสอบ",
+        "rights_status": "not_verified",
+        "price_review": "user_approved_demo_2026_10_14",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live",
+        "price_researched_on": "2026-10-14",
+        "price_source_ref": "https://shop.line.me/%40kosit_ksv/product/1002754007",
+        "price_selling_unit": "ยังยืนยันหน่วยและ variant สีน้ำเงินไม่ได้",
+        "price_source_evidence_type": "search_snippet_seller_listing",
+        "price_source_match_status": "model_and_size_match_blue_variant_not_confirmed",
+        "price_source_note": "หน้า B2S และหน้าร้าน KSV เปิดตรวจรายละเอียดไม่ได้; ราคา 590 พบใน listing รุ่น BL667 0.7 พร้อมบริการสลักชื่อ ไม่ถือว่าพิสูจน์ราคาของ SKU B2S สีน้ำเงินแล้ว",
+        "price_source_tax_status": "unknown"
+      },
+      "images": [
+        "catalog/gel_pen/pentel_energel_hexagon_bl667_07_blue.jpg"
+      ]
+    },
+    {
+      "sku": "b2s_1092448",
+      "name": "ปากกาเจล Uni รุ่น UMN-S-38 สีม่วง ขนาด 0.38 มม.",
+      "category": "gel_pen",
+      "brand": "Uni",
+      "description": null,
+      "price": "42.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/ปากกาเจล-uni-รุ่น-umn-s-38-สีม่วง-ขนาด-0-38-มม-p.1092448",
+      "attributes": {
+        "category_th": "ปากกาเจล",
+        "source_price": "42.0",
+        "price_date": "2026-09-27",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/1092448.jpg",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/gel_pen/uni_umn_s_38_purple.jpg"
+      ]
+    },
+    {
+      "sku": "b2s_1003680",
+      "name": "ปากกาเน้นข้อความ 2 หัว (ชุด5สี) จาวา Duplex",
+      "category": "highlighter",
+      "brand": "Java",
+      "description": null,
+      "price": "100.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/ปากกาเน้นข้อความ-2-หัว-ชุด5สี-จาวา-duplex-p.1003680",
+      "attributes": {
+        "category_th": "ปากกาเน้นข้อความ",
+        "source_price": "100.0",
+        "price_date": "2026-09-27",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/1003680.jpg",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/highlighter/java_duplex_highlighter_5colors.jpg"
+      ]
+    },
+    {
+      "sku": "b2s_1009200",
+      "name": "ปากกาเน้นข้อความ โมนามิ x2218049900 604 คละสี (4ด้าม)",
+      "category": "highlighter",
+      "brand": "Monami",
+      "description": null,
+      "price": "98.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/ปากกาเน้นข้อความ-โมนามิ-x2218049900-604-คละสี-4ด้าม-p.1009200",
+      "attributes": {
+        "category_th": "ปากกาเน้นข้อความ",
+        "source_price": "98.0",
+        "price_date": "2026-09-27",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/1009200.jpg",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/highlighter/monami_604_highlighter_4pack.jpg"
+      ]
+    },
+    {
+      "sku": "b2s_1000785",
+      "name": "HORSE ปากกามาร์คเกอร์ รุ่น 2 หัว คละสี (แพ็ค 3 ด้าม)",
+      "category": "marker",
+      "brand": "Horse",
+      "description": null,
+      "price": "53.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/ปากกามาร์คเกอร์-2-หัว-ตราม้า-คละสี-แพ็ค-3-ด้าม-p.1000785",
+      "attributes": {
+        "category_th": "ปากกามาร์คเกอร์",
+        "source_price": "53.0",
+        "price_date": "2026-09-28",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/1000785.jpg",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/marker/horse_twin_marker_3pack.jpg"
+      ]
+    },
+    {
+      "sku": "b2s_1008913",
+      "name": "ปากกามาร์คเกอร์ Accu Liner 0.7มม.นง. โมนามิ X10401202X0",
+      "category": "marker",
+      "brand": "Monami",
+      "description": null,
+      "price": "20.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/ปากกามาร์คเกอร์-accu-liner-0-7มม-นง-โมนามิ-x10401202x0-p.1008913",
+      "attributes": {
+        "category_th": "ปากกามาร์คเกอร์",
+        "source_price": "20.0",
+        "price_date": "2026-09-28",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/1008913.jpg",
+        "catalog_note": "ปากกาหัวเข็ม (fineliner) แต่ B2S จัดเป็นปากกามาร์กเกอร์",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/marker/monami_accu_liner_07_blue.jpg"
+      ]
+    },
+    {
+      "sku": "b2s_1092492",
+      "name": "ปากกามาร์คเกอร์ PENTEL  Permanent แบบ2หัว สีแดง",
+      "category": "marker",
+      "brand": "Pentel",
+      "description": null,
+      "price": "33.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/ปากกามาร์คเกอร์-pentel-permanent-แบบ2หัว-สีแดง-p.1092492",
+      "attributes": {
+        "category_th": "ปากกามาร์คเกอร์",
+        "source_price": "33.0",
+        "price_date": "2026-09-28",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/1092492.jpg",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/marker/pentel_permanent_twin_marker_red.jpg"
+      ]
+    },
+    {
+      "sku": "b2s_1092007",
+      "name": "ปากกาไวท์บอร์ด FABER CASTELL สีแดง",
+      "category": "whiteboard_marker",
+      "brand": "Faber-Castell",
+      "description": null,
+      "price": "26.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/ปากกาไวท์บอร์ด-faber-castell-สีแดง-p.1092007",
+      "attributes": {
+        "category_th": "ปากกาไวท์บอร์ด",
+        "source_price": "26.0",
+        "price_date": "2026-09-28",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/1092007.jpg",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/whiteboard_marker/fabercastell_whiteboard_marker_red.jpg"
+      ]
+    },
+    {
+      "sku": "b2s_1000920",
+      "name": "HORSE ปากกาไวท์บอร์ด รุ่น H-22 สีน้ำเงิน ขนาด 2 มม. (แพ็ค 3 ด้าม)",
+      "category": "whiteboard_marker",
+      "brand": "Horse",
+      "description": null,
+      "price": "45.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/ปากกาไวท์บอร์ด-ตราม้า-h-22-น้ำเงิน-แพ็ค-3-ด้าม-p.1000920",
+      "attributes": {
+        "category_th": "ปากกาไวท์บอร์ด",
+        "source_price": "45.0",
+        "price_date": "2026-09-28",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/1000920.jpg",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/whiteboard_marker/horse_h22_whiteboard_marker_blue_3pack.jpg"
+      ]
+    },
+    {
+      "sku": "b2s_1005836",
+      "name": "ปากกาไวท์บอร์ด 15386A 2 มม. ส้ม โมนามิ PI-220",
+      "category": "whiteboard_marker",
+      "brand": "Monami",
+      "description": null,
+      "price": "28.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/ปากกาไวท์บอร์ด-15386a-2-มม-ส้ม-โมนามิ-pi-220-p.1005836",
+      "attributes": {
+        "category_th": "ปากกาไวท์บอร์ด",
+        "source_price": "28.0",
+        "price_date": "2026-09-28",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/1005836.jpg",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/whiteboard_marker/monami_pi220_whiteboard_marker_orange.jpg"
+      ]
+    },
+    {
+      "sku": "b2s_1009802",
+      "name": "ชุดดินสอกด 0.5มม. ฟ้า (แพ็ค2ชิ้น) เพนเทล AX105-CWBP",
+      "category": "mechanical_pencil",
+      "brand": "Pentel",
+      "description": null,
+      "price": "33.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/ชุดดินสอกด-0-5มม-ฟ้า-แพ็ค2ชิ้น-เพนเทล-ax105-cwbp-p.1009802",
+      "attributes": {
+        "category_th": "ดินสอกด",
+        "source_price": "33.0",
+        "price_date": "2026-09-27",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/1009802.jpg",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/mechanical_pencil/pentel_ax105_cwbp_05_blue_2pack.jpg"
+      ]
+    },
+    {
+      "sku": "b2s_1010208",
+      "name": "ชุดดินสอกด 0.5 มม. Rotring Tikky สีดำ (2ชิ้น/แพ็ค)",
+      "category": "mechanical_pencil",
+      "brand": "Rotring",
+      "description": null,
+      "price": "140.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/ชุดดินสอกด-0-5-มม-rotring-tikky-สีดำ-2ชิ้น-แพ็ค-p.1010208",
+      "attributes": {
+        "category_th": "ดินสอกด",
+        "source_price": "140.0",
+        "price_date": "2026-09-27",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/1010208.jpg",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/mechanical_pencil/rotring_tikky_05_black_2pack.jpg"
+      ]
+    },
+    {
+      "sku": "b2s_1091236",
+      "name": "เครื่องเหลาดินสอปรับได้  ELM S-221-BK",
+      "category": "sharpener",
+      "brand": "ELM",
+      "description": null,
+      "price": "339.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/เครื่องเหลาดินสอปรับได้-elm-s-221-bk-p.1091236",
+      "attributes": {
+        "category_th": "กบเหลาดินสอ",
+        "source_price": "339.0",
+        "price_date": "2026-09-28",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/1091236.jpg",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/sharpener/elm_s221_pencil_sharpener_machine.jpg"
+      ]
+    },
+    {
+      "sku": "b2s_1005909",
+      "name": "กบเหลาดินสอ Clock Clock คละสี มาเพ็ด SH017610",
+      "category": "sharpener",
+      "brand": "Maped",
+      "description": null,
+      "price": "66.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/กบเหลาดินสอ-clock-clock-คละสี-มาเพ็ด-sh017610-p.1005909",
+      "attributes": {
+        "category_th": "กบเหลาดินสอ",
+        "source_price": "66.0",
+        "price_date": "2026-09-28",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/1005909.jpg",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/sharpener/maped_clock_sharpener.jpg"
+      ]
+    },
+    {
+      "sku": "b2s_1093329",
+      "name": "ME.STYLE  กบเหลาดินสอ 1 รู ลายสตอเบอร์ รุ่น STRAWBERRY",
+      "category": "sharpener",
+      "brand": "ME.STYLE",
+      "description": null,
+      "price": "19.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/me-style-กบเหลาดินสอ-1-รู-ลายสตอเบอร์-รุ่น-strawberry-p.1093329",
+      "attributes": {
+        "category_th": "กบเหลาดินสอ",
+        "source_price": "19.0",
+        "price_date": "2026-09-28",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/1093329.jpg",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/sharpener/mestyle_strawberry_sharpener_1hole.jpg"
+      ]
+    },
+    {
+      "sku": "b2s_1093288",
+      "name": "กระเป๋าดินสอ 21 x 14ซม. BELLA 1-A",
+      "category": "pencil_case",
+      "brand": "BELLA",
+      "description": null,
+      "price": "149.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/กระเป๋าดินสอ-21-x-14ซม-bella-1-a-p.1093288",
+      "attributes": {
+        "category_th": "กระเป๋าดินสอ",
+        "source_price": "149.0",
+        "price_date": "2026-09-28",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/1093288.jpg",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/pencil_case/bella_pencil_pouch_1a.jpg"
+      ]
+    },
+    {
+      "sku": "b2s_1007615",
+      "name": "กระเป๋าดินสอ คละสี อี-ไฟล์ CPK32",
+      "category": "pencil_case",
+      "brand": "e-file",
+      "description": null,
+      "price": "135.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/กระเป๋าดินสอ-คละสี-อี-ไฟล์-cpk32-p.1007615",
+      "attributes": {
+        "category_th": "กระเป๋าดินสอ",
+        "source_price": "135.0",
+        "price_date": "2026-09-28",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/1007615.jpg",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/pencil_case/efile_cpk32_pencil_pouch.jpg"
+      ]
+    },
+    {
+      "sku": "b2s_1093326",
+      "name": "กระเป๋าดินสอ 1 ME.STYLE STRAWBERRY 20.5x6 ซม.",
+      "category": "pencil_case",
+      "brand": "ME.STYLE",
+      "description": null,
+      "price": "149.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/กระเป๋าดินสอ-1-me-style-strawberry-20-5x6-ซม-p.1093326",
+      "attributes": {
+        "category_th": "กระเป๋าดินสอ",
+        "source_price": "149.0",
+        "price_date": "2026-09-28",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/1093326.jpg",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/pencil_case/mestyle_strawberry_pencil_pouch_1.jpg"
+      ]
+    },
+    {
+      "sku": "b2s_K092470",
+      "name": "ยางลบพร้อมแปรง Montmarte 2 แท่ง",
+      "category": "eraser",
+      "brand": "Mont Marte",
+      "description": null,
+      "price": "84.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/ยางลบพร้อมแปรง-montmarte-2-แท่ง-p.K092470",
+      "attributes": {
+        "category_th": "ยางลบ",
+        "source_price": "84.0",
+        "price_date": "2026-09-27",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/K092470.jpg",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/eraser/montmarte_eraser_brush_2pack.jpg"
+      ]
+    },
+    {
+      "sku": "b2s_1008290",
+      "name": "ยางลบดินสอ (2 ก้อน/แพ็ค) เพนเทล Hi-Polymer ZES-08",
+      "category": "eraser",
+      "brand": "Pentel",
+      "description": null,
+      "price": "40.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/ยางลบดินสอ-2-ก้อน-แพ็ค-เพนเทล-hi-polymer-zes-08-p.1008290",
+      "attributes": {
+        "category_th": "ยางลบ",
+        "source_price": "40.0",
+        "price_date": "2026-09-27",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/1008290.jpg",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/eraser/pentel_hipolymer_zes08_2pack.jpg"
+      ]
+    },
+    {
+      "sku": "b2s_1006045",
+      "name": "เทปลบคำผิด 5มมx6ม. คละสี ฟาสเตอร์ C-649",
+      "category": "correction_tape",
+      "brand": "Faster",
+      "description": null,
+      "price": "45.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/เทปลบคำผิด-5มมx6ม-คละสี-ฟาสเตอร์-c-649-p.1006045",
+      "attributes": {
+        "category_th": "เทปลบคำผิด",
+        "source_price": "45.0",
+        "price_date": "2026-09-27",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/1006045.jpg",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/correction_tape/faster_c649_correction_tape.jpg"
+      ]
+    },
+    {
+      "sku": "b2s_1091150",
+      "name": "เทปลบคำผิด พลัส รุ่น WH-1205 สีขาว",
+      "category": "correction_tape",
+      "brand": "Plus",
+      "description": null,
+      "price": "49.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/เทปลบคำผิด-พลัส-รุ่น-wh-1205-สีขาว-p.1091150",
+      "attributes": {
+        "category_th": "เทปลบคำผิด",
+        "source_price": "49.0",
+        "price_date": "2026-09-27",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/1091150.jpg",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/correction_tape/plus_wh1205_correction_tape_white.jpg"
+      ]
+    },
+    {
+      "sku": "b2s_5096597",
+      "name": "สมุดบันทึก MAYFLOWERN รุ่น NH-C.11 สีดำ",
+      "category": "notebook",
+      "brand": "Mayflower",
+      "description": null,
+      "price": "30.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/สมุดบันทึก-mayflowern-รุ่น-nh-c-11-สีดำ-p.5096597",
+      "attributes": {
+        "category_th": "สมุด",
+        "source_price": "30.0",
+        "price_date": "2026-09-28",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/5096597.jpg",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/notebook/mayflower_nh_c11_notebook_black.jpg"
+      ]
+    },
+    {
+      "sku": "b2s_5096405",
+      "name": "สมุดโน๊ต Ropamoda  120แกรม 0739024แผ่น A4",
+      "category": "notebook",
+      "brand": "Ropamoda",
+      "description": null,
+      "price": "195.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/สมุดโน๊ต-ropamoda-120แกรม-0739024แผ่น-a4-p.5096405",
+      "attributes": {
+        "category_th": "สมุด",
+        "source_price": "195.0",
+        "price_date": "2026-09-27",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/5096405.jpeg",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/notebook/ropamoda_notebook_a4_120g.jpg"
+      ]
+    },
+    {
+      "sku": "b2s_5096875",
+      "name": "กระดาษโน้ตกาวในตัว ME.STYLE BELLA 2-B",
+      "category": "sticky_note",
+      "brand": "ME.STYLE",
+      "description": null,
+      "price": "39.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/กระดาษโน้ตกาวในตัว-me-style-bella-2-b-p.5096875",
+      "attributes": {
+        "category_th": "กระดาษโน้ตกาว",
+        "source_price": "39.0",
+        "price_date": "2026-09-28",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/5096875.jpg",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/sticky_note/mestyle_bella_sticky_note_2b.jpg"
+      ]
+    },
+    {
+      "sku": "b2s_5096929",
+      "name": "ME.STYLE ชุดกระดาษโน้ตกาวในตัว รุ่น STRAWBERRY 1-B สีชมพู",
+      "category": "sticky_note",
+      "brand": "ME.STYLE",
+      "description": null,
+      "price": "39.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/me-style-ชุดกระดาษโน้ตกาวในตัว-รุ่น-strawberry-1-b-สีชมพู-p.5096929",
+      "attributes": {
+        "category_th": "กระดาษโน้ตกาว",
+        "source_price": "39.0",
+        "price_date": "2026-09-28",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/5096929.jpg",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/sticky_note/mestyle_strawberry_sticky_note_1b.jpg"
+      ]
+    },
+    {
+      "sku": "b2s_5096930",
+      "name": "ME.STYLE ชุดกระดาษโน้ตกาวในตัว รุ่น STRAWBERRY 2-B สีขาว-ชมพู",
+      "category": "sticky_note",
+      "brand": "ME.STYLE",
+      "description": null,
+      "price": "39.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/me-style-ชุดกระดาษโน้ตกาวในตัว-รุ่น-strawberry-2-b-สีขาว-ชมพู-p.5096930",
+      "attributes": {
+        "category_th": "กระดาษโน้ตกาว",
+        "source_price": "39.0",
+        "price_date": "2026-09-28",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/5096930.jpg",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/sticky_note/mestyle_strawberry_sticky_note_2b.jpg"
+      ]
+    },
+    {
+      "sku": "b2s_1092396",
+      "name": "ไม้บรรทัดฟุตเหล็ก INCA ขนาด 18 นิ้ว",
+      "category": "ruler",
+      "brand": "INCA",
+      "description": null,
+      "price": "91.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/ไม้บรรทัดฟุตเหล็ก-inca-ขนาด-18-นิ้ว-p.1092396",
+      "attributes": {
+        "category_th": "ไม้บรรทัด",
+        "source_price": "91.0",
+        "price_date": "2026-09-27",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/1092396.jpg",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/ruler/inca_ruler_steel_18in.jpg"
+      ]
+    },
+    {
+      "sku": "b2s_1091301",
+      "name": "ไม้บรรทัดพลาสติก พี.เค. สีใส 12นิ้ว #022",
+      "category": "ruler",
+      "brand": "P.K.",
+      "description": null,
+      "price": "4.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/ไม้บรรทัดพลาสติก-พี-เค-สีใส-12นิ้ว-022-p.1091301",
+      "attributes": {
+        "category_th": "ไม้บรรทัด",
+        "source_price": "4.0",
+        "price_date": "2026-09-27",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/1091301.png",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/ruler/pk_ruler_plastic_12in_022.png"
+      ]
+    },
+    {
+      "sku": "b2s_K090972",
+      "name": "ชุดวงเวียน MAPED 3 ชิ้นโลหะพิเศษ",
+      "category": "compass",
+      "brand": "Maped",
+      "description": null,
+      "price": "107.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/ชุดวงเวียน-maped-3-ชิ้นโลหะพิเศษ-p.K090972",
+      "attributes": {
+        "category_th": "วงเวียน",
+        "source_price": "107.0",
+        "price_date": "2026-09-28",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/K090972.jpg",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/compass/maped_compass_set_3pcs.jpg"
+      ]
+    },
+    {
+      "sku": "b2s_K090974",
+      "name": "วงเวียน MAPED GRAPHIC",
+      "category": "compass",
+      "brand": "Maped",
+      "description": null,
+      "price": "62.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/วงเวียน-maped-graphic-p.K090974",
+      "attributes": {
+        "category_th": "วงเวียน",
+        "source_price": "62.0",
+        "price_date": "2026-09-28",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/K090974.jpg",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/compass/maped_graphic_compass.jpg"
+      ]
+    },
+    {
+      "sku": "b2s_K090929",
+      "name": "ชุดวงเวียนพลาสติก RADIUS สีฟ้า",
+      "category": "compass",
+      "brand": "Radius",
+      "description": null,
+      "price": "95.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/ชุดวงเวียนพลาสติก-radius-สีฟ้า-p.K090929",
+      "attributes": {
+        "category_th": "วงเวียน",
+        "source_price": "95.0",
+        "price_date": "2026-09-28",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/K090929.jpg",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/compass/radius_compass_set_blue.jpg"
+      ]
+    },
+    {
+      "sku": "b2s_2071790",
+      "name": "SCOTCH กรรไกร รุ่น Precision 1448 สีแดง-เทา 8 นิ้ว",
+      "category": "scissors",
+      "brand": "Scotch",
+      "description": null,
+      "price": "235.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/scotch-กรรไกร-รุ่น-precision-1448-สีแดง-เทา-8-นิ้ว-p.2071790",
+      "attributes": {
+        "category_th": "กรรไกร",
+        "source_price": "235.0",
+        "price_date": "2026-09-27",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/2071790.jpg",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/scissors/scotch_precision_1448_8in.jpg"
+      ]
+    },
+    {
+      "sku": "b2s_2072020",
+      "name": "กรรไกร 8 นิ้ว สก๊อตช์ Precision Ultra Edge 1468TUNS",
+      "category": "scissors",
+      "brand": "Scotch",
+      "description": null,
+      "price": "295.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/กรรไกร-8-นิ้ว-สก๊อตช์-precision-ultra-edge-1468tuns-p.2072020",
+      "attributes": {
+        "category_th": "กรรไกร",
+        "source_price": "295.0",
+        "price_date": "2026-09-27",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/2072020.jpg",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/scissors/scotch_precision_ultra_edge_1468tuns_8in.jpg"
+      ]
+    },
+    {
+      "sku": "b2s_2003432",
+      "name": "มีดคัตเตอร์ 45L ดำ สก๊อตช์ XP002024089",
+      "category": "cutter",
+      "brand": "Scotch",
+      "description": null,
+      "price": "135.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/มีดคัตเตอร์-45l-ดำ-สก๊อตช์-xp002024089-p.2003432",
+      "attributes": {
+        "category_th": "คัตเตอร์",
+        "source_price": "135.0",
+        "price_date": "2026-09-28",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/2003432.jpg",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/cutter/scotch_cutter_45l_black.jpg"
+      ]
+    },
+    {
+      "sku": "b2s_2002894",
+      "name": "มีดคัตเตอร์ ไทเทเนียม 3M Size L Scotch XP002015285",
+      "category": "cutter",
+      "brand": "Scotch",
+      "description": null,
+      "price": "199.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/มีดคัตเตอร์-ไทเทเนียม-3m-size-l-scotch-xp002015285-p.2002894",
+      "attributes": {
+        "category_th": "คัตเตอร์",
+        "source_price": "199.0",
+        "price_date": "2026-09-28",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/2002894.jpg",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/cutter/scotch_titanium_cutter_l.jpg"
+      ]
+    },
+    {
+      "sku": "b2s_2003391",
+      "name": "มีดคัตเตอร์อเนกประสงค์ ขาว SDI 0443C",
+      "category": "cutter",
+      "brand": "SDI",
+      "description": null,
+      "price": "145.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/มีดคัตเตอร์อเนกประสงค์-ขาว-sdi-0443c-p.2003391",
+      "attributes": {
+        "category_th": "คัตเตอร์",
+        "source_price": "145.0",
+        "price_date": "2026-09-28",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/2003391.jpg",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/cutter/sdi_0443c_cutter_white.jpg"
+      ]
+    },
+    {
+      "sku": "b2s_3090269",
+      "name": "กาวแท่ง เอลเมอร์  เนื้อกาวขาว 8กรัม",
+      "category": "glue",
+      "brand": "Elmer's",
+      "description": null,
+      "price": "33.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/กาวแท่ง-เอลเมอร์-เนื้อกาวขาว-8กรัม-p.3090269",
+      "attributes": {
+        "category_th": "กาว",
+        "source_price": "33.0",
+        "price_date": "2026-09-28",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/3090269.jpg",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/glue/elmers_glue_stick_8g.jpg"
+      ]
+    },
+    {
+      "sku": "b2s_K091913",
+      "name": "MONT MARTE กาวน้ำ ขนาด 147 มล.",
+      "category": "glue",
+      "brand": "Mont Marte",
+      "description": null,
+      "price": "112.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/mont-marte-กาวน้ำ-ขนาด-147-มล-p.K091913",
+      "attributes": {
+        "category_th": "กาว",
+        "source_price": "112.0",
+        "price_date": "2026-09-28",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/K091913.jpg",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/glue/montmarte_liquid_glue_147ml.jpg"
+      ]
+    },
+    {
+      "sku": "b2s_3011150",
+      "name": "กาวแท่ง 7.08 กรัม ขาว สก๊อตช์ 6008",
+      "category": "glue",
+      "brand": "Scotch",
+      "description": null,
+      "price": "29.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/กาวแท่ง-7-08-กรัม-ขาว-สก๊อตช์-6008-p.3011150",
+      "attributes": {
+        "category_th": "กาว",
+        "source_price": "29.0",
+        "price_date": "2026-09-28",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/3011150.jpg",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/glue/scotch_6008_glue_stick_7g.jpg"
+      ]
+    },
+    {
+      "sku": "b2s_3101210",
+      "name": "SCOTCH เทปใส รุ่น 500 ขนาด 1/2 นิ้ว x 36 หลา แกน 1 นิ้ว (แพ็ค 9 ม้วน)",
+      "category": "clear_tape",
+      "brand": "Scotch",
+      "description": null,
+      "price": "214.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/scotch-เทปใส-รุ่น-500-ขนาด-1-2-นิ้ว-x-36-หลา-แกน-1-นิ้ว-แพ็ค-9-ม้วน-p.3101210",
+      "attributes": {
+        "category_th": "เทปใส",
+        "source_price": "214.0",
+        "price_date": "2026-09-28",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/3101210.jpg",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/clear_tape/scotch_500_clear_tape_1_2in_9pack.jpg"
+      ]
+    },
+    {
+      "sku": "b2s_3090256",
+      "name": "SCOTCH เทปใส รุ่น 500 แกน 1 นิ้ว ขนาด 1\" x 36 หลา แพ็ค 7 ม้วน",
+      "category": "clear_tape",
+      "brand": "Scotch",
+      "description": null,
+      "price": "266.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/scotch-เทปใส-รุ่น-500-แกน-1-นิ้ว-ขนาด-1-x-36-หลา-แพ็ค-7-ม้วน-p.3090256",
+      "attributes": {
+        "category_th": "เทปใส",
+        "source_price": "266.0",
+        "price_date": "2026-09-28",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/3090256.jpg",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/clear_tape/scotch_500_clear_tape_1in_7pack.jpg"
+      ]
+    },
+    {
+      "sku": "b2s_3101160",
+      "name": "SCOTCH เทปใส รุ่น 500 แกน 1 นิ้ว ขนาด 3/4 นิ้ว x 36 หลา (แพ็ค 6 ม้วน)",
+      "category": "clear_tape",
+      "brand": "Scotch",
+      "description": null,
+      "price": "226.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/scotch-เทปใส-รุ่น-500-แกน-1-นิ้ว-ขนาด-3-4-นิ้ว-x-36-หลา-แพ็ค-6-ม้วน-p.3101160",
+      "attributes": {
+        "category_th": "เทปใส",
+        "source_price": "226.0",
+        "price_date": "2026-09-28",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/3101160.jpg",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/clear_tape/scotch_500_clear_tape_3_4in_6pack.jpg"
+      ]
+    },
+    {
+      "sku": "b2s_K091420",
+      "name": "สีไม้ระบายน้ำ FABER CASTELL  48 สี",
+      "category": "colored_pencil",
+      "brand": "Faber-Castell",
+      "description": null,
+      "price": "595.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/สีไม้ระบายน้ำ-faber-castell-48-สี-p.K091420",
+      "attributes": {
+        "category_th": "ดินสอสี",
+        "source_price": "595.0",
+        "price_date": "2026-09-27",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/K091420.png",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/colored_pencil/fabercastell_watercolor_pencil_48colors.png"
+      ]
+    },
+    {
+      "sku": "b2s_K091454",
+      "name": "สีไม้ MAPED รุ่น COLOR'PEPS 12 สี",
+      "category": "colored_pencil",
+      "brand": "Maped",
+      "description": null,
+      "price": "178.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/สีไม้-maped-รุ่น-colorpeps-12-สี-p.K091454",
+      "attributes": {
+        "category_th": "ดินสอสี",
+        "source_price": "178.0",
+        "price_date": "2026-09-27",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/K091454.jpg",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/colored_pencil/maped_colorpeps_12colors.jpg"
+      ]
+    },
+    {
+      "sku": "b2s_6092770",
+      "name": "แฟ้มซองพลาสติก ไบน์เดอร์แม็กซ์ BB-4002 สีคละสี F4 (12ซอง/แพ็ค)",
+      "category": "file_folder",
+      "brand": "BinderMax",
+      "description": null,
+      "price": "92.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/แฟ้มซองพลาสติก-ไบน์เดอร์แม็กซ์-bb-4002-สีคละสี-f4-12ซอง-แพ็ค-p.6092770",
+      "attributes": {
+        "category_th": "แฟ้มเอกสาร",
+        "source_price": "92.0",
+        "price_date": "2026-09-28",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/6092770.png",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/file_folder/bindermax_bb4002_envelope_f4_12pack.png"
+      ]
+    },
+    {
+      "sku": "b2s_6005239",
+      "name": "ELEPHANT แฟ้มสันกว้าง รุ่น 2100F ขนาด F4 สัน 3 นิ้ว สีพีช (ชมพูพาสเทล)",
+      "category": "file_folder",
+      "brand": "Elephant",
+      "description": null,
+      "price": "115.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/elephant-แฟ้มสันกว้าง-รุ่น-2100f-ขนาด-f4-สัน-3-นิ้ว-สีพีช-ชมพูพาสเทล-p.6005239",
+      "attributes": {
+        "category_th": "แฟ้มเอกสาร",
+        "source_price": "115.0",
+        "price_date": "2026-09-28",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/6005239.jpg",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/file_folder/elephant_2100f_lever_arch_f4_peach.jpg"
+      ]
+    },
+    {
+      "sku": "b2s_6092689",
+      "name": "แฟ้มซองพลาสติกผูกเชือก A4 ONE สีขาวใส ขนาด 26 x 33 ซม. (6 ซอง/แพ็ค)",
+      "category": "file_folder",
+      "brand": "ONE",
+      "description": null,
+      "price": "31.0",
+      "currency": "THB",
+      "source_ref": "https://www.b2s.co.th/product/แฟ้มซองพลาสติกผูกเชือก-a4-one-สีขาวใส-ขนาด-26-x-33-ซม-6-ซอง-แพ็ค-p.6092689",
+      "attributes": {
+        "category_th": "แฟ้มเอกสาร",
+        "source_price": "31.0",
+        "price_date": "2026-09-28",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/6092689.jpg",
+        "catalog_note": "",
+        "rights_status": "not_verified",
+        "price_review": "original_catalog_snapshot",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live"
+      },
+      "images": [
+        "catalog/file_folder/one_string_envelope_a4_6pack.jpg"
+      ]
+    },
+    {
+      "sku": "officework_0205-0007",
+      "name": "ปากกาหมึกเจล เพนเทล เอ็นเนอร์เจล BL77 สีแดง",
+      "category": "gel_pen",
+      "brand": "Pentel",
+      "description": "ขนาดหัวปากกา 0.7 มม. จำนวน 1 ด้าม บรรจุ 12 ด้าม/กล่อง หมึกสีแดง เพิ่มเติม : ปากกาหมึกเจล แบบกด น้ำหมึกสูตรเฉพาะของเพนเทล เขียนลื่น แห้งเร็ว หมึกกันน้ำ และไม่ลบเลือน ด้ามจับหุ้มด้วยยาง ทำให้จับถนัดไม่เมื่อยมือ เปลี่ยนไส้ได้เมื่อหมึกหมด รีฟิวล์ LR7",
+      "price": "50.00",
+      "currency": "THB",
+      "source_ref": "https://officework.co.th/product-detail.html?pid=0205-0007",
+      "attributes": {
+        "source_price": "50.00",
+        "price_date": "2026-10-12",
+        "tax_status": "VAT excluded",
+        "unit": "ด้าม",
+        "rights_status": "not_verified",
+        "source_image_url": "https://officework.co.th/upload/product/0205-0007-01.JPG",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "source_explicitly_excludes_vat",
+        "price_usage": "coursework_demo_snapshot_not_live",
+        "price_review": "user_approved_demo_2026_10_14",
+        "price_researched_on": "2026-10-14",
+        "price_source_ref": "https://officework.co.th/product-detail.html?pid=0205-0007",
+        "price_selling_unit": "ด้าม",
+        "price_source_evidence_type": "retailer_product_page_via_web_tool",
+        "price_source_match_status": "exact_sku_model_color",
+        "price_source_note": "ราคาจากส่วนสินค้าหลัก ไม่ใช้ราคาสินค้าใกล้เคียง; snapshot/cache อาจเก่า ไม่ใช่การยืนยันราคาสด",
+        "price_source_tax_status": "excludes_vat_explicit_on_source"
+      },
+      "images": [
+        "officework_candidates/images/0205-0007-0.jpg"
+      ]
+    },
+    {
+      "sku": "officework_0205-0008",
+      "name": "ปากกาหมึกเจล เพนเทล เอ็นเนอร์เจล BL77 สีดำ",
+      "category": "gel_pen",
+      "brand": "Pentel",
+      "description": "ขนาดหัวปากกา 0.7 มม. จำนวน 1 ด้าม บรรจุ 12 ด้าม/กล่อง หมึกสีดำ เพิ่มเติม : ปากกาหมึกเจล แบบกด น้ำหมึกสูตรเฉพาะของเพนเทล เขียนลื่น แห้งเร็ว หมึกกันน้ำ และไม่ลบเลือน ด้ามจับหุ้มด้วยยาง ทำให้จับถนัดไม่เมื่อยมือ เปลี่ยนไส้ได้เมื่อหมึกหมด รีฟิวล์ LR7",
+      "price": "50.00",
+      "currency": "THB",
+      "source_ref": "https://officework.co.th/product-detail.html?pid=0205-0008",
+      "attributes": {
+        "source_price": "50.00",
+        "price_date": "2026-10-12",
+        "tax_status": "VAT excluded",
+        "unit": "ด้าม",
+        "rights_status": "not_verified",
+        "source_image_url": "https://officework.co.th/upload/product/0205-0008-01.JPG",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "source_explicitly_excludes_vat",
+        "price_usage": "coursework_demo_snapshot_not_live",
+        "price_review": "user_approved_demo_2026_10_14",
+        "price_researched_on": "2026-10-14",
+        "price_source_ref": "https://officework.co.th/product-detail.html?pid=0205-0008",
+        "price_selling_unit": "ด้าม",
+        "price_source_evidence_type": "retailer_product_page_via_web_tool",
+        "price_source_match_status": "exact_sku_model_color",
+        "price_source_note": "ราคาจากส่วนสินค้าหลัก ไม่ใช้ราคาสินค้าใกล้เคียง; snapshot/cache อาจเก่า ไม่ใช่การยืนยันราคาสด",
+        "price_source_tax_status": "excludes_vat_explicit_on_source"
+      },
+      "images": [
+        "officework_candidates/images/0205-0008-0.jpg"
+      ]
+    },
+    {
+      "sku": "officework_0205-0009",
+      "name": "ปากกาหมึกเจล เพนเทล เอ็นเนอร์เจล BL77 สีนํ้าเงิน",
+      "category": "gel_pen",
+      "brand": "Pentel",
+      "description": "ขนาดหัวปากกา 0.7 มม. จำนวน 1 ด้าม บรรจุ 12 ด้าม/กล่อง หมึกสีน้ำเงิน เพิ่มเติม : ปากกาหมึกเจล แบบกด น้ำหมึกสูตรเฉพาะของเพนเทล เขียนลื่น แห้งเร็ว หมึกกันน้ำ และไม่ลบเลือน ด้ามจับหุ้มด้วยยาง ทำให้จับถนัดไม่เมื่อยมือ เปลี่ยนไส้ได้เมื่อหมึกหมด รีฟิวล์ LR7",
+      "price": "50.00",
+      "currency": "THB",
+      "source_ref": "https://officework.co.th/product-detail.html?pid=0205-0009",
+      "attributes": {
+        "source_price": "50.00",
+        "price_date": "2026-10-12",
+        "tax_status": "VAT excluded",
+        "unit": "ด้าม",
+        "rights_status": "not_verified",
+        "source_image_url": "https://officework.co.th/upload/product/0205-0009-01.JPG",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "source_explicitly_excludes_vat",
+        "price_usage": "coursework_demo_snapshot_not_live",
+        "price_review": "user_approved_demo_2026_10_14",
+        "price_researched_on": "2026-10-14",
+        "price_source_ref": "https://officework.co.th/product-detail.html?pid=0205-0009",
+        "price_selling_unit": "ด้าม",
+        "price_source_evidence_type": "retailer_product_page_via_web_tool",
+        "price_source_match_status": "exact_sku_model_color",
+        "price_source_note": "ราคาจากส่วนสินค้าหลัก ไม่ใช้ราคาสินค้าใกล้เคียง; snapshot/cache อาจเก่า ไม่ใช่การยืนยันราคาสด",
+        "price_source_tax_status": "excludes_vat_explicit_on_source"
+      },
+      "images": [
+        "officework_candidates/images/0205-0009-0.jpg"
+      ]
+    },
+    {
+      "sku": "officework_0205-0015",
+      "name": "ปากกาหมึกเจล เพนเทล เอ็นเนอร์เจล BL-57 สีน้ำเงิน",
+      "category": "gel_pen",
+      "brand": "Pentel",
+      "description": "ขนาดหัวปากกา 0.7 มม. จำนวน 1 ด้าม บรรจุ 12 ด้าม/กล่อง หมึกสีน้ำเงิน เพิ่มเติม : ปากกาหมึกเจล แบบปลอก น้ำหมึกสูตรเฉพาะของเพนเทล เขียนลื่น แห้งเร็ว หมึกกันน้ำ และไม่ลบเลือน ด้ามจับหุ้มด้วยยาง ทำให้จับถนัดไม่เมื่อยมือ เปลี่ยนไส้ได้เมื่อหมึกหมด รีฟิวล์ LR7",
+      "price": "55.00",
+      "currency": "THB",
+      "source_ref": "https://officework.co.th/product-detail.html?pid=0205-0015",
+      "attributes": {
+        "source_price": "55.00",
+        "price_date": "2026-10-12",
+        "tax_status": "VAT excluded",
+        "unit": "ด้าม",
+        "rights_status": "not_verified",
+        "source_image_url": "https://officework.co.th/upload/product/0205-0015-01.JPG",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "source_explicitly_excludes_vat",
+        "price_usage": "coursework_demo_snapshot_not_live",
+        "price_review": "user_approved_demo_2026_10_14",
+        "price_researched_on": "2026-10-14",
+        "price_source_ref": "https://officework.co.th/product-detail.html?pid=0205-0015",
+        "price_selling_unit": "ด้าม",
+        "price_source_evidence_type": "retailer_product_page_via_web_tool",
+        "price_source_match_status": "exact_sku_model_color",
+        "price_source_note": "ราคาจากส่วนสินค้าหลัก ไม่ใช้ราคาสินค้าใกล้เคียง; snapshot/cache อาจเก่า ไม่ใช่การยืนยันราคาสด",
+        "price_source_tax_status": "excludes_vat_explicit_on_source"
+      },
+      "images": [
+        "officework_candidates/images/0205-0015-0.jpg"
+      ]
+    },
+    {
+      "sku": "officework_0205-0016",
+      "name": "ปากกาหมึกเจล เพนเทล เอ็นเนอร์เจล BLN75 (0.5 มม.) สีแดง",
+      "category": "gel_pen",
+      "brand": "Pentel",
+      "description": "ขนาดหัวปากกา 0.5 มม. จำนวน 1 ด้าม บรรจุ 12 ด้าม/กล่อง หมึกสีแดง เพิ่มเติม : ปากกาหมึกเจลหัวเข็ม แบบกด น้ำหมึกสูตรเฉพาะของเพนเทล เขียนลื่น แห้งเร็ว หมึกกันน้ำ และไม่ลบเลือน ด้ามจับหุ้มด้วยยาง ทำให้จับถนัดไม่เมื่อยมือ เปลี่ยนไส้ได้เมื่อหมึกหมด รีฟิวล์ LRN5",
+      "price": "51.00",
+      "currency": "THB",
+      "source_ref": "https://officework.co.th/product-detail.html?pid=0205-0016",
+      "attributes": {
+        "source_price": "51.00",
+        "price_date": "2026-10-12",
+        "tax_status": "VAT excluded",
+        "unit": "ด้าม",
+        "rights_status": "not_verified",
+        "source_image_url": "https://officework.co.th/upload/product/0205-0016-01.JPG",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "source_explicitly_excludes_vat",
+        "price_usage": "coursework_demo_snapshot_not_live",
+        "price_review": "user_approved_demo_2026_10_14",
+        "price_researched_on": "2026-10-14",
+        "price_source_ref": "https://officework.co.th/product-detail.html?pid=0205-0016",
+        "price_selling_unit": "ด้าม",
+        "price_source_evidence_type": "retailer_product_page_via_web_tool",
+        "price_source_match_status": "exact_sku_model_color",
+        "price_source_note": "ราคาจากส่วนสินค้าหลัก ไม่ใช้ราคาสินค้าใกล้เคียง; snapshot/cache อาจเก่า ไม่ใช่การยืนยันราคาสด",
+        "price_source_tax_status": "excludes_vat_explicit_on_source"
+      },
+      "images": [
+        "officework_candidates/images/0205-0016-0.jpg"
+      ]
+    },
+    {
+      "sku": "officework_0119-0024",
+      "name": "สมุดโน้ตสันลวด ตราช้าง WPPB-444 B5 70g/60ผ. สีฟ้า",
+      "category": "notebook",
+      "brand": "Elephant",
+      "description": "ความหนา 70 แกรม, ขนาด B5 จำนวน 60 แผ่น บรรจุ 10 เล่ม/แพ็ค สีฟ้า เพิ่มเติม : เนื้อกระดาษ True Write สีขาว ปกพลาสติก PP มองสบายตา เข้าเล่มแบบริมลวด เปิดได้ 360 องศา สีกระดาษนวล ลดแสงสะท้อน ถนอมสายตา เหมาะสำหรับเขียนจดบันทึกงานต่างๆ",
+      "price": "53.00",
+      "currency": "THB",
+      "source_ref": "https://officework.co.th/product-detail.html?pid=0119-0024",
+      "attributes": {
+        "source_price": "60.00",
+        "price_date": "2026-10-12",
+        "tax_status": "VAT excluded",
+        "unit": "เล่ม",
+        "rights_status": "not_verified",
+        "source_image_url": "https://officework.co.th/upload/product/0119-0024-01.JPG",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "source_explicitly_excludes_vat",
+        "price_usage": "coursework_demo_snapshot_not_live",
+        "price_review": "user_approved_demo_2026_10_14",
+        "price_researched_on": "2026-10-14",
+        "price_source_ref": "https://officework.co.th/product-detail.html?pid=0119-0024",
+        "price_selling_unit": "เล่ม",
+        "price_source_evidence_type": "retailer_product_page_via_web_tool",
+        "price_source_match_status": "exact_sku_model_color",
+        "price_source_note": "ราคาจากส่วนสินค้าหลัก ไม่ใช้ราคาสินค้าใกล้เคียง; snapshot/cache อาจเก่า ไม่ใช่การยืนยันราคาสด",
+        "price_source_tax_status": "excludes_vat_explicit_on_source"
+      },
+      "images": [
+        "officework_candidates/images/0119-0024-0.jpg"
+      ]
+    },
+    {
+      "sku": "officework_0119-0025",
+      "name": "สมุดโน้ตสันลวด ตราช้าง WPPV-444 B5 70g/60ผ. สีม่วง",
+      "category": "notebook",
+      "brand": "Elephant",
+      "description": "ความหนา 70 แกรม, ขนาด B5 จำนวน 60 แผ่น บรรจุ 10 เล่ม/แพ็ค สีม่วง เพิ่มเติม : เนื้อกระดาษ True Write สีขาว ปกพลาสติก PP มองสบายตา เข้าเล่มแบบริมลวด เปิดได้ 360 องศา สีกระดาษนวล ลดแสงสะท้อน ถนอมสายตา เหมาะสำหรับเขียนจดบันทึกงานต่างๆ",
+      "price": "53.00",
+      "currency": "THB",
+      "source_ref": "https://officework.co.th/product-detail.html?pid=0119-0025",
+      "attributes": {
+        "source_price": "60.00",
+        "price_date": "2026-10-12",
+        "tax_status": "VAT excluded",
+        "unit": "เล่ม",
+        "rights_status": "not_verified",
+        "source_image_url": "https://officework.co.th/upload/product/0119-0025-01.JPG",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "source_explicitly_excludes_vat",
+        "price_usage": "coursework_demo_snapshot_not_live",
+        "price_review": "user_approved_demo_2026_10_14",
+        "price_researched_on": "2026-10-14",
+        "price_source_ref": "https://officework.co.th/product-detail.html?pid=0119-0025",
+        "price_selling_unit": "เล่ม",
+        "price_source_evidence_type": "retailer_product_page_via_web_tool",
+        "price_source_match_status": "exact_sku_model_color",
+        "price_source_note": "ราคาจากส่วนสินค้าหลัก ไม่ใช้ราคาสินค้าใกล้เคียง; snapshot/cache อาจเก่า ไม่ใช่การยืนยันราคาสด",
+        "price_source_tax_status": "excludes_vat_explicit_on_source"
+      },
+      "images": [
+        "officework_candidates/images/0119-0025-0.jpg"
+      ]
+    },
+    {
+      "sku": "officework_0119-0045",
+      "name": "สมุดสันลวด ตราช้าง NW-101 B5 70แกรม 60ผ.",
+      "category": "notebook",
+      "brand": "Elephant",
+      "description": "ความหนา 70 แกรม, ขนาด B5 จำนวน 60 แผ่น บรรจุ 10 เล่ม/แพ็ค คละสี เพิ่มเติม : เนื้อกระดาษ True Write สีขาว ปกพลาสติก PP มองสบายตา เข้าเล่มแบบริมลวด เปิดได้ 360 องศา สีกระดาษนวล ลดแสงสะท้อน ถนอมสายตา เหมาะสำหรับเขียนจดบันทึกงานต่างๆ",
+      "price": "50.00",
+      "currency": "THB",
+      "source_ref": "https://officework.co.th/product-detail.html?pid=0119-0045",
+      "attributes": {
+        "source_price": "50.00",
+        "price_date": "2026-10-12",
+        "tax_status": "VAT excluded",
+        "unit": "เล่ม",
+        "rights_status": "not_verified",
+        "source_image_url": "https://officework.co.th/upload/product/0119-0045-01.JPG",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "source_explicitly_excludes_vat",
+        "price_usage": "coursework_demo_snapshot_not_live",
+        "price_review": "user_approved_demo_2026_10_14",
+        "price_researched_on": "2026-10-14",
+        "price_source_ref": "https://officework.co.th/product-detail.html?pid=0119-0045",
+        "price_selling_unit": "เล่ม",
+        "price_source_evidence_type": "retailer_product_page_via_web_tool",
+        "price_source_match_status": "exact_sku_model_color",
+        "price_source_note": "ราคาจากส่วนสินค้าหลัก ไม่ใช้ราคาสินค้าใกล้เคียง; snapshot/cache อาจเก่า ไม่ใช่การยืนยันราคาสด",
+        "price_source_tax_status": "excludes_vat_explicit_on_source"
+      },
+      "images": [
+        "officework_candidates/images/0119-0045-0.jpg"
+      ]
+    },
+    {
+      "sku": "officework_0119-0066",
+      "name": "สมุดโน้ตสันลวด ตราช้าง WPPG-444 B5 70g/60ผ. สีเขียว",
+      "category": "notebook",
+      "brand": "Elephant",
+      "description": "ความหนา 70 แกรม, ขนาด B5 จำนวน 60 แผ่น บรรจุ 10 เล่ม/แพ็ค สีเขียว เพิ่มเติม : เนื้อกระดาษ True Write สีขาว ปกพลาสติก PP มองสบายตา เข้าเล่มแบบริมลวด เปิดได้ 360 องศา สีกระดาษนวล ลดแสงสะท้อน ถนอมสายตา เหมาะสำหรับเขียนจดบันทึกงานต่างๆ",
+      "price": "53.00",
+      "currency": "THB",
+      "source_ref": "https://officework.co.th/product-detail.html?pid=0119-0066",
+      "attributes": {
+        "source_price": "53.00",
+        "price_date": "2026-10-12",
+        "tax_status": "VAT excluded",
+        "unit": "เล่ม",
+        "rights_status": "not_verified",
+        "source_image_url": "https://officework.co.th/upload/product/0119-0066-01.JPG",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "source_explicitly_excludes_vat",
+        "price_usage": "coursework_demo_snapshot_not_live",
+        "price_review": "user_approved_demo_2026_10_14",
+        "price_researched_on": "2026-10-14",
+        "price_source_ref": "https://officework.co.th/product-detail.html?pid=0119-0066",
+        "price_selling_unit": "เล่ม",
+        "price_source_evidence_type": "retailer_product_page_via_web_tool",
+        "price_source_match_status": "exact_sku_model_color",
+        "price_source_note": "ราคาจากส่วนสินค้าหลัก ไม่ใช้ราคาสินค้าใกล้เคียง; snapshot/cache อาจเก่า ไม่ใช่การยืนยันราคาสด",
+        "price_source_tax_status": "excludes_vat_explicit_on_source"
+      },
+      "images": [
+        "officework_candidates/images/0119-0066-0.jpg"
+      ]
+    },
+    {
+      "sku": "officework_0119-0090",
+      "name": "สมุดโน้ตสันลวด ตราช้าง W-003GY B5 70g สีเทา",
+      "category": "notebook",
+      "brand": "Elephant",
+      "description": "ความหนา 70 แกรม, ขนาด B5 จำนวน 60 แผ่น บรรจุ 10 เล่ม/แพ็ค สีเทา เพิ่มเติม : เนื้อกระดาษ True Write สีขาว ปกพลาสติก PP มองสบายตา เข้าเล่มแบบริมลวด เปิดได้ 360 องศา สีกระดาษนวล ลดแสงสะท้อน ถนอมสายตา เหมาะสำหรับเขียนจดบันทึกงานต่างๆ",
+      "price": "50.00",
+      "currency": "THB",
+      "source_ref": "https://officework.co.th/product-detail.html?pid=0119-0090",
+      "attributes": {
+        "source_price": "50.00",
+        "price_date": "2026-10-12",
+        "tax_status": "VAT excluded",
+        "unit": "เล่ม",
+        "rights_status": "not_verified",
+        "source_image_url": "https://officework.co.th/upload/product/0119-0090-01.JPG",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "source_explicitly_excludes_vat",
+        "price_usage": "coursework_demo_snapshot_not_live",
+        "price_review": "user_approved_demo_2026_10_14",
+        "price_researched_on": "2026-10-14",
+        "price_source_ref": "https://officework.co.th/product-detail.html?pid=0119-0090",
+        "price_selling_unit": "เล่ม",
+        "price_source_evidence_type": "retailer_product_page_via_web_tool",
+        "price_source_match_status": "exact_sku_model_color",
+        "price_source_note": "ราคาจากส่วนสินค้าหลัก ไม่ใช้ราคาสินค้าใกล้เคียง; snapshot/cache อาจเก่า ไม่ใช่การยืนยันราคาสด",
+        "price_source_tax_status": "excludes_vat_explicit_on_source"
+      },
+      "images": [
+        "officework_candidates/images/0119-0090-0.jpg"
+      ]
+    },
+    {
+      "sku": "officework_0210-0001",
+      "name": "ปากกาเน้นข้อความ สตาบิโลบอส สีเหลือง",
+      "category": "highlighter",
+      "brand": "STABILO",
+      "description": "ขนาดเส้น 2-5 มม. จำนวน 1 ด้าม บรรจุ 10 ด้าม/กล่อง หมึกสีเหลือง เพิ่มเติม : ปากกาหัวตัด หัวคุณภาพดี ให้สีสด คมชัดไม่ซีดจางง่าย นำเข้าจากเยอรมัน ใช้ง่ายทั้งกระดาษทั่วไปและกระดาษแฟ็กซ์ ไม่แนะนำให้ใช้กับกระดาษที่มีสีเดียวกับตัวหมึก",
+      "price": "36.00",
+      "currency": "THB",
+      "source_ref": "https://officework.co.th/product-detail.html?pid=0210-0001",
+      "attributes": {
+        "source_price": "36.00",
+        "price_date": "2026-10-12",
+        "tax_status": "VAT excluded",
+        "unit": "ด้าม",
+        "rights_status": "not_verified",
+        "source_image_url": "https://officework.co.th/upload/product/0210-0001-01.JPG",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "source_explicitly_excludes_vat",
+        "price_usage": "coursework_demo_snapshot_not_live",
+        "price_review": "user_approved_demo_2026_10_14",
+        "price_researched_on": "2026-10-14",
+        "price_source_ref": "https://officework.co.th/product-detail.html?pid=0210-0001",
+        "price_selling_unit": "ด้าม",
+        "price_source_evidence_type": "retailer_product_page_via_web_tool",
+        "price_source_match_status": "exact_sku_model_color",
+        "price_source_note": "ราคาจากส่วนสินค้าหลัก ไม่ใช้ราคาสินค้าใกล้เคียง; snapshot/cache อาจเก่า ไม่ใช่การยืนยันราคาสด",
+        "price_source_tax_status": "excludes_vat_explicit_on_source"
+      },
+      "images": [
+        "officework_candidates/images/0210-0001-0.jpg"
+      ]
+    },
+    {
+      "sku": "officework_0210-0002",
+      "name": "ปากกาเน้นข้อความ สตาบิโลบอส สีเขียว",
+      "category": "highlighter",
+      "brand": "STABILO",
+      "description": "ขนาดเส้น 2-5 มม. จำนวน 1 ด้าม บรรจุ 10 ด้าม/กล่อง หมึกสีเขียว เพิ่มเติม : ปากกาหัวตัด หัวคุณภาพดี ให้สีสด คมชัดไม่ซีดจางง่าย นำเข้าจากเยอรมัน ใช้ง่ายทั้งกระดาษทั่วไปและกระดาษแฟ็กซ์ ไม่แนะนำให้ใช้กับกระดาษที่มีสีเดียวกับตัวหมึก",
+      "price": "39.00",
+      "currency": "THB",
+      "source_ref": "https://officework.co.th/product-detail.html?pid=0210-0002",
+      "attributes": {
+        "source_price": "36.00",
+        "price_date": "2026-10-12",
+        "tax_status": "VAT excluded",
+        "unit": "ด้าม",
+        "rights_status": "not_verified",
+        "source_image_url": "https://officework.co.th/upload/product/0210-0002-01.JPG",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "source_explicitly_excludes_vat",
+        "price_usage": "coursework_demo_snapshot_not_live",
+        "price_review": "user_approved_demo_2026_10_14",
+        "price_researched_on": "2026-10-14",
+        "price_source_ref": "https://officework.co.th/product-detail.html?pid=0210-0002",
+        "price_selling_unit": "ด้าม",
+        "price_source_evidence_type": "retailer_product_page_via_web_tool",
+        "price_source_match_status": "exact_sku_model_color",
+        "price_source_note": "ราคาจากส่วนสินค้าหลัก ไม่ใช้ราคาสินค้าใกล้เคียง; snapshot/cache อาจเก่า ไม่ใช่การยืนยันราคาสด",
+        "price_source_tax_status": "excludes_vat_explicit_on_source"
+      },
+      "images": [
+        "officework_candidates/images/0210-0002-0.jpg"
+      ]
+    },
+    {
+      "sku": "officework_0210-0003",
+      "name": "ปากกาเน้นข้อความ สตาบิโลบอส สีชมพู",
+      "category": "highlighter",
+      "brand": "STABILO",
+      "description": "ขนาดเส้น 2-5 มม. จำนวน 1 ด้าม บรรจุ 10 ด้าม/กล่อง หมึกสีชมพู เพิ่มเติม : ปากกาหัวตัด หัวคุณภาพดี ให้สีสด คมชัดไม่ซีดจางง่าย นำเข้าจากเยอรมัน ใช้ง่ายทั้งกระดาษทั่วไปและกระดาษแฟ็กซ์ ไม่แนะนำให้ใช้กับกระดาษที่มีสีเดียวกับตัวหมึก",
+      "price": "39.00",
+      "currency": "THB",
+      "source_ref": "https://officework.co.th/product-detail.html?pid=0210-0003",
+      "attributes": {
+        "source_price": "36.00",
+        "price_date": "2026-10-12",
+        "tax_status": "VAT excluded",
+        "unit": "ด้าม",
+        "rights_status": "not_verified",
+        "source_image_url": "https://officework.co.th/upload/product/0210-0003-01.JPG",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "source_explicitly_excludes_vat",
+        "price_usage": "coursework_demo_snapshot_not_live",
+        "price_review": "user_approved_demo_2026_10_14",
+        "price_researched_on": "2026-10-14",
+        "price_source_ref": "https://officework.co.th/product-detail.html?pid=0210-0003",
+        "price_selling_unit": "ด้าม",
+        "price_source_evidence_type": "retailer_product_page_via_web_tool",
+        "price_source_match_status": "exact_sku_model_color",
+        "price_source_note": "ราคาจากส่วนสินค้าหลัก ไม่ใช้ราคาสินค้าใกล้เคียง; snapshot/cache อาจเก่า ไม่ใช่การยืนยันราคาสด",
+        "price_source_tax_status": "excludes_vat_explicit_on_source"
+      },
+      "images": [
+        "officework_candidates/images/0210-0003-0.jpg"
+      ]
+    },
+    {
+      "sku": "officework_0210-0004",
+      "name": "ปากกาเน้นข้อความ สตาบิโลบอส สีฟ้า",
+      "category": "highlighter",
+      "brand": "STABILO",
+      "description": "ขนาดเส้น 2-5 มม. จำนวน 1 ด้าม บรรจุ 10 ด้าม/กล่อง หมึกสีฟ้า เพิ่มเติม : ปากกาหัวตัด หัวคุณภาพดี ให้สีสด คมชัดไม่ซีดจางง่าย นำเข้าจากเยอรมัน ใช้ง่ายทั้งกระดาษทั่วไปและกระดาษแฟ็กซ์ ไม่แนะนำให้ใช้กับกระดาษที่มีสีเดียวกับตัวหมึก",
+      "price": "36.00",
+      "currency": "THB",
+      "source_ref": "https://officework.co.th/product-detail.html?pid=0210-0004",
+      "attributes": {
+        "source_price": "36.00",
+        "price_date": "2026-10-12",
+        "tax_status": "VAT excluded",
+        "unit": "ด้าม",
+        "rights_status": "not_verified",
+        "source_image_url": "https://officework.co.th/upload/product/0210-0004-01.JPG",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "source_explicitly_excludes_vat",
+        "price_usage": "coursework_demo_snapshot_not_live",
+        "price_review": "user_approved_demo_2026_10_14",
+        "price_researched_on": "2026-10-14",
+        "price_source_ref": "https://officework.co.th/product-detail.html?pid=0210-0004",
+        "price_selling_unit": "ด้าม",
+        "price_source_evidence_type": "retailer_product_page_via_web_tool",
+        "price_source_match_status": "exact_sku_model_color",
+        "price_source_note": "ราคาจากส่วนสินค้าหลัก ไม่ใช้ราคาสินค้าใกล้เคียง; snapshot/cache อาจเก่า ไม่ใช่การยืนยันราคาสด",
+        "price_source_tax_status": "excludes_vat_explicit_on_source"
+      },
+      "images": [
+        "officework_candidates/images/0210-0004-0.jpg"
+      ]
+    },
+    {
+      "sku": "officework_0210-0005",
+      "name": "ปากกาเน้นข้อความ สตาบิโลบอส สีส้ม",
+      "category": "highlighter",
+      "brand": "STABILO",
+      "description": "ขนาดเส้น 2-5 มม. จำนวน 1 ด้าม บรรจุ 10 ด้าม/กล่อง หมึกสีส้ม เพิ่มเติม : ปากกาหัวตัด หัวคุณภาพดี ให้สีสด คมชัดไม่ซีดจางง่าย นำเข้าจากเยอรมัน ใช้ง่ายทั้งกระดาษทั่วไปและกระดาษแฟ็กซ์ ไม่แนะนำให้ใช้กับกระดาษที่มีสีเดียวกับตัวหมึก",
+      "price": "39.00",
+      "currency": "THB",
+      "source_ref": "https://officework.co.th/product-detail.html?pid=0210-0005",
+      "attributes": {
+        "source_price": "36.00",
+        "price_date": "2026-10-12",
+        "tax_status": "VAT excluded",
+        "unit": "ด้าม",
+        "rights_status": "not_verified",
+        "source_image_url": "https://officework.co.th/upload/product/0210-0005-01.JPG",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "source_explicitly_excludes_vat",
+        "price_usage": "coursework_demo_snapshot_not_live",
+        "price_review": "user_approved_demo_2026_10_14",
+        "price_researched_on": "2026-10-14",
+        "price_source_ref": "https://officework.co.th/product-detail.html?pid=0210-0005",
+        "price_selling_unit": "ด้าม",
+        "price_source_evidence_type": "retailer_product_page_via_web_tool",
+        "price_source_match_status": "exact_sku_model_color",
+        "price_source_note": "ราคาจากส่วนสินค้าหลัก ไม่ใช้ราคาสินค้าใกล้เคียง; snapshot/cache อาจเก่า ไม่ใช่การยืนยันราคาสด",
+        "price_source_tax_status": "excludes_vat_explicit_on_source"
+      },
+      "images": [
+        "officework_candidates/images/0210-0005-0.jpg"
+      ]
+    },
+    {
+      "sku": "officemate_YA32995",
+      "name": "RADIUS ปากกาเจล รุ่น O-SECOND-CLEAR สีน้ำเงิน 0.5MM แพ็ค 12 ด้าม",
+      "category": "gel_pen",
+      "brand": "เรเดียส",
+      "description": "RADIUS ปากกาเจล รุ่น O-SECOND-CLEAR สีน้ำเงิน 0.5MM แพ็ค 12 ด้าม",
+      "price": "180.00",
+      "currency": "THB",
+      "source_ref": "https://www.ofm.co.th/product/radius-%E0%B8%9B%E0%B8%B2%E0%B8%81%E0%B8%81%E0%B8%B2%E0%B9%80%E0%B8%88%E0%B8%A5-%E0%B8%A3%E0%B8%B8%E0%B9%88%E0%B8%99-o-second-clear-%E0%B8%AA%E0%B8%B5%E0%B8%99%E0%B9%89%E0%B8%B3%E0%B9%80%E0%B8%87%E0%B8%B4%E0%B8%99-0-5mm-%E0%B9%81%E0%B8%9E%E0%B9%87%E0%B8%84-12-%E0%B8%94%E0%B9%89%E0%B8%B2%E0%B8%A1-p.YA32995",
+      "attributes": {
+        "source_price": "180.00",
+        "price_date": "2026-10-12",
+        "tax_status": "not_verified",
+        "unit": "แพ็ค",
+        "rights_status": "not_verified",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/YA32995.jpg",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live",
+        "price_review": "user_approved_demo_2026_10_14",
+        "price_researched_on": "2026-10-14",
+        "price_source_ref": "https://dg-arts.com/product-detail.php?id=3004&lang=thenenenththen",
+        "price_selling_unit": "กล่อง/แพ็ค 12 ด้าม",
+        "price_source_evidence_type": "supplier_search_index_product_detail",
+        "price_source_match_status": "model_blue_ink_size_12_pack_match_different_seller",
+        "price_source_note": "DG Arts แสดง O-SECOND-CLEAR 0.5 หมึกน้ำเงิน กล่อง 12 ราคา 180; หน้า OfficeMate ตอบ 418 และ DG detail เปิดเต็มไม่ได้ ข้อมูลมาจาก search index ไม่หารเป็น 15 บาท/ด้ามอัตโนมัติ",
+        "price_source_tax_status": "unknown"
+      },
+      "images": [
+        "officemate_candidates/images/YA32995.jpg"
+      ]
+    },
+    {
+      "sku": "officemate_5001001",
+      "name": "DOUBLE A สมุดรายงาน A4 80แกรม (25แผ่น) เส้น 2 หน้า",
+      "category": "notebook",
+      "brand": "Double A",
+      "description": "DOUBLE A สมุดรายงาน A4 80แกรม (25แผ่น) เส้น 2 หน้า",
+      "price": "25.00",
+      "currency": "THB",
+      "source_ref": "https://www.ofm.co.th/product/double-a-%E0%B8%AA%E0%B8%A1%E0%B8%B8%E0%B8%94%E0%B8%A3%E0%B8%B2%E0%B8%A2%E0%B8%87%E0%B8%B2%E0%B8%99-a4-80%E0%B9%81%E0%B8%81%E0%B8%A3%E0%B8%A1-25%E0%B9%81%E0%B8%9C%E0%B9%88%E0%B8%99-%E0%B9%80%E0%B8%AA%E0%B9%89%E0%B8%99-2-%E0%B8%AB%E0%B8%99%E0%B9%89%E0%B8%B2-p.5001001",
+      "attributes": {
+        "source_price": "25.00",
+        "price_date": "2026-10-12",
+        "tax_status": "not_verified",
+        "unit": "เล่ม",
+        "rights_status": "not_verified",
+        "source_image_url": "https://pim-cdn0.ofm.co.th/products/large/5001001.jpg?u=202406141613",
+        "price_tax_basis": "excludes_vat",
+        "price_tax_basis_verification": "user_assumed_for_coursework_not_verified",
+        "price_usage": "coursework_demo_snapshot_not_live",
+        "price_review": "user_approved_demo_2026_10_14",
+        "price_researched_on": "2026-10-14",
+        "price_source_ref": "https://www.priceza.com/s/ราคา/สมุดรายงาน-a4-80แกรม-25แผ่น-เส้น2หน้า-double-a",
+        "price_selling_unit": "เล่ม (25 แผ่น)",
+        "price_source_evidence_type": "aggregator_listing_identifies_OfficeMate_5001001",
+        "price_source_match_status": "exact_sku_title_on_aggregator",
+        "price_source_note": "Priceza แสดง OfficeMate SKU 5001001 ราคา 25; หน้า OfficeMate เปิดได้แต่ไม่คืนข้อมูลราคาในข้อความ จึงยังไม่ยืนยัน VAT/ราคาสด",
+        "price_source_tax_status": "unknown"
+      },
+      "images": [
+        "officemate_candidates/images/5001001.jpg"
+      ]
+    }
+  ],
+  "held": [
+    {
+      "sku": "Y013221",
+      "reason": "Unclear sales unit and generic marketing description"
+    }
+  ],
+  "review_notes": [
+    "Model/color/size compared manually with original 50 names; no exact overlapping variants found.",
+    "SKU is namespaced by retailer; cross-retailer product matching still needs future canonical IDs.",
+    "New prices retained in attributes only until tax basis/units are verified; availability not imported.",
+    "Image rights are unverified; collected for local project review only."
+  ]
+}

@@ -1,0 +1,285 @@
+{
+  "label_status": "draft_catalog_facts_needs_team_review",
+  "split_policy": "12 development + 12 held-out query cases; shared catalog, not independent product dataset",
+  "cases": [
+    {
+      "id": "d01",
+      "split": "development",
+      "query": "ปากกา Uni UMN-S-38 สีม่วง",
+      "gold_skus": [
+        "b2s_1092448"
+      ],
+      "expected_status": [
+        "allowed"
+      ],
+      "label_basis": "Explicit product/model/color/category facts in reviewed manifest; provisional"
+    },
+    {
+      "id": "d02",
+      "split": "development",
+      "query": "ปากกาเจล ไม่เกิน 100 บาท",
+      "gold_skus": [
+        "b2s_1092448"
+      ],
+      "expected_status": [
+        "allowed"
+      ],
+      "label_basis": "Explicit product/model/color/category facts in reviewed manifest; provisional"
+    },
+    {
+      "id": "d03",
+      "split": "development",
+      "query": "ปากกา BL77 สีแดง",
+      "gold_skus": [
+        "officework_0205-0007"
+      ],
+      "expected_status": [
+        "allowed"
+      ],
+      "label_basis": "Explicit product/model/color/category facts in reviewed manifest; provisional"
+    },
+    {
+      "id": "d04",
+      "split": "development",
+      "query": "สมุดสันลวดสีฟ้า",
+      "gold_skus": [
+        "officework_0119-0024"
+      ],
+      "expected_status": [
+        "allowed"
+      ],
+      "label_basis": "Explicit product/model/color/category facts in reviewed manifest; provisional"
+    },
+    {
+      "id": "d05",
+      "split": "development",
+      "query": "ไฮไลท์สีเหลือง",
+      "gold_skus": [
+        "officework_0210-0001"
+      ],
+      "expected_status": [
+        "allowed"
+      ],
+      "label_basis": "Explicit product/model/color/category facts in reviewed manifest; provisional"
+    },
+    {
+      "id": "d06",
+      "split": "development",
+      "query": "สีไม้ระบายน้ำ",
+      "gold_skus": [
+        "b2s_K091420"
+      ],
+      "expected_status": [
+        "allowed"
+      ],
+      "label_basis": "Explicit product/model/color/category facts in reviewed manifest; provisional"
+    },
+    {
+      "id": "d07",
+      "split": "development",
+      "query": "ไม้บรรทัดเหล็ก",
+      "gold_skus": [
+        "b2s_1092396"
+      ],
+      "expected_status": [
+        "allowed"
+      ],
+      "label_basis": "Explicit product/model/color/category facts in reviewed manifest; provisional"
+    },
+    {
+      "id": "d08",
+      "split": "development",
+      "query": "เทปลบคำผิด พลัส",
+      "gold_skus": [
+        "b2s_1091150"
+      ],
+      "expected_status": [
+        "allowed"
+      ],
+      "label_basis": "Explicit product/model/color/category facts in reviewed manifest; provisional"
+    },
+    {
+      "id": "d09",
+      "split": "development",
+      "query": "กรรไกร Scotch Precision",
+      "gold_skus": [
+        "b2s_2071790",
+        "b2s_2072020"
+      ],
+      "expected_status": [
+        "allowed"
+      ],
+      "label_basis": "Explicit product/model/color/category facts in reviewed manifest; provisional"
+    },
+    {
+      "id": "d10",
+      "split": "development",
+      "query": "ดินสอกด Rotring สีดำ",
+      "gold_skus": [
+        "b2s_1010208"
+      ],
+      "expected_status": [
+        "allowed"
+      ],
+      "label_basis": "Explicit product/model/color/category facts in reviewed manifest; provisional"
+    },
+    {
+      "id": "d11",
+      "split": "development",
+      "query": "ปากกา BL999",
+      "gold_skus": [],
+      "expected_status": [
+        "no_match"
+      ],
+      "label_basis": "Explicit product/model/color/category facts in reviewed manifest; provisional"
+    },
+    {
+      "id": "d12",
+      "split": "development",
+      "query": "คอมพิวเตอร์เล่นเกม",
+      "gold_skus": [],
+      "expected_status": [
+        "blocked"
+      ],
+      "label_basis": "Explicit product/model/color/category facts in reviewed manifest; provisional"
+    },
+    {
+      "id": "h01",
+      "split": "holdout",
+      "query": "ปากกา BL77 สีดำ",
+      "gold_skus": [
+        "officework_0205-0008"
+      ],
+      "expected_status": [
+        "allowed"
+      ],
+      "label_basis": "Explicit product/model/color/category facts in reviewed manifest; provisional"
+    },
+    {
+      "id": "h02",
+      "split": "holdout",
+      "query": "สมุดสันลวดสีม่วง",
+      "gold_skus": [
+        "officework_0119-0025"
+      ],
+      "expected_status": [
+        "allowed"
+      ],
+      "label_basis": "Explicit product/model/color/category facts in reviewed manifest; provisional"
+    },
+    {
+      "id": "h03",
+      "split": "holdout",
+      "query": "ไฮไลต์สีชมพู",
+      "gold_skus": [
+        "officework_0210-0003"
+      ],
+      "expected_status": [
+        "allowed"
+      ],
+      "label_basis": "Explicit product/model/color/category facts in reviewed manifest; provisional"
+    },
+    {
+      "id": "h04",
+      "split": "holdout",
+      "query": "สีไม้ MAPED 12 สี",
+      "gold_skus": [
+        "b2s_K091454"
+      ],
+      "expected_status": [
+        "allowed"
+      ],
+      "label_basis": "Explicit product/model/color/category facts in reviewed manifest; provisional"
+    },
+    {
+      "id": "h05",
+      "split": "holdout",
+      "query": "ไม้บรรทัดพลาสติก",
+      "gold_skus": [
+        "b2s_1091301"
+      ],
+      "expected_status": [
+        "allowed"
+      ],
+      "label_basis": "Explicit product/model/color/category facts in reviewed manifest; provisional"
+    },
+    {
+      "id": "h06",
+      "split": "holdout",
+      "query": "เทปลบคำผิด สีขาว",
+      "gold_skus": [
+        "b2s_1091150"
+      ],
+      "expected_status": [
+        "allowed"
+      ],
+      "label_basis": "Explicit product/model/color/category facts in reviewed manifest; provisional"
+    },
+    {
+      "id": "h07",
+      "split": "holdout",
+      "query": "ยางลบ Pentel",
+      "gold_skus": [
+        "b2s_1008290"
+      ],
+      "expected_status": [
+        "allowed"
+      ],
+      "label_basis": "Explicit product/model/color/category facts in reviewed manifest; provisional"
+    },
+    {
+      "id": "h08",
+      "split": "holdout",
+      "query": "กาวแท่ง เอลเมอร์",
+      "gold_skus": [
+        "b2s_3090269"
+      ],
+      "expected_status": [
+        "allowed"
+      ],
+      "label_basis": "Explicit product/model/color/category facts in reviewed manifest; provisional"
+    },
+    {
+      "id": "h09",
+      "split": "holdout",
+      "query": "สมุดสันลวดสีเขียว",
+      "gold_skus": [
+        "officework_0119-0066"
+      ],
+      "expected_status": [
+        "allowed"
+      ],
+      "label_basis": "Explicit product/model/color/category facts in reviewed manifest; provisional"
+    },
+    {
+      "id": "h10",
+      "split": "holdout",
+      "query": "ปากกา BL000",
+      "gold_skus": [],
+      "expected_status": [
+        "no_match"
+      ],
+      "label_basis": "Explicit product/model/color/category facts in reviewed manifest; provisional"
+    },
+    {
+      "id": "h11",
+      "split": "holdout",
+      "query": "ปากกาเจล ไม่เกิน 1 บาท",
+      "gold_skus": [],
+      "expected_status": [
+        "no_match"
+      ],
+      "label_basis": "Explicit product/model/color/category facts in reviewed manifest; provisional"
+    },
+    {
+      "id": "h12",
+      "split": "holdout",
+      "query": "มีสีอื่นไหม",
+      "gold_skus": [],
+      "expected_status": [
+        "needs_clarification"
+      ],
+      "label_basis": "Explicit product/model/color/category facts in reviewed manifest; provisional"
+    }
+  ]
+}

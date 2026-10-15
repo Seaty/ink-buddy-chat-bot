@@ -20,6 +20,8 @@ from app.services.session.adapter import (
     CatalogTemplateAdapter,
 )
 from app.services.session.service import ChatSessionService
+from app.services.product.text_retrieval import TextRetrievalService
+from app.services.session.conversation_rag import respond
 
 _POOL = ThreadPoolExecutor(max_workers=4, thread_name_prefix="chat-answer")
 _SLOTS = BoundedSemaphore(4)
@@ -29,7 +31,12 @@ class MessageService(ChatSessionService):
     def __init__(self, db, settings, adapter=None):
         super().__init__(db)
         self.settings = settings
-        self.adapter = adapter or CatalogTemplateAdapter()
+        self.adapter = adapter
+        self.rag_enabled = settings.chat_adapter == 'openrouter_catalog'
+
+    def rag_answer(self, engine, question, history, deadline):
+        return respond(TextRetrievalService(engine,self.settings,deadline=deadline),self.settings,
+            question,deepcopy(history),deadline,self.adapter)
 
     def check(self, principal, sid):
         self.db.execute(
@@ -105,7 +112,7 @@ class MessageService(ChatSessionService):
             history = (
                 self.db.execute(
                     text(
-                        "SELECT role,content FROM chat_messages WHERE session_id=:sid ORDER BY sequence_number DESC LIMIT 10"
+                        "SELECT role,content,product_refs FROM chat_messages WHERE session_id=:sid ORDER BY sequence_number DESC LIMIT 10"
                     ),
                     {"sid": sid},
                 )
@@ -119,7 +126,10 @@ class MessageService(ChatSessionService):
                 text("SELECT set_config('statement_timeout', :timeout, true)"),
                 {"timeout": str(int(self.settings.chat_timeout_seconds * 1000))},
             )
-            products, clarification = CatalogTextSearch(self.db).search(body.content)
+            if self.rag_enabled:
+                products,clarification=[],None
+            else:
+                products, clarification = CatalogTextSearch(self.db).search(body.content)
             self.db.commit()
             logger.info(
                 "chat search duration_ms={}",
@@ -131,8 +141,11 @@ class MessageService(ChatSessionService):
             if not _SLOTS.acquire(blocking=False):
                 raise ApiError(503, "ANSWER_BUSY", "answer service busy")
             try:
-                future = _POOL.submit(
-                    self.adapter.answer,
+                if self.rag_enabled:
+                    future = _POOL.submit(self.rag_answer,self.db.get_bind(),body.content,deepcopy(history),start+self.settings.chat_timeout_seconds)
+                else:
+                    future = _POOL.submit(
+                    (self.adapter or CatalogTemplateAdapter()).answer,
                     AnswerInput(
                         body.content,
                         deepcopy(history),
@@ -145,10 +158,16 @@ class MessageService(ChatSessionService):
                 raise
             future.add_done_callback(lambda _: _SLOTS.release())
             try:
-                answer = future.result(timeout=remaining)
+                generated = future.result(timeout=remaining)
+                if self.rag_enabled:products,answer=generated
+                else:answer=generated
             except TimeoutError:
                 raise ApiError(504, "ANSWER_TIMEOUT", "answer timed out") from None
-            except Exception:
+            except ApiError:
+                raise
+            except Exception as error:
+                if getattr(getattr(error,'orig',None),'sqlstate',None)=='57014':
+                    raise ApiError(504,'ANSWER_TIMEOUT','database operation timed out') from None
                 raise ApiError(
                     502, "ANSWER_FAILED", "answer generation failed"
                 ) from None
