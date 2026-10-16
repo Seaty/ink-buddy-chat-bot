@@ -1,5 +1,9 @@
 # Ink Buddy API Specification
 
+## Application Safety Gate — 2026-10-16
+
+Chat messages ทุก adapter (Template/Text RAG/Vision) ตรวจ harmful intent + Llama Guard input/output ก่อนแนะนำสินค้าและบันทึก ถ้า unsafe คืน 201 catalog_policy พร้อม product_refs=[]; moderation ไม่พร้อมคืน 503 GUARD_UNAVAILABLE ไม่มี partial history และรักษาร่าง Public text search ใช้ด่านเดียวกัน: unsafe 403 SAFETY_BLOCKED / unavailable 503. Replay ที่เคยสำเร็จไม่เรียก provider ใหม่ ไม่มี migration/endpoint ใหม่ ดู [Process / Configuration / ข้อจำกัด](../architecture/CHAT_SAFETY_GUARDRAILS.md)
+
 ## Vision Chat — 2026-10-15
 
 ส่ง image_id พร้อมข้อความได้จริงผ่าน endpoint messages เดิม ใช้ OpenRouter Vision → Text RAG; product_refs เพิ่ม optional match_type/match_score/match_method สำหรับรูป match_score เป็น similarity ไม่ใช่ confidence ทุกผลของ text path เป็น similar ไม่อ้าง exact/stock

@@ -22,6 +22,7 @@ from app.services.session.adapter import (
 from app.services.session.service import ChatSessionService
 from app.services.product.text_retrieval import TextRetrievalService
 from app.services.session.conversation_rag import respond
+from app.services.safety import SafetyGate
 
 _POOL = ThreadPoolExecutor(max_workers=4, thread_name_prefix="chat-answer")
 _SLOTS = BoundedSemaphore(4)
@@ -51,6 +52,52 @@ class MessageService(ChatSessionService):
     def rag_answer(self, engine, question, history, deadline):
         return respond(TextRetrievalService(engine,self.settings,deadline=deadline),self.settings,
             question,deepcopy(history),deadline,self.adapter)
+
+    def guarded_answer(self,engine,principal,body,history,deadline):
+        # One bounded worker and deadline for safety, retrieval and answer.
+        safety=SafetyGate(self.settings,deadline)
+        refusal=safety.precheck(body.content) if body.image_id else safety.input(body.content,history)
+        if refusal:return [],AnswerOutput(refusal,(),'catalog_policy')
+        from app.services.product.retrieval_policy import scope
+        topic=scope(body.content,None,[],[])
+        if topic.reason in ('NON_CATALOG_HELP','OUT_OF_SCOPE','MIXED_SCOPE') and not body.image_id:
+            # Safe question outside catalog evidence: do not ask an answer model
+            # to select product IDs for a first-aid request.
+            answer=AnswerOutput(topic.message,(),'catalog_policy')
+            refusal=safety.output(answer.content,[],body.content,history)
+            return [],AnswerOutput(refusal,(),'catalog_policy') if refusal else answer
+        if body.image_id:
+            # Inspect pixels before Vision interprets them. Never send storage URLs.
+            from sqlalchemy.orm import Session
+            from app.repositories.image_repository import ImageUploadRepository
+            from app.services.image_storage import ImageStorage
+            from app.ai.llm.qwen_vision import encode_image
+            with Session(engine) as db:
+                ChatSessionService(db).authorize(principal)
+                upload=ImageUploadRepository(db).get_owned(body.image_id,principal)
+                if upload is None or upload.status!='ready':raise ApiError(404,'IMAGE_NOT_FOUND','image not found')
+                try:
+                    with ImageStorage(self.settings.image_storage_dir).open(upload.storage_key) as image:
+                        encoded=encode_image(image)
+                except FileNotFoundError:raise ApiError(404,'IMAGE_NOT_FOUND','image not found') from None
+                db.commit()
+            refusal=safety.input(body.content,history,image=encoded)
+            if refusal:return [],AnswerOutput(refusal,(),'catalog_policy')
+            products,answer=self.image_answer(engine,principal,body,deadline)
+        elif self.rag_enabled:
+            products,answer=self.rag_answer(engine,body.content,history,deadline)
+        else:
+            from sqlalchemy.orm import Session
+            with Session(engine) as db:
+                db.execute(text("SELECT set_config('statement_timeout',:ms,true)"),{'ms':str(max(1,int((deadline-time.monotonic())*1000)))})
+                products,clarification=CatalogTextSearch(db).search(body.content)
+            from app.services.product.retrieval_policy import relevant
+            products=[p for p in products if relevant(p,body.content)]
+            answer=(self.adapter or CatalogTemplateAdapter()).answer(AnswerInput(body.content,deepcopy(history),tuple(deepcopy(products)),clarification))
+        if not isinstance(answer,AnswerOutput):raise ApiError(502,'INVALID_ANSWER','answer contract invalid')
+        refusal=safety.output(answer.content,products,body.content,history)
+        if refusal:return [],AnswerOutput(refusal,(),'catalog_policy')
+        return products,answer
 
     def check(self, principal, sid):
         self.db.execute(
@@ -136,48 +183,20 @@ class MessageService(ChatSessionService):
             )
             history = tuple(dict(x) for x in reversed(history))
             self.db.commit()
-            search_start = time.monotonic()
-            self.db.execute(
-                text("SELECT set_config('statement_timeout', :timeout, true)"),
-                {"timeout": str(int(self.settings.chat_timeout_seconds * 1000))},
-            )
-            if self.rag_enabled or body.image_id:
-                products,clarification=[],None
-            else:
-                products, clarification = CatalogTextSearch(self.db).search(body.content)
-            self.db.commit()
-            logger.info(
-                "chat search duration_ms={}",
-                round((time.monotonic() - search_start) * 1000),
-            )
             remaining = self.settings.chat_timeout_seconds - (time.monotonic() - start)
             if remaining <= 0:
                 raise ApiError(504, "ANSWER_TIMEOUT", "answer timed out")
             if not _SLOTS.acquire(blocking=False):
                 raise ApiError(503, "ANSWER_BUSY", "answer service busy")
             try:
-                if body.image_id:
-                    future=_POOL.submit(self.image_answer,self.db.get_bind(),principal,body,start+self.settings.chat_timeout_seconds)
-                elif self.rag_enabled:
-                    future = _POOL.submit(self.rag_answer,self.db.get_bind(),body.content,deepcopy(history),start+self.settings.chat_timeout_seconds)
-                else:
-                    future = _POOL.submit(
-                    (self.adapter or CatalogTemplateAdapter()).answer,
-                    AnswerInput(
-                        body.content,
-                        deepcopy(history),
-                        tuple(deepcopy(products)),
-                        clarification,
-                    ),
-                )
+                future=_POOL.submit(self.guarded_answer,self.db.get_bind(),principal,body,deepcopy(history),start+self.settings.chat_timeout_seconds)
             except Exception:
                 _SLOTS.release()
                 raise
             future.add_done_callback(lambda _: _SLOTS.release())
             try:
                 generated = future.result(timeout=remaining)
-                if self.rag_enabled or body.image_id:products,answer=generated
-                else:answer=generated
+                products,answer=generated
             except TimeoutError:
                 raise ApiError(504, "ANSWER_TIMEOUT", "answer timed out") from None
             except ApiError:

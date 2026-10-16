@@ -204,6 +204,8 @@ export class ApiClient {
 export const api = new ApiClient();
 export function errorText(error: unknown) {
   if (error instanceof ApiError) {
+    if (error.code === "GUARD_UNAVAILABLE")
+      return "ขณะนี้ระบบตรวจความปลอดภัยยังไม่พร้อม จึงยังตอบคำถามไม่ได้ ร่างข้อความและรูปยังอยู่ กรุณาลองใหม่ภายหลังครับ";
     if (error.code === "GUEST_IMAGE_QUOTA_EXCEEDED")
       return "ใช้โควตารูปครบ 3 รูปแล้ว เข้าสู่ระบบเพื่อแนบรูปต่อได้ครับ";
     if (error.code === "IMAGE_SEARCH_NOT_CONFIGURED")

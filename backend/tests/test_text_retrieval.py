@@ -100,7 +100,10 @@ def test_outside_no_paid_call_and_unknown_model(engine):
     r=service.search(TextSearchRequest(query='ปากกา BL999'))
     assert r.guardrail_status=='no_match' and r.items==[]
 
-def test_api_credentials_guest_and_flag(engine):
+def test_api_credentials_guest_and_flag(engine,monkeypatch):
+    from app.services.safety import SafetyGate
+    # Auth/rate-limit test is offline; real moderation has separate live probes.
+    monkeypatch.setattr(SafetyGate,'classify',lambda self,messages,direction:False)
     from fastapi.testclient import TestClient
     from sqlalchemy.orm import Session
     from app.main import create_app

@@ -108,6 +108,8 @@ class Settings(BaseSettings):
 
     chat_adapter: Literal["catalog_template", "openrouter_catalog"] = "catalog_template"
     chat_timeout_seconds: float = Field(default=60.0, gt=0, le=300)
+    safety_model: str = 'meta-llama/llama-guard-4-12b'
+    safety_timeout_seconds: float = Field(default=15.0, gt=0, le=60)
     vision_chat_retrieval: Literal['text_catalog','image_embedding'] = 'text_catalog'
     vision_chat_model: str = 'qwen/qwen3-vl-8b-instruct'
 
