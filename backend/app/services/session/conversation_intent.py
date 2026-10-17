@@ -2,7 +2,7 @@
 import re
 from dataclasses import dataclass,field
 from uuid import UUID
-from app.services.product.retrieval_policy import scope,normalized,matched_brands,UNSAFE_PATTERNS,BRAND_ALIASES
+from app.services.product.retrieval_policy import scope,normalized,matched_brands,UNSAFE_PATTERNS,BRAND_ALIASES,has_product_topic
 from app.services.product.catalog_constraints import query_colors,model_tokens,product_colors,PEN_CATEGORIES
 from app.services.product.text_search import budget
 from app.ai.rag.indexing_service import CATEGORY_TH
@@ -49,7 +49,7 @@ def resolve_intent(question,history,catalog):
     q=normalized(question);names=[p['name'] for p in catalog];brands=[p.get('brand') for p in catalog]
     decision=scope(q,None,brands,names)
     plan=ConversationIntent(query=question)
-    if decision.reason in ('UNSAFE_QUERY','OUT_OF_SCOPE','MIXED_SCOPE'):
+    if decision.reason in ('UNSAFE_QUERY','OUT_OF_SCOPE','MIXED_SCOPE','NON_CATALOG_HELP'):
         plan.clarification=decision.message;return plan
     count=re.search(r'(\d+|หนึ่ง|สอง|สาม|สี่|ห้า|หก|เจ็ด|แปด|เก้า|สิบ)\s*(?:รุ่น|รายการ|ตัวเลือก)',q)
     if count:
@@ -85,7 +85,7 @@ def resolve_intent(question,history,catalog):
         plan.query=product['name'] if plan.variant_only else product['name']+' '+question
         plan.categories=(product['category'],);plan.brands=(product.get('brand'),) if product.get('brand') else ()
         return plan
-    current_has_topic=bool(decision.categories or matched_brands(brands,q) or model_tokens(q))
+    current_has_topic=bool(decision.categories or has_product_topic(q) or matched_brands(brands,q) or model_tokens(q))
     base=question
     if not current_has_topic or (history and not decision.categories and not model_tokens(q) and matched_brands(brands,q)):
         safe_users=[r['content'] for r in history if r.get('role')=='user' and isinstance(r.get('content'),str) and len(r['content'])<=4000

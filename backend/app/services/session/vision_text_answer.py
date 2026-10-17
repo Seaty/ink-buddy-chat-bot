@@ -57,7 +57,7 @@ def image_query(analysis,prompt):
 def respond(engine,settings,principal,image_id,prompt,deadline,vision=None,retrieval=None):
     def policy(message):return [],AnswerOutput(message,(),'catalog_policy')
     decision=scope(prompt,None,[],[])
-    if decision.reason in ('UNSAFE_QUERY','OUT_OF_SCOPE','MIXED_SCOPE'):return policy(decision.message)
+    if decision.reason in ('UNSAFE_QUERY','OUT_OF_SCOPE','MIXED_SCOPE','NON_CATALOG_HELP'):return policy(decision.message)
     with Session(engine) as db:
         ChatSessionService(db).authorize(principal)
         upload=ImageUploadRepository(db).get_owned(image_id,principal)

@@ -23,6 +23,16 @@ from app.core.errors import ApiError
 from app.db.database import get_engine
 from app.schemas.text_retrieval import TextSearchRequest, TextSearchResponse
 from app.services.product.text_retrieval import TextRetrievalService
+import time
+from app.services.safety import SafetyGate
+
+def guarded_text_search(service,body):
+    gate=SafetyGate(service.settings,time.monotonic()+service.settings.chat_timeout_seconds)
+    if gate.input(body.query):raise ApiError(403,'SAFETY_BLOCKED','request cannot be used for product recommendations')
+    result=service.search(body)
+    if gate.output('',[item.product.model_dump(mode='json') for item in result.items],body.query):
+        raise ApiError(403,'SAFETY_BLOCKED','unsafe search response blocked')
+    return result
 
 def get_text_retrieval(settings: Settings = Depends(get_settings)):
     if not settings.text_search_enabled:
@@ -35,7 +45,7 @@ def get_text_retrieval(settings: Settings = Depends(get_settings)):
 @limiter.limit('20/minute')
 async def search_by_text(request: Request, response: Response, body: TextSearchRequest,
     principal: Principal = Depends(get_principal), service=Depends(get_text_retrieval)):
-    return await run_in_threadpool(service.search,body)
+    return await run_in_threadpool(guarded_text_search,service,body)
 
 
 @router.post(

@@ -1,5 +1,9 @@
 # Ink Buddy — สถานะปัจจุบัน 2026-10-14
 
+## Application Guardrails — 2026-10-16 · feature/guardrail
+
+เพิ่ม rules + Llama Guard 4 ตรวจ input/output ของทุก chat adapter และ public text search ตรวจบริบท/รูปก่อน Vision, ไม่ส่งสินค้าเมื่อ unsafe, fail-closed GUARD_UNAVAILABLE และไม่บันทึก partial pair. PostgreSQL disposable 81 ผ่าน (moderation fake); หลังผู้ใช้ปรับ OpenRouter แล้ว live input moderation ผ่าน 2 เคส: คำถามปกติ safe และ harmful paraphrase unsafe/S1 ไม่ใช่ benchmark ความแม่นยำรวมหรือ end-to-end acceptance ดู [ผลจริง](../report/SAFETY_LIVE_2026-10-16.json) และ [Guardrail process](CHAT_SAFETY_GUARDRAILS.md)
+
 ## Vision + Text RAG Chat — 2026-10-15 · codex/vision-chat
 
 แนบรูปหนึ่งรูปพร้อม prompt ผ่านหน้า chat ได้แล้ว ใช้ Qwen3-VL-8B-Instruct ผ่าน OpenRouter อ่านรูป → Text RAG catalog เดิม → การ์ดสินค้าใกล้เคียง เก็บ image_id ในประวัติและอ่านรูปผ่าน private ownership endpoint รวม 33 operations/27 paths ไม่มี migration ใหม่ ไม่เปลี่ยน image embedding ของทีม ดู [Process / วิธีทดสอบ](VISION_CHAT_PROCESS.md) และ [Real browser report](../report/VISION_CHAT_BROWSER.json) ผลจริงหนึ่งรูปผ่าน ไม่ใช่ benchmark ความแม่นยำรวม

@@ -15,7 +15,8 @@ ALIASES={
     'correction_tape':('เทปลบคำผิด','correction tape'),
     'colored_pencil':('สีไม้','ดินสอสี','colored pencil'),
 }
-OUTSIDE=('คอมพิวเตอร์','โน้ตบุ๊ก','โน๊ตบุ๊ค','การ์ดจอ','เล่นเกม','โทรศัพท์','มือถือ','รักษาโรค','วินิจฉัยโรค','laptop','gaming computer','smartphone')
+OUTSIDE=('คอมพิวเตอร์','โน้ตบุ๊ก','โน๊ตบุ๊ค','การ์ดจอ','เล่นเกม','โทรศัพท์','มือถือ','รักษาโรค','วินิจฉัยโรค','ให้นมเด็ก','ให้นมลูก','เลี้ยงทารก','laptop','gaming computer','smartphone')
+OUT_OF_SCOPE_MESSAGE='ขอโทษครับ ผมยังช่วยเรื่องนี้ไม่ได้ เพราะอยู่นอกขอบเขตหน้าที่ของผม แต่ผมช่วยค้นหา เปรียบเทียบ และแนะนำเครื่องเขียนจากข้อมูลสินค้า รวมถึงช่วยหาสินค้าจากรูปที่แนบมาได้ครับ'
 COLORS=('น้ำเงิน','แดง','ดำ','เขียว','เหลือง','ม่วง','ชมพู','ส้ม','ฟ้า','เทา','ขาว','น้ำตาล','ใส','ทอง','เงิน')
 BRAND_ALIASES={'pentel':('เพนเทล',),'plus':('พลัส',),'elephant':('ตราช้าง',),
                'stabilo':('สตาบิโล',),'elmers':('เอลเมอร์','elmer')}
@@ -39,6 +40,12 @@ def matched_brands(brands,query):
         if contains_identifier(brand,q) or any(contains_identifier(a,q) for a in aliases):out.append(brand)
     return out
 
+
+def has_product_topic(query):
+    q=normalized(query)
+    terms=[*CATEGORY_TH.values(),'ปากกา','ดินสอ','กระดาษ','พู่กัน','อุปกรณ์ศิลปะ','paintbrush','เครื่องเขียน','stationery']
+    return any(normalized(term) in q for term in terms)
+
 @dataclass
 class ScopeDecision:
     status: str
@@ -50,18 +57,21 @@ def scope(query,category,brands,names):
     q=normalized(query)
     if any(re.search(normalized(pattern),q) for pattern in UNSAFE_PATTERNS):
         return ScopeDecision('blocked','UNSAFE_QUERY','กรุณาถามเกี่ยวกับสินค้าโดยไม่ใส่คำสั่งเปลี่ยนกติกาของระบบ',[])
+    if re.search(r'(?:กระดาษ|คัตเตอร์|กรรไกร|มีด).{0,20}(?:บาด|ตำ).{0,20}(?:มือ|นิ้ว|แขน)',q) and re.search(normalized(r'ทำยังไง|ทำอย่างไร|ทำไง|รักษา|ดูแล|ปฐมพยาบาล|เลือด'),q):
+        return ScopeDecision('needs_clarification','NON_CATALOG_HELP',
+            OUT_OF_SCOPE_MESSAGE,[])
     categories=[k for k,v in CATEGORY_TH.items() if normalized(v) in q or k.replace('_',' ') in q]
     for key,aliases in ALIASES.items():
         if any(a in q for a in aliases) and key not in categories:categories.append(key)
     if not categories and ('ปากกา' in q or re.search(r'\bpen\b',q)):
         categories=['ballpoint_pen','gel_pen','marker','whiteboard_marker']
-    anchor=bool(categories or 'เครื่องเขียน' in q or 'stationery' in q or matched_brands(brands,q))
+    anchor=bool(categories or has_product_topic(q) or matched_brands(brands,q))
     models=re.findall(r'\b[a-z]+[a-z0-9.-]*\d[a-z0-9.-]*\b',q)
     known_model=any(contains_identifier(model,normalized(name)) for model in models for name in names)
     if any(term in q for term in OUTSIDE):
         if anchor or known_model:
             return ScopeDecision('needs_clarification','MIXED_SCOPE','กรุณาระบุคำถามเฉพาะเครื่องเขียนหรือสินค้าที่ต้องการค้นหา',[])
-        return ScopeDecision('blocked','OUT_OF_SCOPE','ระบบนี้ค้นหาเฉพาะสินค้าเครื่องเขียนใน catalog',[])
+        return ScopeDecision('blocked','OUT_OF_SCOPE',OUT_OF_SCOPE_MESSAGE,[])
     if category:categories=[category]
     if not anchor and not known_model and not category:
         return ScopeDecision('needs_clarification','INSUFFICIENT_CONTEXT','กรุณาระบุประเภท ยี่ห้อ หรือรุ่นเครื่องเขียน เช่น ปากกาเจล หรือสมุด หากถามต่อถึงสินค้าก่อนหน้า กรุณาระบุชื่อสินค้าอีกครั้ง',[])
@@ -71,6 +81,9 @@ def relevant(row,query):
     """Require explicit color/model evidence; similarity alone cannot satisfy these constraints."""
     q=normalized(query)
     evidence=normalized(source_for(row))
+    # An in-scope tool absent from the catalog must not become an unrelated
+    # semantic recommendation just because both products are art supplies.
+    if ('พู่กัน' in q or 'paintbrush' in q) and not ('พู่กัน' in evidence or 'paintbrush' in evidence):return False
     from app.services.product.catalog_constraints import color_matches
     if not color_matches(row,query):return False
     # Explicit attributes need evidence; do not infer physical properties from similarity.

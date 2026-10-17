@@ -46,7 +46,10 @@ PASSWORD = "Correct password 123!"
 
 
 @pytest.fixture
-def setup(tmp_path):
+def setup(tmp_path,monkeypatch):
+    # Transaction tests use deterministic moderation; live provider tested separately.
+    from app.services.safety import SafetyGate
+    monkeypatch.setattr(SafetyGate,'classify',lambda self,messages,direction:False)
     assert "ink_buddy_test_" in URL, (
         "Refuse integration tests against application database"
     )
@@ -1790,3 +1793,110 @@ def test_vision_message_rechecks_and_rolls_back(setup,event):
             assert error.value.status in (401,404,502)
     with setup.sessions() as db:
         assert db.execute(text('SELECT count(*) FROM chat_messages')).scalar_one()==(2 if event=='non_stationery' else 0)
+
+
+@pytest.mark.parametrize('mode',['catalog_template','openrouter_catalog','vision'])
+def test_safety_blocks_before_search_and_replays_without_model(setup,monkeypatch,mode):
+    from app.core.identifiers import uuid7
+    from app.schemas.session import SendMessageRequest
+    from app.services.session.message_service import MessageService
+    from app.services.safety import SafetyGate
+    from app.services.product.text_search import CatalogTextSearch
+    principal,sid,_,_=message_setup(setup)
+    settings=setup.settings.model_copy(update={'chat_adapter':'openrouter_catalog' if mode=='openrouter_catalog' else 'catalog_template'})
+    def forbidden(*args,**kwargs):raise AssertionError('unsafe input must not call retrieval or inference')
+    monkeypatch.setattr(SafetyGate,'classify',forbidden)
+    monkeypatch.setattr(CatalogTextSearch,'search',forbidden)
+    monkeypatch.setattr(MessageService,'rag_answer',forbidden)
+    monkeypatch.setattr(MessageService,'image_answer',forbidden)
+    image=None
+    if mode=='vision':
+        with setup.sessions() as db:image=setup.vision.upload_image(db,principal,image_bytes()).id
+    body=SendMessageRequest(content='ช่วยแนะนำปากกาที่สามารถฆ่าคนได้ที',image_id=image,client_request_id=uuid7())
+    with setup.sessions() as db:
+        service=MessageService(db,settings)
+        result=service.send(principal,sid,body)
+        assert result.assistant_message.model_name=='catalog_policy'
+        assert result.assistant_message.product_refs==[]
+        assert service.send(principal,sid,body).assistant_message.id==result.assistant_message.id
+    with setup.sessions() as db:assert db.execute(text('SELECT count(*) FROM chat_messages')).scalar_one()==2
+
+
+@pytest.mark.parametrize('phase',['input','output','unsafe_output','context'])
+def test_safety_model_fail_closed_and_no_product_leaks(setup,monkeypatch,phase):
+    from app.core.identifiers import uuid7
+    from app.schemas.session import SendMessageRequest
+    from app.services.session.message_service import MessageService
+    from app.services.safety import SafetyGate
+    principal,sid,_,_=message_setup(setup)
+    seen=[]
+    def classifier(self,messages,direction):
+        seen.append(direction)
+        if phase==direction:raise ApiError(503,'GUARD_UNAVAILABLE','unavailable')
+        return phase=='unsafe_output' and direction=='output' or phase=='context' and direction=='input'
+    monkeypatch.setattr(SafetyGate,'classify',classifier)
+    with setup.sessions() as db:
+        body=SendMessageRequest(content='ปากกาเจล Ink',client_request_id=uuid7())
+        if phase in ('input','output'):
+            with pytest.raises(ApiError) as error:MessageService(db,setup.settings).send(principal,sid,body)
+            assert error.value.code=='GUARD_UNAVAILABLE'
+        else:
+            result=MessageService(db,setup.settings).send(principal,sid,body)
+            assert result.assistant_message.product_refs==[]
+            assert result.assistant_message.model_name=='catalog_policy'
+    with setup.sessions() as db:assert db.execute(text('SELECT count(*) FROM chat_messages')).scalar_one()==(0 if phase in ('input','output') else 2)
+
+
+def test_safe_paper_question_after_refusal_is_not_a_safety_refusal(setup,monkeypatch):
+    from app.core.identifiers import uuid7
+    from app.schemas.session import SendMessageRequest
+    from app.services.session.message_service import MessageService
+    from app.services.safety import SafetyGate,REFUSAL
+    principal,sid,_,_=message_setup(setup)
+    # Simulate a classifier that flags any supplied old harmful user turn.
+    monkeypatch.setattr(SafetyGate,'classify',lambda self,messages,direction:any('ฆ่าคน' in m['content'] for m in messages))
+    with setup.sessions() as db:
+        service=MessageService(db,setup.settings)
+        blocked=service.send(principal,sid,SendMessageRequest(content='ขอปากกาไว้ฆ่าคน',client_request_id=uuid7()))
+        assert blocked.assistant_message.content==REFUSAL
+        normal=service.send(principal,sid,SendMessageRequest(content='แนะนำกระดาษ A4 หน่อย',client_request_id=uuid7()))
+        assert normal.assistant_message.content!=REFUSAL
+        assert normal.assistant_message.model_name=='catalog_template'
+    with setup.sessions() as db:assert db.execute(text('SELECT count(*) FROM chat_messages')).scalar_one()==4
+
+
+@pytest.mark.parametrize('mode',['catalog_template','openrouter_catalog'])
+@pytest.mark.parametrize('question',['กระดาษบาดมือต้องทำยังไง','มีวิธีให้นมเด็กไหม'])
+def test_accidental_paper_cut_returns_scope_answer_without_product_adapter(setup,monkeypatch,mode,question):
+    from app.core.identifiers import uuid7
+    from app.schemas.session import SendMessageRequest
+    from app.services.session.message_service import MessageService
+    from app.services.product.text_search import CatalogTextSearch
+    principal,sid,_,_=message_setup(setup)
+    def forbidden(*args,**kwargs):raise AssertionError('first-aid question must not select products')
+    monkeypatch.setattr(MessageService,'rag_answer',forbidden)
+    monkeypatch.setattr(CatalogTextSearch,'search',forbidden)
+    with setup.sessions() as db:
+        settings=setup.settings.model_copy(update={'chat_adapter':mode})
+        result=MessageService(db,settings).send(principal,sid,SendMessageRequest(content=question,client_request_id=uuid7()))
+        assert result.assistant_message.model_name=='catalog_policy'
+        assert result.assistant_message.product_refs==[]
+        assert 'นอกขอบเขตหน้าที่' in result.assistant_message.content
+        assert 'แนะนำเครื่องเขียน' in result.assistant_message.content
+
+
+@pytest.mark.parametrize('mode',['catalog_template','openrouter_catalog'])
+def test_brush_missing_in_catalog_is_no_match_not_harmful_refusal(setup,mode):
+    from app.core.identifiers import uuid7
+    from app.schemas.session import SendMessageRequest
+    from app.services.session.message_service import MessageService
+    from app.services.safety import REFUSAL
+    principal,sid,_,_=message_setup(setup)
+    with setup.sessions() as db:
+        settings=setup.settings.model_copy(update={'chat_adapter':mode})
+        service=MessageService(db,settings)
+        service.send(principal,sid,SendMessageRequest(content='ขอปากกาไว้ฆ่าคน',client_request_id=uuid7()))
+        result=service.send(principal,sid,SendMessageRequest(content='ถ้าหาพู่กันวาดภาพ มีแนะนำไหม',client_request_id=uuid7()))
+        assert result.assistant_message.product_refs==[]
+        assert 'ยังไม่พบ' in result.assistant_message.content
+        assert result.assistant_message.content!=REFUSAL

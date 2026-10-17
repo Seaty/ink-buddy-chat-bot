@@ -1,11 +1,17 @@
 import { afterEach, describe, it, expect, vi } from "vitest";
-import { ApiClient, ApiError } from "../src/lib/api";
+import { ApiClient, ApiError, errorText } from "../src/lib/api";
 const response = (status: number, data: unknown) =>
   new Response(status === 204 ? null : JSON.stringify(data), {
     status,
     headers: { "Content-Type": "application/json" },
   });
 afterEach(() => vi.restoreAllMocks());
+it("explains fail-closed moderation without exposing provider details", () => {
+  expect(errorText(new ApiError(503, "GUARD_UNAVAILABLE", "provider secret")))
+    .toContain("ระบบตรวจความปลอดภัยยังไม่พร้อม");
+  expect(errorText(new ApiError(503, "GUARD_UNAVAILABLE", "provider secret")))
+    .not.toContain("provider secret");
+});
 describe("Auth client", () => {
   it("restores existing guest without creating a new one and deduplicates bootstrap", async () => {
     const fetch = vi

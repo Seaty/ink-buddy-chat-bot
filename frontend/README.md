@@ -1,5 +1,9 @@
 # Ink Buddy Frontend
 
+## Safety unavailable — 2026-10-16
+
+เมื่อ backend คืน GUARD_UNAVAILABLE จะแจ้งว่าระบบตรวจความปลอดภัยยังไม่พร้อม ร่าง/รูปและการ retry แบบ manual เดิมยังอยู่ คำถาม unsafe ที่ถูกปฏิเสธแสดงป้ายกฎระบบและไม่มีการ์ดสินค้า ดู [Safety process](../docs/architecture/CHAT_SAFETY_GUARDRAILS.md)
+
 ## แนบรูปถามสินค้า — 2026-10-15
 
 กด ＋ รูปภาพ แนบ JPEG/PNG/WEBP ≤5 MiB พร้อมคำถาม ≤500 ตัวอักษร หรือส่งรูปอย่างเดียว ใช้ Vision + Text RAG แนะนำสินค้าจาก catalog มี preview/remove, Guest quota, error/retry โดยไม่ upload ซ้ำเมื่อมี image ID แล้ว และรูปในประวัติเป็น private ดู [Process / วิธีทดสอบ](../docs/architecture/VISION_CHAT_PROCESS.md)
