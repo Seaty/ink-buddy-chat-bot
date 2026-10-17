@@ -1,5 +1,9 @@
 # Ink Buddy — สถานะปัจจุบัน 2026-10-14
 
+## Vision + Text RAG Chat — 2026-10-15 · codex/vision-chat
+
+แนบรูปหนึ่งรูปพร้อม prompt ผ่านหน้า chat ได้แล้ว ใช้ Qwen3-VL-8B-Instruct ผ่าน OpenRouter อ่านรูป → Text RAG catalog เดิม → การ์ดสินค้าใกล้เคียง เก็บ image_id ในประวัติและอ่านรูปผ่าน private ownership endpoint รวม 33 operations/27 paths ไม่มี migration ใหม่ ไม่เปลี่ยน image embedding ของทีม ดู [Process / วิธีทดสอบ](VISION_CHAT_PROCESS.md) และ [Real browser report](../report/VISION_CHAT_BROWSER.json) ผลจริงหนึ่งรูปผ่าน ไม่ใช่ benchmark ความแม่นยำรวม
+
 ## Chat UI presentation — 2026-10-15 · feature/chat-ui
 
 เพิ่ม loading animation, แสดงคำตอบใหม่ทีละคำภาษาไทย, เลื่อนตามพร้อมพักเมื่อเลื่อนขึ้นอ่าน/ปุ่มกลับล่าสุด, skip และ reduced-motion. ปรับการ์ดสินค้าแยกข้อมูลราคา/สี/variants/source และพับรายละเอียดรอง ใช้สีเดิม เป็น presentation หลัง REST response ไม่ใช่ backend streaming. Frontend unit 29, browser API mocks 24 และ TypeScript ผ่าน ดู [UI process](CHAT_UI_PRESENTATION.md)

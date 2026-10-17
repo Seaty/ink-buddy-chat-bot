@@ -1,0 +1,229 @@
+{
+  "info": {
+    "name": "Ink Buddy — Vision + Text RAG Chat",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Local Guest cookie jar. Choose a public test file in Upload. Use a new UUIDv7 request_id for each new send; retain it for replay. Calls use real OpenRouter credit."
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000/api/v1"
+    },
+    {
+      "key": "origin",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "request_id",
+      "value": "019a0000-0000-7000-8000-000000000101"
+    },
+    {
+      "key": "session_id",
+      "value": ""
+    },
+    {
+      "key": "image_id",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "1 Create Guest",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Origin",
+            "value": "{{origin}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/auth/guest-sessions",
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "2 Create Chat",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Origin",
+            "value": "{{origin}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/chat-sessions",
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Created\",()=>pm.response.to.have.status(201));",
+              "pm.collectionVariables.set(\"session_id\",pm.response.json().id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "3 Upload image — choose a local file",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Origin",
+            "value": "{{origin}}"
+          }
+        ],
+        "url": "{{base_url}}/images",
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "src": ""
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Uploaded\",()=>pm.response.to.have.status(201));",
+              "pm.collectionVariables.set(\"image_id\",pm.response.json().id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "4 Send image + prompt",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Origin",
+            "value": "{{origin}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/chat-sessions/{{session_id}}/messages",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"content\": \"มีสินค้านี้ไหม\", \"image_id\": \"{{image_id}}\", \"client_request_id\": \"{{request_id}}\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Created\",()=>pm.response.to.have.status(201));",
+              "pm.collectionVariables.set(\"saved_user_id\",pm.response.json().user_message.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "5 Replay same request",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Origin",
+            "value": "{{origin}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/chat-sessions/{{session_id}}/messages",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"content\": \"มีสินค้านี้ไหม\", \"image_id\": \"{{image_id}}\", \"client_request_id\": \"{{request_id}}\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Same pair\",()=>pm.expect(pm.response.json().user_message.id).to.eql(pm.collectionVariables.get(\"saved_user_id\")));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "6 Private image content",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Origin",
+            "value": "{{origin}}"
+          }
+        ],
+        "url": "{{base_url}}/images/{{image_id}}/content"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Private image\",()=>{pm.response.to.have.status(200);pm.expect(pm.response.headers.get(\"Cache-Control\")).to.include(\"no-store\");});"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

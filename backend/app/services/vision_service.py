@@ -10,6 +10,7 @@ from __future__ import annotations
 import logging
 import time
 from functools import lru_cache
+from threading import Lock
 from uuid import UUID
 
 from PIL import Image
@@ -66,9 +67,18 @@ class VisionService:
         ocr: OcrService | None = None,
     ):
         self.settings = settings
-        self.pipeline = pipeline or self._build_pipeline()
+        self._pipeline = pipeline
+        self._pipeline_lock = Lock()
         self.storage = storage or ImageStorage(settings.image_storage_dir)
         self._ocr = ocr
+
+    @property
+    def pipeline(self):
+        # Uploads/private previews must not load the multi-GB embedding model.
+        if self._pipeline is None:
+            with self._pipeline_lock:
+                if self._pipeline is None:self._pipeline=self._build_pipeline()
+        return self._pipeline
 
     # ------------------------------------------------------------------ wiring
     def _embedder(self):
@@ -167,13 +177,13 @@ class VisionService:
 
     # ------------------------------------------------------------------ search
     def search_by_image(
-        self, db: Session, user_id: UUID | Principal, image_id: UUID, limit: int
+        self, db: Session, user_id: UUID | Principal, image_id: UUID, limit: int, prompt: str | None = None
     ) -> ProductSearchByImageResponse:
         """Blocking (embedding, maybe VLM); call from a worker thread."""
         images = ImageUploadRepository(db)
         _, img = self._owned_image(db, images, _as_principal(user_id), image_id)
         with _vision_errors():
-            result = self.pipeline.run(img, None, limit=limit, with_answer=False)
+            result = self.pipeline.run(img, prompt, limit=limit, with_answer=False)
 
         catalog = ProductRepository(db).catalog_by_sku(
             p["sku"] for p in result.products + result.suggestions

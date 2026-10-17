@@ -34,6 +34,9 @@ export type ProductReference = {
   ink_color?: string | null;
   body_color?: string | null;
   variants?: ProductReference[];
+  match_type?: "exact" | "similar" | "suggestion" | null;
+  match_score?: number | null;
+  match_method?: "image_embedding" | "vision_text_catalog" | null;
 };
 export type SendMessageResult = {
   user_message: Message;

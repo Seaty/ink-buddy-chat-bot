@@ -52,6 +52,9 @@ class ImageStorage:
         img.load()
         return img
 
+    def read(self, storage_key: str) -> bytes:
+        return self._path(storage_key).read_bytes()
+
     def delete(self, storage_key: str) -> None:
         self._path(storage_key).unlink(missing_ok=True)
 

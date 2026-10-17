@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, File, UploadFile
+from fastapi import APIRouter, Depends, File, UploadFile, Response
 from fastapi.concurrency import run_in_threadpool
 from sqlalchemy.orm import Session
 
@@ -25,6 +25,26 @@ from app.schemas.image import (
 from app.services.vision_service import VisionService, get_vision_service
 
 router = APIRouter(prefix="/images", tags=["images"])
+
+
+@router.get('/{image_id}/content',responses={
+    200:{'description':'Private image bytes; ownership checked on every request','content':{
+        mime:{'schema':{'type':'string','format':'binary'}} for mime in ('image/jpeg','image/png','image/webp')}},
+    **{s:{'model':ErrorResponse} for s in (401,404)}},response_class=Response)
+@access_policy('guest_or_user')
+def image_content(image_id: UUID,principal: Principal=Depends(get_principal),
+                  settings: Settings=Depends(get_settings),db: Session=Depends(get_db)):
+    """Private preview bytes; never expose upload storage paths or public URLs."""
+    from app.services.session.service import ChatSessionService
+    from app.repositories.image_repository import ImageUploadRepository
+    from app.services.image_storage import ImageStorage
+    ChatSessionService(db).authorize(principal)
+    upload=ImageUploadRepository(db).get_owned(image_id,principal)
+    if upload is None or upload.status!='ready':raise ApiError(404,'IMAGE_NOT_FOUND','image not found')
+    try:data=ImageStorage(settings.image_storage_dir).read(upload.storage_key)
+    except FileNotFoundError:raise ApiError(404,'IMAGE_NOT_FOUND','image not found') from None
+    db.commit()
+    return Response(content=data,media_type=upload.mime_type,headers={'Cache-Control':'private, no-store','Vary':'Authorization, Cookie','X-Content-Type-Options':'nosniff'})
 
 
 @router.post(

@@ -33,7 +33,7 @@ def engine():
     assert make_url(url).database.startswith('ink_buddy_test'), 'Refuse application DB'
     e=create_engine(url)
     with e.begin() as c:
-        c.execute(text('TRUNCATE products CASCADE'))
+        c.execute(text('TRUNCATE users,guest_sessions,products CASCADE'))
         for name,price,category in [('Pilot pen',80,'gel_pen'),('Unknown price pen',None,'gel_pen'),('Notebook',20,'notebook')]:
             c.execute(text("INSERT INTO products(name,price,currency,category,brand) VALUES(:n,:p,'THB',:cat,'Pilot')"),{'n':name,'p':price,'cat':category})
     yield e

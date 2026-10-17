@@ -1,0 +1,101 @@
+{
+  "tested_at": "2026-10-15T07:19:24.744Z",
+  "status": "passed",
+  "http_status": 201,
+  "transport": "real browser -> isolated HTTP API -> disposable PostgreSQL -> OpenRouter Vision + existing text embeddings",
+  "public_test_image": "monami_flip_07_pastel_green.jpg",
+  "pair": {
+    "user_message": {
+      "model_name": null,
+      "id": "01a13e6e-1725-7dd9-b638-4359f49bddea",
+      "session_id": "01a13e6e-0741-735c-b5bc-1f08799b3814",
+      "sequence_number": 1,
+      "role": "user",
+      "content": "มีสินค้านี้ไหม",
+      "image_id": "01a13e6e-0774-7753-b00c-14c16bd6852a",
+      "product_refs": null,
+      "created_at": "2026-10-15T07:19:24.703119Z"
+    },
+    "assistant_message": {
+      "model_name": "vision_catalog",
+      "id": "01a13e6e-1727-710e-88d2-48f8eb23fc31",
+      "session_id": "01a13e6e-0741-735c-b5bc-1f08799b3814",
+      "sequence_number": 2,
+      "role": "assistant",
+      "content": "จากรายละเอียดที่เห็นในรูป ลองดูสินค้าเหล่านี้ครับ\n• ปากกาลูกลื่น Monami รุ่น ฟลิป สีเขียวพาสเทล ขนาด 0.7 มม. — 79 บาท\n• ปากกามาร์คเกอร์ Accu Liner 0.7มม.นง. โมนามิ X10401202X0 — 20 บาท\n• ปากกาไวท์บอร์ด 15386A 2 มม. ส้ม โมนามิ PI-220 — 28 บาท\nถ้าใช่รุ่นที่กำลังหา บอกลำดับสินค้าแล้วถามต่อได้เลยครับ",
+      "image_id": null,
+      "product_refs": [
+        {
+          "id": "01a12f8e-cc4b-79ce-8170-77dfe7fe1dcd",
+          "sku": "b2s_1092466",
+          "name": "ปากกาลูกลื่น Monami รุ่น ฟลิป สีเขียวพาสเทล ขนาด 0.7 มม.",
+          "price": "79.00",
+          "currency": "THB",
+          "availability": null,
+          "source_ref": "https://www.b2s.co.th/product/ปากกาลูกลื่น-monami-รุ่น-ฟลิป-สีเขียวพาสเทล-ขนาด-0-7-มม-p.1092466",
+          "price_source_ref": "https://www.b2s.co.th/product/ปากกาลูกลื่น-monami-รุ่น-ฟลิป-สีเขียวพาสเทล-ขนาด-0-7-มม-p.1092466",
+          "price_basis": "excludes_vat",
+          "price_verification": "user_assumed_for_coursework_not_verified",
+          "selling_unit": "รายการ catalog (หน่วยขายไม่ได้ยืนยัน)",
+          "pack_quantity": null,
+          "ink_color": null,
+          "body_color": null,
+          "variants": [],
+          "match_type": "similar",
+          "match_score": 0.6673791209644367,
+          "match_method": "vision_text_catalog"
+        },
+        {
+          "id": "01a12f8e-cc52-785b-ba48-1e929f952a69",
+          "sku": "b2s_1008913",
+          "name": "ปากกามาร์คเกอร์ Accu Liner 0.7มม.นง. โมนามิ X10401202X0",
+          "price": "20.00",
+          "currency": "THB",
+          "availability": null,
+          "source_ref": "https://www.b2s.co.th/product/ปากกามาร์คเกอร์-accu-liner-0-7มม-นง-โมนามิ-x10401202x0-p.1008913",
+          "price_source_ref": "https://www.b2s.co.th/product/ปากกามาร์คเกอร์-accu-liner-0-7มม-นง-โมนามิ-x10401202x0-p.1008913",
+          "price_basis": "excludes_vat",
+          "price_verification": "user_assumed_for_coursework_not_verified",
+          "selling_unit": "รายการ catalog (หน่วยขายไม่ได้ยืนยัน)",
+          "pack_quantity": null,
+          "ink_color": null,
+          "body_color": null,
+          "variants": [],
+          "match_type": "similar",
+          "match_score": 0.5635654590388869,
+          "match_method": "vision_text_catalog"
+        },
+        {
+          "id": "01a12f8e-cc53-78f9-b783-6c00942fabae",
+          "sku": "b2s_1005836",
+          "name": "ปากกาไวท์บอร์ด 15386A 2 มม. ส้ม โมนามิ PI-220",
+          "price": "28.00",
+          "currency": "THB",
+          "availability": null,
+          "source_ref": "https://www.b2s.co.th/product/ปากกาไวท์บอร์ด-15386a-2-มม-ส้ม-โมนามิ-pi-220-p.1005836",
+          "price_source_ref": "https://www.b2s.co.th/product/ปากกาไวท์บอร์ด-15386a-2-มม-ส้ม-โมนามิ-pi-220-p.1005836",
+          "price_basis": "excludes_vat",
+          "price_verification": "user_assumed_for_coursework_not_verified",
+          "selling_unit": "รายการ catalog (หน่วยขายไม่ได้ยืนยัน)",
+          "pack_quantity": null,
+          "ink_color": null,
+          "body_color": null,
+          "variants": [],
+          "match_type": "similar",
+          "match_score": 0.5808427583668982,
+          "match_method": "vision_text_catalog"
+        }
+      ],
+      "created_at": "2026-10-15T07:19:24.703119Z"
+    }
+  },
+  "checks": [
+    "upload_with_prompt",
+    "real_vision_and_retrieval",
+    "catalog_references",
+    "similar_not_exact",
+    "private_preview",
+    "reload_history",
+    "mobile_no_overflow"
+  ]
+}

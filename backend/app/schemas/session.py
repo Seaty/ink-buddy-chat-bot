@@ -5,7 +5,7 @@ from decimal import Decimal
 from typing import Literal
 from uuid import UUID
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 
 class CreateSessionRequest(BaseModel):
@@ -36,13 +36,21 @@ class SessionListResponse(BaseModel):
 
 class SendMessageRequest(BaseModel):
     model_config = {"extra": "forbid"}
-    content: str = Field(min_length=1, max_length=4000)
+    content: str = Field(default='', max_length=4000)
+    image_id: UUID | None = None
     client_request_id: UUID
 
     @field_validator("content", mode="before")
     @classmethod
     def trim_content(cls, value):
         return value.strip() if isinstance(value, str) else value
+
+    @model_validator(mode='after')
+    def content_or_image(self):
+        if not self.content and not self.image_id:raise ValueError('content or image_id is required')
+        if not self.content:self.content='มีสินค้านี้ไหม'
+        if self.image_id and len(self.content)>500:raise ValueError('image prompt must not exceed 500 characters')
+        return self
 
     @field_validator("client_request_id")
     @classmethod
@@ -71,6 +79,9 @@ class ProductFactReference(BaseModel):
 
 class ProductReference(ProductFactReference):
     variants: list[ProductFactReference] = Field(default_factory=list,max_length=5)
+    match_type: Literal['exact','similar','suggestion'] | None = None
+    match_score: float | None = Field(default=None,ge=0,le=1,description='Retrieval similarity, not confidence or stock availability')
+    match_method: Literal['image_embedding','vision_text_catalog'] | None = None
 
 
 class MessageResponse(BaseModel):

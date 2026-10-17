@@ -28,11 +28,25 @@ _SLOTS = BoundedSemaphore(4)
 
 
 class MessageService(ChatSessionService):
-    def __init__(self, db, settings, adapter=None):
+    def __init__(self, db, settings, adapter=None, vision_service=None):
         super().__init__(db)
         self.settings = settings
         self.adapter = adapter
         self.rag_enabled = settings.chat_adapter == 'openrouter_catalog'
+        self.vision_service=vision_service
+
+    def check_image(self,principal,image_id):
+        if image_id is None:return
+        from app.repositories.image_repository import ImageUploadRepository
+        upload=ImageUploadRepository(self.db).get_owned(image_id,principal)
+        if upload is None or upload.status!='ready':raise ApiError(404,'IMAGE_NOT_FOUND','image not found')
+
+    def image_answer(self,engine,principal,body,deadline):
+        if self.settings.vision_chat_retrieval=='text_catalog':
+            from app.services.session.vision_text_answer import respond
+            return respond(engine,self.settings,principal,body.image_id,body.content,deadline,self.vision_service)
+        from app.services.session.vision_answer import respond_to_image
+        return respond_to_image(engine,self.settings,principal,body.image_id,body.content,deadline,self.vision_service)
 
     def rag_answer(self, engine, question, history, deadline):
         return respond(TextRetrievalService(engine,self.settings,deadline=deadline),self.settings,
@@ -71,7 +85,7 @@ class MessageService(ChatSessionService):
         )
         if not user:
             return None
-        if user["content"] != body.content:
+        if user["content"] != body.content or user['image_id'] != body.image_id:
             raise ApiError(
                 409,
                 "REQUEST_ID_CONFLICT",
@@ -108,6 +122,7 @@ class MessageService(ChatSessionService):
             if existing:
                 self.db.commit()
                 return existing
+            self.check_image(principal,body.image_id)
             boundary = self.latest(sid)
             history = (
                 self.db.execute(
@@ -126,7 +141,7 @@ class MessageService(ChatSessionService):
                 text("SELECT set_config('statement_timeout', :timeout, true)"),
                 {"timeout": str(int(self.settings.chat_timeout_seconds * 1000))},
             )
-            if self.rag_enabled:
+            if self.rag_enabled or body.image_id:
                 products,clarification=[],None
             else:
                 products, clarification = CatalogTextSearch(self.db).search(body.content)
@@ -141,7 +156,9 @@ class MessageService(ChatSessionService):
             if not _SLOTS.acquire(blocking=False):
                 raise ApiError(503, "ANSWER_BUSY", "answer service busy")
             try:
-                if self.rag_enabled:
+                if body.image_id:
+                    future=_POOL.submit(self.image_answer,self.db.get_bind(),principal,body,start+self.settings.chat_timeout_seconds)
+                elif self.rag_enabled:
                     future = _POOL.submit(self.rag_answer,self.db.get_bind(),body.content,deepcopy(history),start+self.settings.chat_timeout_seconds)
                 else:
                     future = _POOL.submit(
@@ -159,7 +176,7 @@ class MessageService(ChatSessionService):
             future.add_done_callback(lambda _: _SLOTS.release())
             try:
                 generated = future.result(timeout=remaining)
-                if self.rag_enabled:products,answer=generated
+                if self.rag_enabled or body.image_id:products,answer=generated
                 else:answer=generated
             except TimeoutError:
                 raise ApiError(504, "ANSWER_TIMEOUT", "answer timed out") from None
@@ -194,6 +211,7 @@ class MessageService(ChatSessionService):
                 for i in dict.fromkeys(answer.product_ids)
             ]
             self.check(principal, sid)
+            self.check_image(principal,body.image_id)
             existing = self.replay(sid, body)
             if existing:
                 self.db.commit()
@@ -224,7 +242,7 @@ class MessageService(ChatSessionService):
                 row = (
                     self.db.execute(
                         text(
-                            "INSERT INTO chat_messages(session_id,sequence_number,role,content,client_request_id,product_refs,model_name) VALUES(:sid,:seq,:role,:content,:rid,CAST(:refs AS jsonb),:model) RETURNING *"
+                            "INSERT INTO chat_messages(session_id,sequence_number,role,content,client_request_id,product_refs,model_name,image_id) VALUES(:sid,:seq,:role,:content,:rid,CAST(:refs AS jsonb),:model,:image) RETURNING *"
                         ),
                         {
                             "sid": sid,
@@ -234,6 +252,7 @@ class MessageService(ChatSessionService):
                             "rid": rid,
                             "refs": product_refs,
                             "model": model,
+                            'image':body.image_id if role=='user' else None,
                         },
                     )
                     .mappings()

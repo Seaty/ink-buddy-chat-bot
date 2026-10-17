@@ -11,6 +11,12 @@ import { uuid7 } from "@/lib/uuid7";
 import { api, ApiError, errorText } from "@/lib/api";
 import type { Identity, Guest } from "@/lib/types";
 
+export type ImageAttachment = {
+  key: string;
+  file: File;
+  previewUrl: string;
+  imageId?: string;
+};
 type State = {
   identity: Identity | null;
   loading: boolean;
@@ -21,6 +27,15 @@ type State = {
   messageErrors: Record<string, string>;
   setMessageError: (key: string, value: string) => void;
   drafts: Record<string, string>;
+  attachments: Record<string, ImageAttachment>;
+  setAttachment: (key: string, file: File | null) => void;
+  moveAttachment: (from: string, to: string) => void;
+  markImageUploaded: (
+    key: string,
+    attachmentKey: string,
+    imageId: string,
+  ) => void;
+  refreshGuestQuota: () => Promise<void>;
   attempt: (key: string, content: string) => string;
   clearAttempt: (key: string) => void;
   moveAttempt: (from: string, to: string) => void;
@@ -43,6 +58,62 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     {},
   );
   const [drafts, setDrafts] = useState<Record<string, string>>({});
+  const [attachments, setAttachments] = useState<
+    Record<string, ImageAttachment>
+  >({});
+  const attachmentRef = useRef<Record<string, ImageAttachment>>({});
+  function storeAttachments(next: Record<string, ImageAttachment>) {
+    attachmentRef.current = next;
+    setAttachments(next);
+  }
+  function clearAttachments() {
+    for (const item of Object.values(attachmentRef.current))
+      URL.revokeObjectURL(item.previewUrl);
+    storeAttachments({});
+  }
+  function setAttachment(key: string, file: File | null) {
+    const next = { ...attachmentRef.current };
+    if (next[key]) URL.revokeObjectURL(next[key].previewUrl);
+    delete next[key];
+    if (file)
+      next[key] = { key: uuid7(), file, previewUrl: URL.createObjectURL(file) };
+    storeAttachments(next);
+  }
+  function moveAttachment(from: string, to: string) {
+    const item = attachmentRef.current[from];
+    if (!item) return;
+    const next = { ...attachmentRef.current, [to]: item };
+    delete next[from];
+    storeAttachments(next);
+  }
+  function markImageUploaded(
+    key: string,
+    attachmentKey: string,
+    imageId: string,
+  ) {
+    const item = attachmentRef.current[key];
+    if (item?.key === attachmentKey)
+      storeAttachments({
+        ...attachmentRef.current,
+        [key]: { ...item, imageId },
+      });
+  }
+  async function refreshGuestQuota() {
+    if (identity?.kind !== "guest") return;
+    const guest = await api.currentGuest();
+    setIdentity((current) =>
+      current?.kind === "guest" && current.guest.id === guest.id
+        ? { ...current, guest }
+        : current,
+    );
+  }
+  useEffect(
+    () => () => {
+      for (const item of Object.values(attachmentRef.current))
+        URL.revokeObjectURL(item.previewUrl);
+    },
+    [],
+  );
   const attempts = useRef<Record<string, { content: string; id: string }>>({});
   function attempt(key: string, content: string) {
     if (attempts.current[key]?.content !== content)
@@ -59,6 +130,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
   function replace(next: Identity | null) {
+    clearAttachments();
     setMessageErrors({});
     attempts.current = {};
     setDrafts({});
@@ -84,6 +156,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setMessageErrors({});
       attempts.current = {};
       setDrafts({});
+      clearAttachments();
       setIdentity(null);
       setRevision((v) => v + 1);
     };
@@ -123,6 +196,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setMessageErrors({});
       attempts.current = {};
       setDrafts({});
+      clearAttachments();
       setRevision((v) => v + 1);
     } catch (e) {
       if (e instanceof ApiError && e.status === 401) setPendingGuest(null);
@@ -145,6 +219,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         pendingGuest,
         revision,
         drafts,
+        attachments,
+        setAttachment,
+        moveAttachment,
+        markImageUploaded,
+        refreshGuestQuota,
         setDraft: (key, value) => setDrafts((d) => ({ ...d, [key]: value })),
         login,
         logout,
